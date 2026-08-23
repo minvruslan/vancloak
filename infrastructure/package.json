@@ -5,7 +5,7 @@
   "private": true,
   "exports": {
     ".": "./src/index.ts",
-    "./types": "./src/types/index.ts"
+    "./shared": "./src/shared/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
@@ -14,6 +14,7 @@
     "build:command-runner-image": "tsx src/command-runner/image/buildCommandRunnerImage.ts"
   },
   "dependencies": {
+    "@sindresorhus/slugify": "^3.0.0",
     "execa": "^9.6.1",
     "zod": "^4.3.6"
   },

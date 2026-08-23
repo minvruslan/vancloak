@@ -8,6 +8,11 @@ export {
   Amneziawg2ProtocolProfileSchema,
   Amneziawg2BrowserFingerprintSchema,
   Amneziawg2IntensitySchema,
+  Amneziawg2ObfuscationLevelOrder,
+  Amneziawg2ObfuscationPresets,
+  Amneziawg2ObfuscationLevelLetters,
+  getAmneziawg2ObfuscationLevel,
+  buildAmneziawg2ConfigName,
   type ProtocolCode,
   type ProtocolFamilyCode,
   type ConfigData,
@@ -18,4 +23,6 @@ export {
   type Amneziawg2ProtocolProfile,
   type Amneziawg2BrowserFingerprint,
   type Amneziawg2Intensity,
-} from "@vancloak/infrastructure/types"
+  type Amneziawg2ObfuscationLevel,
+  type Amneziawg2ConfigObfuscationLevel,
+} from "@vancloak/infrastructure/shared"

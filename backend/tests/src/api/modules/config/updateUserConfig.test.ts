@@ -6,7 +6,7 @@ import {
   Amneziawg2IntensitySchema,
   Amneziawg2ProtocolProfileSchema,
   ProtocolCodeSchema,
-} from "@vancloak/infrastructure/types"
+} from "@vancloak/infrastructure/shared"
 import { RemoteServer } from "@vancloak/infrastructure"
 import { eq } from "drizzle-orm"
 import { beforeEach, describe, expect, it, vi, type MockInstance } from "vitest"

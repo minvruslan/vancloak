@@ -1,4 +1,4 @@
-import { ProtocolRegistry } from "@vancloak/infrastructure/types"
+import { ProtocolRegistry } from "@vancloak/infrastructure/shared"
 import { describe, expect, it } from "vitest"
 import { fetchCheckConstraintValues } from "@tests/helpers/index.js"
 

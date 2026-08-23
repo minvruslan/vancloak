@@ -1,5 +1,5 @@
 import { RemoteServer } from "@vancloak/infrastructure"
-import type { ServerAccess, ServerData } from "@vancloak/infrastructure/types"
+import type { ServerAccess, ServerData } from "@vancloak/infrastructure/shared"
 import { ProvisioningError } from "../ProvisioningError.js"
 import type { ProvisioningStep } from "./ProvisioningStep.js"
 

@@ -1,7 +1,9 @@
 import { deflateSync } from "node:zlib"
-import type { Amneziawg2ServerObfuscation } from "../../../../types/index.js"
-import { ALLOWED_IPS, PERSISTENT_KEEPALIVE_SECONDS, TUNNEL_MTU } from "../constants/index.js"
-import type { Amneziawg2ClientObfuscation } from "../types/index.js"
+import type {
+  Amneziawg2ClientObfuscation,
+  Amneziawg2ServerObfuscation,
+} from "../../../../shared/index.js"
+import { ALLOWED_IPS, PERSISTENT_KEEPALIVE_SECONDS } from "../constants/index.js"
 
 const AMNEZIA_CONTAINER_CODE = "amnezia-awg"
 const AMNEZIA_TRANSPORT_PROTOCOL = "udp"
@@ -18,6 +20,7 @@ export function buildClientConfigurationLink(params: {
   host: string
   port: number
   dns: string
+  mtu: number
   serverObfuscation: Amneziawg2ServerObfuscation
   clientObfuscation: Amneziawg2ClientObfuscation
 }): string {
@@ -31,6 +34,7 @@ export function buildClientConfigurationLink(params: {
     host,
     port,
     dns,
+    mtu,
     serverObfuscation,
     clientObfuscation,
   } = params
@@ -45,7 +49,7 @@ export function buildClientConfigurationLink(params: {
     client_ip: `${clientIp}/32`,
     psk_key: presharedKey,
     server_pub_key: serverPublicKey,
-    mtu: String(TUNNEL_MTU),
+    mtu: String(mtu),
     persistent_keep_alive: String(PERSISTENT_KEEPALIVE_SECONDS),
     allowed_ips: ALLOWED_IPS,
     Jc: String(clientObfuscation.jc),

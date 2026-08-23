@@ -4,4 +4,4 @@ export {
   PortSchema,
   TransportProtocolSchema,
   type TransportProtocol,
-} from "@vancloak/infrastructure/types"
+} from "@vancloak/infrastructure/shared"

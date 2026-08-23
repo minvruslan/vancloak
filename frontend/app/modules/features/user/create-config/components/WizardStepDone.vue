@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { computed } from "vue"
-import slugify from "@sindresorhus/slugify"
 import { Check, CheckCircle2, Copy, Download, ListChecks } from "@lucide/vue"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { useCountries } from "@/modules/shared/composables"
+import { buildConfigFileName } from "@/modules/entities/config"
 import { DeviceTypeName } from "@/modules/entities/device-type"
 import type { CreateConfigWizardMachine } from "../types/CreateConfigWizardMachine"
 import WizardStepLayout from "./WizardStepLayout.vue"
@@ -26,15 +26,9 @@ const instructionSteps = computed(() =>
     : [],
 )
 
-const TUNNEL_NAME_MAXIMUM_LENGTH = 15
-
-const fileName = computed(() => {
-  if (!created.value) return "config.conf"
-  const sanitized = slugify(created.value.endpoint.server.name, { decamelize: false })
-    .slice(0, TUNNEL_NAME_MAXIMUM_LENGTH)
-    .replace(/-$/, "")
-  return `${sanitized || "config"}.conf`
-})
+const fileName = computed(() =>
+  created.value ? buildConfigFileName(created.value) : "config.conf",
+)
 
 const downloadConfiguration = () => {
   if (!created.value) return

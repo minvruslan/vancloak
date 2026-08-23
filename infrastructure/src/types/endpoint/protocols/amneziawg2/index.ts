@@ -1,7 +1,0 @@
-export { Amneziawg2EndpointDesiredStateSchema } from "./Amneziawg2EndpointDesiredStateSchema"
-export type { Amneziawg2EndpointDesiredState } from "./Amneziawg2EndpointDesiredState"
-export { Amneziawg2EndpointActualStateSchema } from "./Amneziawg2EndpointActualStateSchema"
-export type { Amneziawg2EndpointActualState } from "./Amneziawg2EndpointActualState"
-export { Amneziawg2KeySchema } from "./Amneziawg2KeySchema"
-export { Amneziawg2ServerObfuscationSchema } from "./Amneziawg2ServerObfuscationSchema"
-export type { Amneziawg2ServerObfuscation } from "./Amneziawg2ServerObfuscation"

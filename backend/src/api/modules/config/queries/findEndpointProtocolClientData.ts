@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm"
-import { EndpointDataSchema, ServerDataSchema } from "@vancloak/infrastructure/types"
+import { EndpointDataSchema, ServerDataSchema } from "@vancloak/infrastructure/shared"
 import type { DbOrTx } from "@/core/database/index.js"
 import { endpoint, protocol, server } from "@/core/database/schemas/domainSchema.js"
 

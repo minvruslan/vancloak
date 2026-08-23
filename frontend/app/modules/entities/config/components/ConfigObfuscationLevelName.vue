@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { ConfigObfuscationLevel } from "../types/ConfigObfuscationLevel"
+import type { Amneziawg2ConfigObfuscationLevel } from "@vancloak/api-contract"
 import { messages } from "../translations/ConfigObfuscationLevelName"
 
-defineProps<{ level: ConfigObfuscationLevel }>()
+defineProps<{ level: Amneziawg2ConfigObfuscationLevel }>()
 
 const { t } = useI18n({ useScope: "local", messages })
 </script>

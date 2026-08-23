@@ -4,5 +4,8 @@ packages:
   - api-contract
   - infrastructure
 allowBuilds:
+  "@parcel/watcher": true
+  esbuild: true
+  msgpackr-extract: true
   unrs-resolver: true
   vue-demi: true

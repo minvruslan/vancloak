@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { ConfigDataSchema } from "@vancloak/infrastructure/types"
+import { ConfigDataSchema } from "@vancloak/infrastructure/shared"
 import { DeviceTypeSchema } from "../device-type/DeviceTypeSchema"
 import { EndpointSchema } from "../endpoint/EndpointSchema"
 import { ConfigStatusSchema } from "./ConfigStatusSchema"

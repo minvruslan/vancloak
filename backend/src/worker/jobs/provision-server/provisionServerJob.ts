@@ -1,4 +1,4 @@
-import { ProtocolRegistry } from "@vancloak/infrastructure/types"
+import { ProtocolRegistry } from "@vancloak/infrastructure/shared"
 import { RemoteServer } from "@vancloak/infrastructure"
 import { env } from "@/core/env/index.js"
 import { VPN_NODE_DNS } from "./constants/index.js"
@@ -6,6 +6,7 @@ import type { ProvisionServerJob } from "@/core/queue/provision-server/index.js"
 import { ProvisioningError } from "./ProvisioningError.js"
 import { findServer } from "./queries/findServer.js"
 import { findActiveEndpoints } from "./queries/findActiveEndpoints.js"
+import { findActiveEndpointConfigDatas } from "./queries/findActiveEndpointConfigDatas.js"
 import { updateServerData } from "./queries/updateServerData.js"
 import { updateEndpointData } from "./queries/updateEndpointData.js"
 import { updateServerStatus } from "./queries/updateServerStatus.js"
@@ -87,7 +88,8 @@ export async function provisionServerJob(job: ProvisionServerJob) {
       ProtocolRegistry[client.protocolCode].transportProtocol,
     )
 
-    await client.install({ desiredState }, endpointDesiredState)
+    const configDatas = await findActiveEndpointConfigDatas(endpointId)
+    await client.install({ desiredState }, endpointDesiredState, configDatas)
 
     await updateEndpointData(endpointId, {
       ...endpointData,

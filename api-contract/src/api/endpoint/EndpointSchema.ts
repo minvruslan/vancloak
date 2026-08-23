@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { PortSchema } from "@vancloak/infrastructure/types"
+import { PortSchema } from "@vancloak/infrastructure/shared"
 import { ProtocolSchema } from "../protocol/ProtocolSchema"
 import { EndpointServerSchema } from "./EndpointServerSchema"
 

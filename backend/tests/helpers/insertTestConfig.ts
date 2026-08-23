@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto"
-import { Amneziawg2ObfuscationDefaults, ProtocolCodeSchema } from "@vancloak/infrastructure/types"
+import { Amneziawg2ObfuscationDefaults, ProtocolCodeSchema } from "@vancloak/infrastructure/shared"
 import type { DbOrTx } from "@/core/database/index.js"
 import { db } from "@/core/database/index.js"
 import { config } from "@/core/database/schemas/index.js"

@@ -6,7 +6,7 @@ import {
   Amneziawg2IntensitySchema,
   Amneziawg2ProtocolProfileSchema,
   ProtocolCodeSchema,
-} from "@vancloak/infrastructure/types"
+} from "@vancloak/infrastructure/shared"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import app from "@/api/app.js"
 import { PENDING_CONFIG_RESERVATION_MINUTES } from "@/api/modules/config-limit/queries/constants/PENDING_CONFIG_RESERVATION_MINUTES.js"

@@ -5,7 +5,7 @@ import {
   Amneziawg2IntensitySchema,
   Amneziawg2ProtocolProfileSchema,
   ProtocolCodeSchema,
-} from "@vancloak/infrastructure/types"
+} from "@vancloak/infrastructure/shared"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { z } from "zod"
 import app from "@/api/app.js"

@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import { computed } from "vue"
-import slugify from "@sindresorhus/slugify"
 import { Check, Copy, Download, FileText, Info } from "@lucide/vue"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { FieldLabel, ViewLayout } from "@/modules/shared/components"
-import type { CreatedConfig } from "@/modules/entities/config"
+import { buildConfigFileName, type CreatedConfig } from "@/modules/entities/config"
 import { messages } from "../translations/ConfigCreatedView"
 
 const props = defineProps<{ config: CreatedConfig }>()
@@ -16,14 +15,7 @@ const { t, locale } = useI18n({ useScope: "local", messages })
 const actionButtonWidthClass = computed(() => (locale.value === "ru" ? "w-48" : "w-28"))
 const { showSuccess, showError } = useNotificationBanner()
 
-const TUNNEL_NAME_MAXIMUM_LENGTH = 15
-
-const fileName = computed(() => {
-  const sanitized = slugify(props.config.endpoint.server.name, { decamelize: false })
-    .slice(0, TUNNEL_NAME_MAXIMUM_LENGTH)
-    .replace(/-$/, "")
-  return `${sanitized || "config"}.conf`
-})
+const fileName = computed(() => buildConfigFileName(props.config))
 const fileKilobytes = computed(() =>
   (new Blob([props.config.clientConfiguration]).size / 1024).toFixed(1),
 )

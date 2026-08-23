@@ -2,7 +2,7 @@ import { createHash } from "node:crypto"
 import { readFileSync } from "node:fs"
 import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
-import { PROJECT_NAME } from "../../common/constants/index.js"
+import { PROJECT_NAME } from "../../shared/index.js"
 
 const DOCKERFILE_PATH = join(dirname(fileURLToPath(import.meta.url)), "Dockerfile")
 

@@ -1,7 +1,10 @@
-import type { Amneziawg2Intensity, Amneziawg2ObfuscationOptions } from "../../../../types/index.js"
+import type {
+  Amneziawg2ClientObfuscation,
+  Amneziawg2Intensity,
+  Amneziawg2ObfuscationOptions,
+} from "../../../../shared/index.js"
 import { genCfg } from "../vendor/awg-architect/engines/awg/generator/index"
-import type { Amneziawg2ClientObfuscation } from "../types/index.js"
-import { ObfuscationGeneratorBaseInput } from "./ObfuscationGeneratorBaseInput.js"
+import { ObfuscationGeneratorBaseInput } from "../constants/index.js"
 
 export const JUNK_PACKET_COUNT_BY_LEVEL: Record<Amneziawg2Intensity, number> = {
   low: 4,
@@ -12,10 +15,16 @@ export const JUNK_PACKET_COUNT_BY_LEVEL: Record<Amneziawg2Intensity, number> = {
 const SIGNATURE_SIZE_WITHOUT_FINGERPRINT: Amneziawg2Intensity = "medium"
 
 export function generateClientObfuscation(
+  mtu: number,
   options: Amneziawg2ObfuscationOptions,
 ): Amneziawg2ClientObfuscation {
   const junkLevel = JUNK_PACKET_COUNT_BY_LEVEL[options.junkPacketCount]
-  const base = { ...ObfuscationGeneratorBaseInput, profile: options.protocolProfile, junkLevel }
+  const base = {
+    ...ObfuscationGeneratorBaseInput,
+    mtu,
+    profile: options.protocolProfile,
+    junkLevel,
+  }
 
   const junk = genCfg({ ...base, intensity: options.junkPacketSize })
 

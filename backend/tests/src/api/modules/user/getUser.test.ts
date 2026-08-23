@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto"
 import { call } from "@orpc/server"
 import { UserSchema } from "@vancloak/api-contract"
-import { ProtocolRegistry } from "@vancloak/infrastructure/types"
+import { ProtocolRegistry } from "@vancloak/infrastructure/shared"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import app from "@/api/app.js"
 import { PENDING_CONFIG_RESERVATION_MINUTES } from "@/api/modules/config-limit/queries/constants/PENDING_CONFIG_RESERVATION_MINUTES.js"

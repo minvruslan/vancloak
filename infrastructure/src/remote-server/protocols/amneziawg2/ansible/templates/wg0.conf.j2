@@ -22,21 +22,22 @@ I1 = {{ amneziawg2_obfuscation.i1 }}
 {% endif %}
 {% endfor %}
 
-# __EGRESS_DEVICE__ is the container's own default-route interface. It is a fact of the
-# running container, not of the deployment, so the entrypoint substitutes it on first start.
+PostUp = iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+PostDown = iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
 
-# NAT: client traffic egresses under the server IP
-PostUp = iptables -t nat -A POSTROUTING -o __EGRESS_DEVICE__ -j MASQUERADE
-PostDown = iptables -t nat -D POSTROUTING -o __EGRESS_DEVICE__ -j MASQUERADE
-
-# peer isolation: clients can't reach each other
 PostUp = iptables -A FORWARD -i %i -o %i -j DROP
 PostDown = iptables -D FORWARD -i %i -o %i -j DROP
 
-# block tunnel -> hoster internal networks
 PostUp = iptables -A FORWARD -i %i -d 10.0.0.0/8 -j DROP
 PostUp = iptables -A FORWARD -i %i -d 172.16.0.0/12 -j DROP
 PostUp = iptables -A FORWARD -i %i -d 192.168.0.0/16 -j DROP
 PostDown = iptables -D FORWARD -i %i -d 10.0.0.0/8 -j DROP
 PostDown = iptables -D FORWARD -i %i -d 172.16.0.0/12 -j DROP
 PostDown = iptables -D FORWARD -i %i -d 192.168.0.0/16 -j DROP
+{% for peer in amneziawg2_peers %}
+
+[Peer]
+PublicKey = {{ peer.publicKey }}
+PresharedKey = {{ peer.presharedKey }}
+AllowedIPs = {{ peer.clientIp }}/32
+{% endfor %}

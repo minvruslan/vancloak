@@ -1,4 +1,4 @@
-import type { ProtocolCode } from "../../types/index.js"
+import type { ProtocolCode } from "../../shared/index.js"
 import type { ProtocolClientFactories } from "./ProtocolClientFactories.js"
 
 export type ProtocolClientByCode = {

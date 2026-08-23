@@ -1,5 +1,5 @@
-import { ServerDesiredStateSchema } from "@vancloak/infrastructure/types"
-import type { ServerDesiredState } from "@vancloak/infrastructure/types"
+import { ServerDesiredStateSchema } from "@vancloak/infrastructure/shared"
+import type { ServerDesiredState } from "@vancloak/infrastructure/shared"
 import { ProvisioningError } from "../ProvisioningError.js"
 import {
   VPN_NODE_BASE_DIRECTORY,

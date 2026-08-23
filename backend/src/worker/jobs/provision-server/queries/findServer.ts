@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm"
-import { ServerDataSchema } from "@vancloak/infrastructure/types"
+import { ServerDataSchema } from "@vancloak/infrastructure/shared"
 import { db } from "@/core/database/index.js"
 import { server } from "@/core/database/schemas/domainSchema.js"
 
