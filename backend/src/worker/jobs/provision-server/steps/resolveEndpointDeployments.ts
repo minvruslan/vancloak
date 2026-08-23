@@ -1,7 +1,7 @@
 import { ProtocolCodeSchema } from "@vancloak/api-contract"
 import type { ProtocolClient, RemoteServer } from "@vancloak/infrastructure"
-import { ProtocolRegistry } from "@vancloak/infrastructure/types"
-import type { EndpointData, EndpointDesiredState } from "@vancloak/infrastructure/types"
+import { ProtocolRegistry } from "@vancloak/infrastructure/shared"
+import type { EndpointData, EndpointDesiredState } from "@vancloak/infrastructure/shared"
 import { ProvisioningError } from "../ProvisioningError.js"
 import type { ProvisioningStep } from "./ProvisioningStep.js"
 

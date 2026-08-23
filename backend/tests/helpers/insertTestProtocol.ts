@@ -1,4 +1,4 @@
-import { ProtocolCodeSchema, ProtocolRegistry } from "@vancloak/infrastructure/types"
+import { ProtocolCodeSchema, ProtocolRegistry } from "@vancloak/infrastructure/shared"
 import type { DbOrTx } from "@/core/database/index.js"
 import { db } from "@/core/database/index.js"
 import { protocol } from "@/core/database/schemas/index.js"

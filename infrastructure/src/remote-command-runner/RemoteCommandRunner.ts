@@ -1,10 +1,9 @@
-import { cp, mkdtemp, rm, writeFile } from "node:fs/promises"
+import { cp, mkdtemp, readFile, rm, writeFile } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
-import { ServerAccessSchema, type ServerAccess } from "../types/index.js"
-import { PROJECT_NAME } from "../common/constants/index.js"
+import { PROJECT_NAME, ServerAccessSchema, type ServerAccess } from "../shared/index.js"
 import { CommandRunner } from "../command-runner/index.js"
-import { assertAnsibleAssetExists } from "./utils/index.js"
+import { assertAnsibleAssetExists, quoteShellArgument } from "./utils/index.js"
 
 const SSH_DEFAULT_PORT = 22
 const SSH_CONNECT_TIMEOUT_SECONDS = 15
@@ -19,7 +18,8 @@ const SSH_PASSWORD_MOUNT_PATH = "/ssh-password"
 const SSH_PRIVATE_KEY_MOUNT_PATH = "/ssh-private-key"
 const SSH_KNOWN_HOSTS_MOUNT_PATH = "/ssh-known-hosts"
 
-const CONTAINER_SCRIPT_ARGUMENT_PATTERN = /^[a-zA-Z0-9][a-zA-Z0-9._-]*$/
+const CONTAINER_NAME_PATTERN = /^[a-zA-Z0-9][a-zA-Z0-9._-]*$/
+const ENVIRONMENT_VARIABLE_NAME_PATTERN = /^[A-Z][A-Z0-9_]*$/
 
 const TMP_ANSIBLE_ROLE_NAME = "target"
 const TMP_ANSIBLE_PLAYBOOK_FILENAME = "playbook.yml"
@@ -47,13 +47,29 @@ export class RemoteCommandRunner {
     await this.execute("true")
   }
 
-  executeContainerScript(
+  async executeScriptInContainer(
     remoteContainerName: string,
-    remoteScriptName: string,
+    localScriptPath: string,
+    environment: Record<string, string>,
     remoteStdin?: string,
   ): Promise<string> {
-    this.assertContainerScriptArguments(remoteContainerName, remoteScriptName)
-    return this.execute(`docker exec -i ${remoteContainerName} ${remoteScriptName}`, remoteStdin)
+    this.assertContainerName(remoteContainerName)
+    this.assertEnvironmentVariableNames(environment)
+
+    const script = await readFile(localScriptPath, "utf8")
+    const environmentFlags = Object.entries(environment).map(
+      ([name, value]) => `-e ${quoteShellArgument(`${name}=${value}`)}`,
+    )
+
+    return this.execute(
+      [
+        "docker exec -i",
+        ...environmentFlags,
+        remoteContainerName,
+        `sh -c ${quoteShellArgument(script)}`,
+      ].join(" "),
+      remoteStdin,
+    )
   }
 
   async runAnsibleRole(roleDirectory: string, variables: Record<string, unknown>): Promise<void> {
@@ -195,13 +211,16 @@ export class RemoteCommandRunner {
     }
   }
 
-  private assertContainerScriptArguments(
-    remoteContainerName: string,
-    remoteScriptName: string,
-  ): void {
-    for (const argument of [remoteContainerName, remoteScriptName]) {
-      if (!CONTAINER_SCRIPT_ARGUMENT_PATTERN.test(argument)) {
-        throw new Error(`Unsafe container script argument: "${argument}".`)
+  private assertContainerName(remoteContainerName: string): void {
+    if (!CONTAINER_NAME_PATTERN.test(remoteContainerName)) {
+      throw new Error(`Unsafe container name: "${remoteContainerName}".`)
+    }
+  }
+
+  private assertEnvironmentVariableNames(environment: Record<string, string>): void {
+    for (const name of Object.keys(environment)) {
+      if (!ENVIRONMENT_VARIABLE_NAME_PATTERN.test(name)) {
+        throw new Error(`Unsafe environment variable name: "${name}".`)
       }
     }
   }

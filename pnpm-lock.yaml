@@ -35,6 +35,10 @@ importers:
       zod:
         specifier: ^4.3.6
         version: 4.3.6
+    devDependencies:
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
 
   backend:
     dependencies:
@@ -223,6 +227,9 @@ importers:
 
   infrastructure:
     dependencies:
+      '@sindresorhus/slugify':
+        specifier: ^3.0.0
+        version: 3.0.0
       execa:
         specifier: ^9.6.1
         version: 9.6.1

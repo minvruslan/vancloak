@@ -5,7 +5,7 @@ import {
   Amneziawg2ObfuscationOptionsSchema,
   ProtocolCodeSchema,
   type Amneziawg2ConfigData,
-} from "@vancloak/infrastructure/types"
+} from "@vancloak/infrastructure/shared"
 import { vi } from "vitest"
 
 const FAKE_SERVER_SSH_HOST_KEY = "ssh-ed25519 AAAATestServerHostKey"
@@ -31,6 +31,18 @@ const FakeAmneziawg2CreateAccessResult = {
     clientIp: `${FakeAmneziawg2EndpointActualState.subnetPrefix}.2`,
     publicKey: "fake-public-key",
     presharedKey: "fake-preshared-key",
+    serverPublicKey: FakeAmneziawg2EndpointActualState.serverPublicKey,
+    host: FakeAmneziawg2EndpointActualState.host,
+    port: FakeAmneziawg2EndpointActualState.port,
+    dns: FakeAmneziawg2EndpointActualState.dns,
+    mtu: FakeAmneziawg2EndpointActualState.mtu,
+    serverObfuscation: FakeAmneziawg2EndpointActualState.obfuscation,
+    clientObfuscation: {
+      jc: FakeAmneziawg2EndpointActualState.obfuscation.jc,
+      jmin: FakeAmneziawg2EndpointActualState.obfuscation.jmin,
+      jmax: FakeAmneziawg2EndpointActualState.obfuscation.jmax,
+      i1: FakeAmneziawg2EndpointActualState.obfuscation.i1,
+    },
     options: { ...Amneziawg2ObfuscationDefaults },
   } satisfies Amneziawg2ConfigData,
   clientConfiguration: "fake-client-configuration",

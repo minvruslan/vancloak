@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm"
-import { ProtocolRegistry } from "@vancloak/infrastructure/types"
+import { ProtocolRegistry } from "@vancloak/infrastructure/shared"
 import { describe, expect, it } from "vitest"
 import { runBootstraps } from "@/core/bootstraps/index.js"
 import { db } from "@/core/database/index.js"

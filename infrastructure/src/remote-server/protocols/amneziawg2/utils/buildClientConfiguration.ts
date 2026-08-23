@@ -1,6 +1,8 @@
-import type { Amneziawg2ServerObfuscation } from "../../../../types/index.js"
-import { ALLOWED_IPS, PERSISTENT_KEEPALIVE_SECONDS, TUNNEL_MTU } from "../constants/index.js"
-import type { Amneziawg2ClientObfuscation } from "../types/index.js"
+import type {
+  Amneziawg2ClientObfuscation,
+  Amneziawg2ServerObfuscation,
+} from "../../../../shared/index.js"
+import { ALLOWED_IPS, PERSISTENT_KEEPALIVE_SECONDS } from "../constants/index.js"
 
 export function buildClientConfiguration(params: {
   clientPrivateKey: string
@@ -8,6 +10,7 @@ export function buildClientConfiguration(params: {
   serverPublicKey: string
   presharedKey: string
   serverEndpoint: string
+  mtu: number
   serverObfuscation: Amneziawg2ServerObfuscation
   clientObfuscation: Amneziawg2ClientObfuscation
   dns: string
@@ -18,6 +21,7 @@ export function buildClientConfiguration(params: {
     serverPublicKey,
     presharedKey,
     serverEndpoint,
+    mtu,
     serverObfuscation,
     clientObfuscation,
     dns,
@@ -27,7 +31,7 @@ export function buildClientConfiguration(params: {
     "[Interface]",
     `Address = ${clientIp}/32`,
     `DNS = ${dns}`,
-    `MTU = ${TUNNEL_MTU}`,
+    `MTU = ${mtu}`,
     `PrivateKey = ${clientPrivateKey}`,
     `Jc = ${clientObfuscation.jc}`,
     `Jmin = ${clientObfuscation.jmin}`,

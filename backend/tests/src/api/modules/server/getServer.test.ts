@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto"
 import { call } from "@orpc/server"
 import { type Protocol, ServerSchema } from "@vancloak/api-contract"
-import { ProtocolCodeSchema, ProtocolRegistry } from "@vancloak/infrastructure/types"
+import { ProtocolCodeSchema, ProtocolRegistry } from "@vancloak/infrastructure/shared"
 import { describe, expect, it, vi } from "vitest"
 import app from "@/api/app.js"
 import { serverRouter } from "@/api/modules/server/index.js"

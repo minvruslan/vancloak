@@ -5,7 +5,7 @@ import {
   ProtocolCodeSchema,
   ProtocolRegistry,
   ServerDataSchema,
-} from "@vancloak/infrastructure/types"
+} from "@vancloak/infrastructure/shared"
 import { eq, sql } from "drizzle-orm"
 import { afterAll, beforeEach, describe, expect, it, vi } from "vitest"
 import app from "@/api/app.js"

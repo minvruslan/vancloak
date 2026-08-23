@@ -1,5 +1,5 @@
 import type { ServerStatus } from "@vancloak/api-contract"
-import type { ServerData } from "@vancloak/infrastructure/types"
+import type { ServerData } from "@vancloak/infrastructure/shared"
 import type { DbOrTx } from "@/core/database/index.js"
 import { server } from "@/core/database/schemas/domainSchema.js"
 

@@ -1,5 +1,5 @@
 import type { RemoteServer } from "@vancloak/infrastructure"
-import type { ServerDesiredState } from "@vancloak/infrastructure/types"
+import type { ServerDesiredState } from "@vancloak/infrastructure/shared"
 import type { ProvisioningStep } from "./ProvisioningStep.js"
 
 export const createServiceUserAccess: ProvisioningStep<

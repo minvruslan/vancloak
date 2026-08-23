@@ -4,8 +4,6 @@ services:
       context: ./docker
       args:
         VERSION: "{{ amneziawg2_docker_image_version }}"
-        STATE_DIRECTORY: "{{ amneziawg2_state_directory }}"
-        INTERFACE: "{{ amneziawg2_interface_name }}"
     image: "{{ amneziawg2_container_name }}:latest"
     container_name: "{{ amneziawg2_container_name }}"
     cap_add:
@@ -17,9 +15,10 @@ services:
       - net.ipv4.conf.all.src_valid_mark=1
     environment:
       SERVER_PUBLIC_KEY: "{{ amneziawg2_server_public_key }}"
+      SERVER_PUBLIC_KEY_FILE: "{{ amneziawg2_container_state_directory_path }}/server_public.key"
+      CONFIGURATION_FILE: "{{ amneziawg2_container_state_directory_path }}/{{ amneziawg2_interface_name }}.conf"
     volumes:
-      - {{ amneziawg2_state_volume_name }}:{{ amneziawg2_state_directory }}
-      - ./{{ amneziawg2_interface_name }}.conf:/run/amneziawg2/{{ amneziawg2_interface_name }}.conf:ro
+      - {{ amneziawg2_state_directory_path }}:{{ amneziawg2_container_state_directory_path }}
     ports:
       - "{{ amneziawg2_port }}:{{ amneziawg2_port }}/udp"
     healthcheck:
@@ -29,6 +28,3 @@ services:
       retries: 3
       start_period: 5s
     restart: unless-stopped
-
-volumes:
-  {{ amneziawg2_state_volume_name }}:

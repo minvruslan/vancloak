@@ -7,7 +7,7 @@ import {
   ServerStatusSchema,
   type Protocol,
 } from "@vancloak/api-contract"
-import { ProtocolCodeSchema, ProtocolRegistry } from "@vancloak/infrastructure/types"
+import { ProtocolCodeSchema, ProtocolRegistry } from "@vancloak/infrastructure/shared"
 import { describe, expect, it, vi } from "vitest"
 import { z } from "zod"
 import app from "@/api/app.js"

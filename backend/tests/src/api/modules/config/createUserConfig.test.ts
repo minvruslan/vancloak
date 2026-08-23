@@ -6,13 +6,15 @@ import {
   Amneziawg2BrowserFingerprintSchema,
   Amneziawg2IntensitySchema,
   Amneziawg2ObfuscationDefaults,
+  Amneziawg2ObfuscationPresets,
   Amneziawg2ProtocolProfileSchema,
   ProtocolCodeSchema,
   ProtocolRegistry,
   type EndpointData,
   type ServerData,
-} from "@vancloak/infrastructure/types"
+} from "@vancloak/infrastructure/shared"
 import { RemoteServer } from "@vancloak/infrastructure"
+import { buildAmneziawg2ConfigName } from "@vancloak/infrastructure/shared"
 import { eq, sql } from "drizzle-orm"
 import { beforeEach, describe, expect, it, vi, type MockInstance } from "vitest"
 import { z } from "zod"
@@ -1150,10 +1152,17 @@ describe("POST /configs", () => {
 
       expect(Object.keys(createdConfig.data).sort()).toEqual([
         "clientIp",
+        "clientObfuscation",
+        "dns",
+        "host",
+        "mtu",
         "options",
+        "port",
         "presharedKey",
         "protocolCode",
         "publicKey",
+        "serverObfuscation",
+        "serverPublicKey",
       ])
       expect(createdConfig.clientConfiguration).toBe(fakeClientConfiguration)
       expect(createdConfig.clientConfigurationLink).toBe(fakeClientConfigurationLink)
@@ -1393,7 +1402,7 @@ describe("POST /configs", () => {
 
       const configImport = AmneziaConfigImportSchema.parse(JSON.parse(inflated.toString()))
       expect(configImport).toMatchObject({
-        description: configServer.name,
+        description: buildAmneziawg2ConfigName(configServer.name, Amneziawg2ObfuscationDefaults),
         hostName: FakeAmneziawg2EndpointActualState.host,
         dns1: FakeAmneziawg2EndpointActualState.dns,
       })
@@ -1444,6 +1453,38 @@ describe("POST /configs", () => {
       expect(configurationLines).toContain(`I1 = ${lastConfig.I1}`)
     })
 
+    it("names the import link after the slugified server name and the stealth profile letter when the high preset is requested", async () => {
+      const { configEndpoint, configDeviceType } = await insertConfigPrerequisites({
+        server: { name: "Amsterdam Node" },
+      })
+      const requestUser = await insertTestUser()
+      const headers = await insertTestSession(requestUser)
+      fakeAmneziawg2Client.createAccess.mockRestore()
+      vi.spyOn(fakeAmneziawg2Client.client, "applyAccesses").mockResolvedValue(undefined)
+
+      const createdConfig = await callCreateUserConfig(
+        {
+          name: "Created Config",
+          endpointId: configEndpoint.id,
+          deviceTypeId: configDeviceType.id,
+          protocolOptions: {
+            protocolCode: ProtocolCodeSchema.enum.amneziawg2,
+            ...Amneziawg2ObfuscationPresets.high,
+          },
+        },
+        headers,
+      )
+
+      const parsed = CreateUserConfigOutputSchema.parse(createdConfig)
+      const compressed = Buffer.from(
+        parsed.clientConfigurationLink.slice("vpn://".length),
+        "base64url",
+      )
+      const configImport = AmneziaConfigImportSchema.parse(
+        JSON.parse(inflateSync(compressed.subarray(4)).toString()),
+      )
+      expect(configImport.description).toBe("amsterdam-node-s")
+    })
     it("reuses the client identifier of a deleted config", async () => {
       const { configEndpoint, configDeviceType } = await insertConfigPrerequisites()
       const requestUser = await insertTestUser()

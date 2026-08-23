@@ -1,6 +1,0 @@
-export { ConfigDataSchema } from "./ConfigDataSchema"
-export type { ConfigData } from "./ConfigData"
-export type { ConfigClientIdentifier } from "./ConfigClientIdentifier"
-export { ConfigProtocolOptionsSchema } from "./ConfigProtocolOptionsSchema"
-export type { ConfigProtocolOptions } from "./ConfigProtocolOptions"
-export * from "./protocols"

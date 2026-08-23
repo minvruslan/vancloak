@@ -14,8 +14,8 @@ import {
   type ServerData,
   type ProtocolCode,
   type TransportProtocol,
-} from "../types/index.js"
-import { PROJECT_NAME } from "../common/constants/index.js"
+} from "../shared/index.js"
+import { PROJECT_NAME } from "../shared/index.js"
 import { CommandRunner } from "../command-runner/index.js"
 import { RemoteCommandRunner } from "../remote-command-runner/index.js"
 import { ProtocolClientFactories } from "./protocols/index.js"

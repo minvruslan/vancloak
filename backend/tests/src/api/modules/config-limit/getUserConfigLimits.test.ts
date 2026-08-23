@@ -1,6 +1,6 @@
 import { call } from "@orpc/server"
 import { ConfigLimitSchema } from "@vancloak/api-contract"
-import { ProtocolRegistry } from "@vancloak/infrastructure/types"
+import { ProtocolRegistry } from "@vancloak/infrastructure/shared"
 import { eq } from "drizzle-orm"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { z } from "zod"

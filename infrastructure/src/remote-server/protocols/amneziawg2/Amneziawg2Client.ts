@@ -2,32 +2,32 @@ import { dirname, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
 import { z } from "zod"
 import {
+  Amneziawg2EndpointActualStateSchema,
+  Amneziawg2EndpointDesiredStateSchema,
+  Amneziawg2KeySchema,
   Amneziawg2ObfuscationOptionsSchema,
+  buildAmneziawg2ConfigName,
   IpSchema,
   PortSchema,
   type Amneziawg2ClientIdentifier,
   type Amneziawg2ConfigData,
+  type Amneziawg2EndpointActualState,
+  type Amneziawg2EndpointDesiredState,
   type ConfigClientIdentifier,
   type ConfigData,
   type ConfigProtocolOptions,
-  type ProtocolCode,
-} from "../../../types/index.js"
-import {
-  Amneziawg2EndpointActualStateSchema,
-  Amneziawg2EndpointDesiredStateSchema,
-  Amneziawg2KeySchema,
-  type Amneziawg2EndpointActualState,
-  type Amneziawg2EndpointDesiredState,
   type EndpointActualState,
   type EndpointDesiredState,
+  type ProtocolCode,
   type ServerDesiredState,
-} from "../../../types/index.js"
+} from "../../../shared/index.js"
 import type { RemoteCommandRunner } from "../../../remote-command-runner/index.js"
 import { TUNNEL_MTU } from "./constants/index.js"
 import type { Amneziawg2Access } from "./types/index.js"
 import {
   buildClientConfiguration,
   buildClientConfigurationLink,
+  createAccessesFromConfigDatas,
   findClientPublicKeyByClientIp,
   generateClientObfuscation,
   generateEndpointObfuscation,
@@ -40,11 +40,19 @@ const AMNEZIAWG2_ANSIBLE_ROLE_DIRECTORY = resolve(
   dirname(fileURLToPath(import.meta.url)),
   "ansible",
 )
+const AMNEZIAWG2_SCRIPTS_DIRECTORY = resolve(dirname(fileURLToPath(import.meta.url)), "scripts")
+const AMNEZIAWG2_APPLY_PEERS_SCRIPT_PATH = resolve(AMNEZIAWG2_SCRIPTS_DIRECTORY, "apply-peers.sh")
+const AMNEZIAWG2_DELETE_PEERS_SCRIPT_PATH = resolve(AMNEZIAWG2_SCRIPTS_DIRECTORY, "delete-peers.sh")
+const AMNEZIAWG2_LIST_ALLOWED_IPS_SCRIPT_PATH = resolve(
+  AMNEZIAWG2_SCRIPTS_DIRECTORY,
+  "list-allowed-ips.sh",
+)
 const AMNEZIAWG2_PROTOCOL_CODE = "amneziawg2" satisfies ProtocolCode
 const AMNEZIAWG2_DOCKER_IMAGE_VERSION = "0.2.19"
 const AMNEZIAWG2_CONTAINER_NAME = "amneziawg2"
-const AMNEZIAWG2_STATE_VOLUME_NAME = "amneziawg2_state"
-const AMNEZIAWG2_STATE_DIRECTORY = "/opt/amneziawg2"
+const AMNEZIAWG2_DIRECTORY_NAME = AMNEZIAWG2_PROTOCOL_CODE
+const AMNEZIAWG2_STATE_DIRECTORY_NAME = "state"
+const AMNEZIAWG2_CONTAINER_STATE_DIRECTORY_PATH = "/opt/amneziawg2"
 const AMNEZIAWG2_INTERFACE_NAME = "wg0"
 const AMNEZIAWG2_SUBNET_PREFIX = "10.8.1"
 
@@ -58,11 +66,15 @@ export class Amneziawg2Client {
     this.remoteCommandRunner = remoteCommandRunner
   }
 
-  parseEndpointDesiredState(desiredState: EndpointDesiredState): Amneziawg2EndpointDesiredState {
+  private parseEndpointDesiredState(
+    desiredState: EndpointDesiredState,
+  ): Amneziawg2EndpointDesiredState {
     return Amneziawg2EndpointDesiredStateSchema.parse(desiredState)
   }
 
-  parseEndpointActualState(actualState: EndpointActualState): Amneziawg2EndpointActualState {
+  private parseEndpointActualState(
+    actualState: EndpointActualState,
+  ): Amneziawg2EndpointActualState {
     return Amneziawg2EndpointActualStateSchema.parse(actualState)
   }
 
@@ -73,22 +85,25 @@ export class Amneziawg2Client {
   ): Amneziawg2EndpointDesiredState {
     const parsedPort = PortSchema.parse(port)
     const serverKeyPair = generateKeyPair()
+    const mtu = TUNNEL_MTU
 
-    return {
+    return Amneziawg2EndpointDesiredStateSchema.parse({
       protocolCode: this.protocolCode,
       host: Amneziawg2EndpointDesiredStateSchema.shape.host.parse(host),
       dns: Amneziawg2EndpointDesiredStateSchema.shape.dns.parse(dns),
       dockerImageVersion: this.dockerImageVersion,
       port: parsedPort,
       containerName: AMNEZIAWG2_CONTAINER_NAME,
-      stateVolumeName: AMNEZIAWG2_STATE_VOLUME_NAME,
-      stateDirectory: AMNEZIAWG2_STATE_DIRECTORY,
+      directoryName: AMNEZIAWG2_DIRECTORY_NAME,
+      stateDirectoryName: AMNEZIAWG2_STATE_DIRECTORY_NAME,
+      containerStateDirectoryPath: AMNEZIAWG2_CONTAINER_STATE_DIRECTORY_PATH,
       interfaceName: AMNEZIAWG2_INTERFACE_NAME,
       subnetPrefix: AMNEZIAWG2_SUBNET_PREFIX,
+      mtu,
       serverPrivateKey: serverKeyPair.privateKey,
       serverPublicKey: serverKeyPair.publicKey,
-      obfuscation: generateEndpointObfuscation(),
-    }
+      obfuscation: generateEndpointObfuscation(mtu),
+    } satisfies Amneziawg2EndpointDesiredState)
   }
 
   allocateClientIdentifier(
@@ -113,23 +128,26 @@ export class Amneziawg2Client {
   async install(
     server: { desiredState: ServerDesiredState },
     endpointDesiredState: EndpointDesiredState,
+    configDatas: (ConfigData | null)[],
   ): Promise<void> {
     const desiredState = this.parseEndpointDesiredState(endpointDesiredState)
+    const deployDirectoryPath = `${server.desiredState.baseDirectory}/${desiredState.directoryName}`
 
     await this.remoteCommandRunner.runAnsibleRole(AMNEZIAWG2_ANSIBLE_ROLE_DIRECTORY, {
       service_username: server.desiredState.ssh.username,
       amneziawg2_docker_image_version: desiredState.dockerImageVersion,
       amneziawg2_port: desiredState.port,
-      amneziawg2_mtu: TUNNEL_MTU,
+      amneziawg2_mtu: desiredState.mtu,
       amneziawg2_address: `${desiredState.subnetPrefix}.1/24`,
-      amneziawg2_deploy_directory: `${server.desiredState.baseDirectory}/${this.protocolCode}`,
+      amneziawg2_deploy_directory_path: deployDirectoryPath,
+      amneziawg2_state_directory_path: `${deployDirectoryPath}/${desiredState.stateDirectoryName}`,
+      amneziawg2_container_state_directory_path: desiredState.containerStateDirectoryPath,
       amneziawg2_container_name: desiredState.containerName,
-      amneziawg2_state_volume_name: desiredState.stateVolumeName,
-      amneziawg2_state_directory: desiredState.stateDirectory,
       amneziawg2_interface_name: desiredState.interfaceName,
       amneziawg2_server_private_key: desiredState.serverPrivateKey,
       amneziawg2_server_public_key: desiredState.serverPublicKey,
       amneziawg2_obfuscation: desiredState.obfuscation,
+      amneziawg2_peers: createAccessesFromConfigDatas(configDatas),
     })
   }
 
@@ -149,7 +167,7 @@ export class Amneziawg2Client {
 
     const clientKeyPair = generateKeyPair()
     const presharedKey = generatePresharedKey()
-    const clientObfuscation = generateClientObfuscation(obfuscationOptions)
+    const clientObfuscation = generateClientObfuscation(actualState.mtu, obfuscationOptions)
 
     const clientConfiguration = buildClientConfiguration({
       clientPrivateKey: clientKeyPair.privateKey,
@@ -157,13 +175,14 @@ export class Amneziawg2Client {
       serverPublicKey: actualState.serverPublicKey,
       presharedKey,
       serverEndpoint: `${actualState.host}:${actualState.port}`,
+      mtu: actualState.mtu,
       serverObfuscation: actualState.obfuscation,
       clientObfuscation,
       dns: actualState.dns,
     })
 
     const clientConfigurationLink = buildClientConfigurationLink({
-      displayName,
+      displayName: buildAmneziawg2ConfigName(displayName, obfuscationOptions),
       clientConfiguration,
       clientPrivateKey: clientKeyPair.privateKey,
       clientIp,
@@ -172,6 +191,7 @@ export class Amneziawg2Client {
       host: actualState.host,
       port: actualState.port,
       dns: actualState.dns,
+      mtu: actualState.mtu,
       serverObfuscation: actualState.obfuscation,
       clientObfuscation,
     })
@@ -185,6 +205,13 @@ export class Amneziawg2Client {
         ...this.createInitialConfigData(clientIdentifier, protocolOptions),
         publicKey: clientKeyPair.publicKey,
         presharedKey,
+        serverPublicKey: actualState.serverPublicKey,
+        host: actualState.host,
+        port: actualState.port,
+        dns: actualState.dns,
+        mtu: actualState.mtu,
+        serverObfuscation: actualState.obfuscation,
+        clientObfuscation,
       },
       clientConfiguration,
       clientConfigurationLink,
@@ -206,9 +233,10 @@ export class Amneziawg2Client {
       return `${publicKey} ${presharedKey} ${clientIp}\n`
     })
 
-    await this.remoteCommandRunner.executeContainerScript(
+    await this.remoteCommandRunner.executeScriptInContainer(
       actualState.containerName,
-      "apply-peers.sh",
+      AMNEZIAWG2_APPLY_PEERS_SCRIPT_PATH,
+      this.buildContainerEnvironment(actualState),
       lines.join(""),
     )
   }
@@ -219,9 +247,13 @@ export class Amneziawg2Client {
   ): Promise<void> {
     const actualState = this.parseEndpointActualState(endpointActualState)
 
-    const clientPublicKey = await findClientPublicKeyByClientIp(
-      this.remoteCommandRunner,
+    const allowedIpsOutput = await this.remoteCommandRunner.executeScriptInContainer(
       actualState.containerName,
+      AMNEZIAWG2_LIST_ALLOWED_IPS_SCRIPT_PATH,
+      this.buildContainerEnvironment(actualState),
+    )
+    const clientPublicKey = findClientPublicKeyByClientIp(
+      allowedIpsOutput,
       IpSchema.parse(clientIdentifier),
     )
 
@@ -236,15 +268,10 @@ export class Amneziawg2Client {
   ): Promise<void> {
     const actualState = this.parseEndpointActualState(endpointActualState)
 
-    const clientPublicKeys = configDatas
-      .filter(
-        (configData): configData is Amneziawg2ConfigData =>
-          configData?.protocolCode === this.protocolCode,
-      )
-      .map((configData) => configData.publicKey)
-      .filter((publicKey): publicKey is string => Boolean(publicKey))
-
-    await this.deleteClientPublicKeys(actualState, clientPublicKeys)
+    await this.deleteClientPublicKeys(
+      actualState,
+      createAccessesFromConfigDatas(configDatas).map((access) => access.publicKey),
+    )
   }
 
   private async deleteClientPublicKeys(
@@ -255,10 +282,20 @@ export class Amneziawg2Client {
 
     const parsedClientPublicKeys = z.array(Amneziawg2KeySchema).parse(clientPublicKeys)
 
-    await this.remoteCommandRunner.executeContainerScript(
+    await this.remoteCommandRunner.executeScriptInContainer(
       endpointActualState.containerName,
-      "delete-peers.sh",
+      AMNEZIAWG2_DELETE_PEERS_SCRIPT_PATH,
+      this.buildContainerEnvironment(endpointActualState),
       parsedClientPublicKeys.map((clientPublicKey) => `${clientPublicKey}\n`).join(""),
     )
+  }
+
+  private buildContainerEnvironment(
+    endpointActualState: Amneziawg2EndpointActualState,
+  ): Record<string, string> {
+    return {
+      INTERFACE: endpointActualState.interfaceName,
+      CONFIGURATION_FILE: `${endpointActualState.containerStateDirectoryPath}/${endpointActualState.interfaceName}.conf`,
+    }
   }
 }

@@ -14,7 +14,7 @@ import {
   check,
 } from "drizzle-orm/pg-core"
 import type { ConfigData, ProtocolFamilyCode } from "@vancloak/api-contract"
-import type { EndpointData, ServerData } from "@vancloak/infrastructure/types"
+import type { EndpointData, ServerData } from "@vancloak/infrastructure/shared"
 import { encryptedJsonb, encryptedText } from "../columns/index.js"
 import { user } from "./authSchema"
 

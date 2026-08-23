@@ -1,4 +1,4 @@
-import type { ProtocolCode } from "../../types/index.js"
+import type { ProtocolCode } from "../../shared/index.js"
 import type { RemoteCommandRunner } from "../../remote-command-runner/index.js"
 import { Amneziawg2Client } from "./amneziawg2/index.js"
 

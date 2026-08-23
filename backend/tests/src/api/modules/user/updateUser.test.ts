@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto"
 import { call } from "@orpc/server"
 import { UserSchema, type UpsertUser } from "@vancloak/api-contract"
-import { ProtocolRegistry } from "@vancloak/infrastructure/types"
+import { ProtocolRegistry } from "@vancloak/infrastructure/shared"
 import { eq } from "drizzle-orm"
 import postgres from "postgres"
 import { beforeEach, describe, expect, it, vi } from "vitest"

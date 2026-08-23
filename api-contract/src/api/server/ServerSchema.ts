@@ -1,7 +1,7 @@
 import { z } from "zod"
 import { CountryCodeSchema } from "../../core/country-code/CountryCodeSchema"
-import { DomainNameSchema } from "@vancloak/infrastructure/types"
-import { IpSchema } from "@vancloak/infrastructure/types"
+import { DomainNameSchema } from "@vancloak/infrastructure/shared"
+import { IpSchema } from "@vancloak/infrastructure/shared"
 import { ServerEndpointSchema } from "./ServerEndpointSchema"
 import { ServerStatusSchema } from "./ServerStatusSchema"
 

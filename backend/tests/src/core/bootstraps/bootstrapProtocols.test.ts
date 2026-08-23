@@ -1,4 +1,4 @@
-import { ProtocolRegistry } from "@vancloak/infrastructure/types"
+import { ProtocolRegistry } from "@vancloak/infrastructure/shared"
 import { eq } from "drizzle-orm"
 import { describe, expect, it } from "vitest"
 import { bootstrapProtocols } from "@/core/bootstraps/bootstrapProtocols.js"
