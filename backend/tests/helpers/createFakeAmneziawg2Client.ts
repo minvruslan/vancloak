@@ -4,6 +4,8 @@ import {
   Amneziawg2ObfuscationDefaults,
   Amneziawg2ObfuscationOptionsSchema,
   ProtocolCodeSchema,
+  convertNumberToIp,
+  parseIpSubnet,
   type Amneziawg2ConfigData,
 } from "@vancloak/infrastructure/shared"
 import { vi } from "vitest"
@@ -25,10 +27,17 @@ const FakeAmneziawg2EndpointActualState = Amneziawg2EndpointActualStateSchema.pa
   appliedAt: "2026-01-01T00:00:00.000Z",
 })
 
+const FIRST_CLIENT_ADDRESS_OFFSET = 2
+
+const FakeAmneziawg2FirstClientIp = convertNumberToIp(
+  parseIpSubnet(FakeAmneziawg2EndpointActualState.subnet).networkNumber +
+    FIRST_CLIENT_ADDRESS_OFFSET,
+)
+
 const FakeAmneziawg2CreateAccessResult = {
   configData: {
     protocolCode: ProtocolCodeSchema.enum.amneziawg2,
-    clientIp: `${FakeAmneziawg2EndpointActualState.subnetPrefix}.2`,
+    clientIp: FakeAmneziawg2FirstClientIp,
     publicKey: "fake-public-key",
     presharedKey: "fake-preshared-key",
     serverPublicKey: FakeAmneziawg2EndpointActualState.serverPublicKey,

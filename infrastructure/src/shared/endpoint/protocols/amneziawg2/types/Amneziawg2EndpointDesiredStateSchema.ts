@@ -2,6 +2,7 @@ import { z } from "zod"
 import { ProtocolCodeSchema } from "../../../../protocols/types/ProtocolCodeSchema"
 import { DomainNameSchema } from "../../../../common/network/types/DomainNameSchema"
 import { IpSchema } from "../../../../common/network/types/IpSchema"
+import { IpSubnetSchema } from "../../../../common/network/types/IpSubnetSchema"
 import { UnixPathSchema } from "../../../../common/unix/types/UnixPathSchema"
 import { EndpointDesiredStateSchema } from "../../../types/EndpointDesiredStateSchema"
 import { Amneziawg2DnsSchema } from "../../../../protocols/amneziawg2/types/Amneziawg2DnsSchema"
@@ -21,7 +22,7 @@ export const Amneziawg2EndpointDesiredStateSchema = EndpointDesiredStateSchema.e
   stateDirectoryName: NameSchema,
   containerStateDirectoryPath: UnixPathSchema,
   interfaceName: z.string().regex(/^[a-zA-Z0-9_-]{1,15}$/),
-  subnetPrefix: z.string().regex(/^\d{1,3}\.\d{1,3}\.\d{1,3}$/),
+  subnet: IpSubnetSchema,
   mtu: Amneziawg2MtuSchema,
   serverPrivateKey: Amneziawg2KeySchema,
   serverPublicKey: Amneziawg2KeySchema,

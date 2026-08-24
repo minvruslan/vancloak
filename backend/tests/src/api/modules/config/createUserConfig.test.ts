@@ -10,6 +10,9 @@ import {
   Amneziawg2ProtocolProfileSchema,
   ProtocolCodeSchema,
   ProtocolRegistry,
+  convertIpToNumber,
+  convertNumberToIp,
+  parseIpSubnet,
   type EndpointData,
   type ServerData,
 } from "@vancloak/infrastructure/shared"
@@ -111,6 +114,9 @@ const AmneziaLastConfigSchema = z.object({
   I4: z.string().optional(),
   I5: z.string().optional(),
 })
+
+const FIRST_CLIENT_ADDRESS_OFFSET = 2
+const ADDRESSES_PER_OCTET = 256
 
 const fakeConfigData = FakeAmneziawg2CreateAccessResult.configData
 const fakeClientConfiguration = FakeAmneziawg2CreateAccessResult.clientConfiguration
@@ -1558,11 +1564,80 @@ describe("POST /configs", () => {
       expect(configRows.every((row) => row.status === "active")).toBe(true)
       const clientIdentifiers = configRows.map((row) => row.clientIdentifier)
       expect(new Set(clientIdentifiers).size).toBe(2)
+      const { networkNumber, broadcastNumber } = parseIpSubnet(
+        FakeAmneziawg2EndpointActualState.subnet,
+      )
       expect(
-        clientIdentifiers.every((clientIdentifier) =>
-          clientIdentifier?.startsWith(`${FakeAmneziawg2EndpointActualState.subnetPrefix}.`),
-        ),
+        clientIdentifiers.every((clientIdentifier) => {
+          const address = convertIpToNumber(clientIdentifier ?? "")
+          return address > networkNumber && address < broadcastNumber
+        }),
       ).toBe(true)
+    })
+
+    it("allocates the lowest free client identifier when a gap is left between taken ones", async () => {
+      const { configEndpoint, configDeviceType } = await insertConfigPrerequisites()
+      const { networkNumber } = parseIpSubnet(FakeAmneziawg2EndpointActualState.subnet)
+      const gapAddress = convertNumberToIp(networkNumber + FIRST_CLIENT_ADDRESS_OFFSET + 1)
+      const otherUser = await insertTestUser()
+      for (const offset of [FIRST_CLIENT_ADDRESS_OFFSET, FIRST_CLIENT_ADDRESS_OFFSET + 2]) {
+        await insertTestConfig({
+          userId: otherUser.id,
+          endpointId: configEndpoint.id,
+          deviceTypeId: configDeviceType.id,
+          clientIdentifier: convertNumberToIp(networkNumber + offset),
+        })
+      }
+      const requestUser = await insertTestUser()
+      const headers = await insertTestSession(requestUser)
+
+      const createdConfig = await callCreateUserConfig(
+        {
+          name: "Created Config",
+          endpointId: configEndpoint.id,
+          deviceTypeId: configDeviceType.id,
+        },
+        headers,
+      )
+
+      const parsed = CreateUserConfigOutputSchema.parse(createdConfig)
+      expect(parsed.data.clientIp).toBe(gapAddress)
+    })
+
+    it("allocates the address past the octet boundary when every address below it is taken", async () => {
+      const { configEndpoint, configDeviceType } = await insertConfigPrerequisites()
+      const { networkNumber } = parseIpSubnet(FakeAmneziawg2EndpointActualState.subnet)
+      const otherUser = await insertTestUser()
+      await db.insert(config).values(
+        Array.from(
+          { length: ADDRESSES_PER_OCTET - FIRST_CLIENT_ADDRESS_OFFSET },
+          (_unused, index) => ({
+            userId: otherUser.id,
+            endpointId: configEndpoint.id,
+            deviceTypeId: configDeviceType.id,
+            name: `Occupying Config ${index}`,
+            data: fakeConfigData,
+            status: "active" as const,
+            clientIdentifier: convertNumberToIp(
+              networkNumber + FIRST_CLIENT_ADDRESS_OFFSET + index,
+            ),
+          }),
+        ),
+      )
+      const requestUser = await insertTestUser()
+      const headers = await insertTestSession(requestUser)
+
+      const createdConfig = await callCreateUserConfig(
+        {
+          name: "Created Config",
+          endpointId: configEndpoint.id,
+          deviceTypeId: configDeviceType.id,
+        },
+        headers,
+      )
+
+      const parsed = CreateUserConfigOutputSchema.parse(createdConfig)
+      expect(parsed.data.clientIp).toBe(convertNumberToIp(networkNumber + ADDRESSES_PER_OCTET))
     })
 
     it("returns FAILED when the endpoint actual state has no dns", async () => {
