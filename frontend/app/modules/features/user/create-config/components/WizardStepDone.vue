@@ -57,7 +57,7 @@ const copyLink = async () => {
     <template #header>
       <div class="mb-4 flex items-center gap-2.5 sm:mb-4.5">
         <CheckCircle2
-          class="size-4.5 shrink-0 text-emerald-600 dark:text-emerald-400"
+          class="-mt-px size-4.5 shrink-0 text-emerald-600 dark:text-emerald-400"
           aria-hidden="true"
         />
         <h1 class="text-base font-semibold">{{ t("title") }}</h1>
@@ -81,7 +81,12 @@ const copyLink = async () => {
             <Copy class="size-4" aria-hidden="true" />
             {{ t("copyAction") }}
           </Button>
-          <Button type="button" class="w-full sm:flex-1" @click="downloadConfiguration">
+          <Button
+            type="button"
+            variant="outline"
+            class="w-full sm:flex-1"
+            @click="downloadConfiguration"
+          >
             <Download class="size-4" aria-hidden="true" />
             {{ t("downloadAction") }}
           </Button>
@@ -92,7 +97,7 @@ const copyLink = async () => {
 
       <div class="flex flex-col gap-3.5">
         <div class="flex items-center gap-2.5">
-          <ListChecks class="size-4.5 shrink-0 text-muted-foreground" aria-hidden="true" />
+          <ListChecks class="-mt-px size-4.5 shrink-0 text-muted-foreground" aria-hidden="true" />
           <h2 class="text-base font-semibold">{{ t("setupTitle", { name: selectedApp.name }) }}</h2>
         </div>
 

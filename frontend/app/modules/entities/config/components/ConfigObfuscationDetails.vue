@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ProtocolCodeSchema, type ConfigData } from "@vancloak/api-contract"
 import { computed } from "vue"
-import { CollapsibleCard } from "@/modules/shared/components"
+import { DetailsCard } from "@/modules/shared/components"
 import { messages } from "../translations/ConfigObfuscationDetails"
 
 const props = defineProps<{ data: ConfigData }>()
@@ -14,7 +14,7 @@ const options = computed(() =>
 </script>
 
 <template>
-  <CollapsibleCard v-if="options" :title="t('title')">
+  <DetailsCard v-if="options" :title="t('title')">
     <dl class="flex flex-col gap-2.5 text-sm">
       <div class="flex items-center justify-between gap-3">
         <dt class="text-muted-foreground">{{ t("fields.protocolProfile") }}</dt>
@@ -49,5 +49,5 @@ const options = computed(() =>
         </dd>
       </div>
     </dl>
-  </CollapsibleCard>
+  </DetailsCard>
 </template>
