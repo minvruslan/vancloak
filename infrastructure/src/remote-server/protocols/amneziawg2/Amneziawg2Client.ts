@@ -27,6 +27,7 @@ import type { Amneziawg2Access } from "./types/index.js"
 import {
   buildClientConfiguration,
   buildClientConfigurationLink,
+  buildServerAddress,
   createAccessesFromConfigDatas,
   findClientPublicKeyByClientIp,
   generateClientObfuscation,
@@ -54,7 +55,7 @@ const AMNEZIAWG2_DIRECTORY_NAME = AMNEZIAWG2_PROTOCOL_CODE
 const AMNEZIAWG2_STATE_DIRECTORY_NAME = "state"
 const AMNEZIAWG2_CONTAINER_STATE_DIRECTORY_PATH = "/opt/amneziawg2"
 const AMNEZIAWG2_INTERFACE_NAME = "wg0"
-const AMNEZIAWG2_SUBNET_PREFIX = "10.8.1"
+const AMNEZIAWG2_SUBNET = "10.121.0.0/16"
 
 export class Amneziawg2Client {
   readonly protocolCode = AMNEZIAWG2_PROTOCOL_CODE
@@ -98,7 +99,7 @@ export class Amneziawg2Client {
       stateDirectoryName: AMNEZIAWG2_STATE_DIRECTORY_NAME,
       containerStateDirectoryPath: AMNEZIAWG2_CONTAINER_STATE_DIRECTORY_PATH,
       interfaceName: AMNEZIAWG2_INTERFACE_NAME,
-      subnetPrefix: AMNEZIAWG2_SUBNET_PREFIX,
+      subnet: AMNEZIAWG2_SUBNET,
       mtu,
       serverPrivateKey: serverKeyPair.privateKey,
       serverPublicKey: serverKeyPair.publicKey,
@@ -111,7 +112,7 @@ export class Amneziawg2Client {
     reservedClientIdentifiers: (string | null)[],
   ): Amneziawg2ClientIdentifier | null {
     const actualState = this.parseEndpointActualState(endpointActualState)
-    return pickFreeClientIp(reservedClientIdentifiers, actualState.subnetPrefix)
+    return pickFreeClientIp(reservedClientIdentifiers, actualState.subnet)
   }
 
   createInitialConfigData(
@@ -138,7 +139,7 @@ export class Amneziawg2Client {
       amneziawg2_docker_image_version: desiredState.dockerImageVersion,
       amneziawg2_port: desiredState.port,
       amneziawg2_mtu: desiredState.mtu,
-      amneziawg2_address: `${desiredState.subnetPrefix}.1/24`,
+      amneziawg2_address: buildServerAddress(desiredState.subnet),
       amneziawg2_deploy_directory_path: deployDirectoryPath,
       amneziawg2_state_directory_path: `${deployDirectoryPath}/${desiredState.stateDirectoryName}`,
       amneziawg2_container_state_directory_path: desiredState.containerStateDirectoryPath,
