@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Endpoint } from "@vancloak/api-contract"
-import { CollapsibleCard } from "@/modules/shared/components"
+import { DetailsCard } from "@/modules/shared/components"
 import { useCountries } from "@/modules/shared/composables"
 import { messages } from "../translations/EndpointDetails"
 
@@ -11,7 +11,7 @@ const { getCountryName } = useCountries()
 </script>
 
 <template>
-  <CollapsibleCard :title="t('title')" default-open>
+  <DetailsCard :title="t('title')">
     <dl class="flex flex-col gap-2.5 text-sm">
       <div class="flex items-center justify-between gap-3">
         <dt class="text-muted-foreground">{{ t("server") }}</dt>
@@ -26,5 +26,5 @@ const { getCountryName } = useCountries()
         <dd class="truncate">{{ endpoint.protocol.name }}</dd>
       </div>
     </dl>
-  </CollapsibleCard>
+  </DetailsCard>
 </template>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from "vue"
+import { onMounted, ref, watch } from "vue"
 import { useCreateConfigWizard } from "../composables/useCreateConfigWizard"
 import { WizardStepOrder } from "../types/WizardStepOrder"
 import WizardStepAcknowledge from "./WizardStepAcknowledge.vue"
@@ -9,6 +9,7 @@ import WizardStepDone from "./WizardStepDone.vue"
 import WizardStepEndpoint from "./WizardStepEndpoint.vue"
 import WizardStepName from "./WizardStepName.vue"
 import WizardStepProfile from "./WizardStepProfile.vue"
+import WizardStepSkeleton from "./WizardStepSkeleton.vue"
 
 const emit = defineEmits<{ (e: "exit" | "done"): void }>()
 
@@ -16,6 +17,7 @@ const wizard = useCreateConfigWizard()
 const { step } = wizard
 
 const direction = ref<"forward" | "back">("forward")
+const restored = ref(false)
 
 watch(step, (nextStep, previousStep) => {
   direction.value =
@@ -24,9 +26,18 @@ watch(step, (nextStep, previousStep) => {
 
 onBeforeRouteLeave(() => {
   if (wizard.pending.value) return false
+  wizard.clearStorage()
 })
 
 await wizard.ready
+
+const restore = () => {
+  wizard.restoreDraft()
+  restored.value = true
+}
+
+if (import.meta.client && !useNuxtApp().isHydrating) restore()
+else onMounted(restore)
 </script>
 
 <template>
@@ -45,7 +56,8 @@ await wizard.ready
           direction === 'forward' ? '-translate-x-2 opacity-0' : 'translate-x-2 opacity-0'
         "
       >
-        <WizardStepName v-if="step === 'name'" :wizard="wizard" @exit="emit('exit')" />
+        <WizardStepSkeleton v-if="!restored" />
+        <WizardStepName v-else-if="step === 'name'" :wizard="wizard" @exit="emit('exit')" />
         <WizardStepDevice v-else-if="step === 'device'" :wizard="wizard" />
         <WizardStepApp v-else-if="step === 'app'" :wizard="wizard" />
         <WizardStepEndpoint v-else-if="step === 'endpoint'" :wizard="wizard" />

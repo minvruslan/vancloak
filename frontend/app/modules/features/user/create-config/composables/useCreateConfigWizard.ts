@@ -15,6 +15,13 @@ import {
 import { useDeviceTypes } from "@/modules/entities/device-type"
 import { useEndpoints } from "@/modules/entities/endpoint"
 import { WizardAppsByDeviceTypeCode } from "../constants/WizardAppsByDeviceTypeCode"
+import { clearCreateConfigWizardStorage } from "../utils/clearCreateConfigWizardStorage"
+import { clearWizardDraft } from "../utils/clearWizardDraft"
+import { clearWizardResult } from "../utils/clearWizardResult"
+import { readWizardDraft } from "../utils/readWizardDraft"
+import { readWizardResult } from "../utils/readWizardResult"
+import { writeWizardDraft } from "../utils/writeWizardDraft"
+import { writeWizardResult } from "../utils/writeWizardResult"
 import { WizardStepOrder } from "../types/WizardStepOrder"
 import type { WizardStep } from "../types/WizardStep"
 import type { WizardAppId } from "../types/WizardAppId"
@@ -30,6 +37,7 @@ function createProtocolOptions(
 export function useCreateConfigWizard() {
   const { deviceTypes, ready: deviceTypesReady } = useDeviceTypes()
   const { endpoints, ready: endpointsReady } = useEndpoints()
+  const { user } = useAuthSession()
 
   const step = ref<WizardStep>("name")
   const name = ref("")
@@ -46,31 +54,101 @@ export function useCreateConfigWizard() {
   const selectedDeviceType = computed(
     () => deviceTypes.value.find((deviceType) => deviceType.id === deviceTypeId.value) ?? null,
   )
+
   const selectedApp = computed(() => {
     if (!selectedDeviceType.value || !appId.value) return null
     const deviceApps = WizardAppsByDeviceTypeCode[selectedDeviceType.value.code]
     return deviceApps.find((app) => app.id === appId.value) ?? null
   })
+
   const selectedEndpoint = computed(
     () => endpoints.value.find((endpoint) => endpoint.id === endpointId.value) ?? null,
   )
 
-  const canContinue = computed(() => {
-    const guards: Record<WizardStep, boolean> = {
-      name: UpsertConfigSchema.shape.name.safeParse(name.value.trim()).success,
-      device: selectedDeviceType.value !== null,
-      app: selectedApp.value !== null,
-      endpoint: selectedEndpoint.value !== null,
-      profile: true,
-      acknowledge: true,
-      done: false,
-    }
-    return guards[step.value]
+  const stepGuards = computed<Record<WizardStep, boolean>>(() => ({
+    name: UpsertConfigSchema.shape.name.safeParse(name.value.trim()).success,
+    device: selectedDeviceType.value !== null,
+    app: selectedApp.value !== null,
+    endpoint: selectedEndpoint.value !== null,
+    profile: true,
+    acknowledge: true,
+    done: false,
+  }))
+
+  const canContinue = computed(() => stepGuards.value[step.value])
+
+  watch(
+    deviceTypeId,
+    () => {
+      appId.value = null
+    },
+    { flush: "sync" },
+  )
+
+  watch([step, name, deviceTypeId, appId, endpointId, obfuscationLevel], () => {
+    if (step.value === "done" || !user.value) return
+    writeWizardDraft({
+      userId: user.value.id,
+      step: step.value,
+      name: name.value,
+      deviceTypeId: deviceTypeId.value,
+      appId: appId.value,
+      endpointId: endpointId.value,
+      obfuscationLevel: obfuscationLevel.value,
+    })
   })
 
-  watch(deviceTypeId, () => {
+  const restoreDraft = () => {
+    if (!user.value) return
+
+    const savedResult = readWizardResult(user.value.id)
+    if (savedResult) {
+      const resultDeviceType = deviceTypes.value.find(
+        (deviceType) => deviceType.id === savedResult.deviceTypeId,
+      )
+      const resultApp = resultDeviceType
+        ? WizardAppsByDeviceTypeCode[resultDeviceType.code].find(
+            (app) => app.id === savedResult.appId,
+          )
+        : undefined
+      if (resultDeviceType && resultApp) {
+        deviceTypeId.value = savedResult.deviceTypeId
+        appId.value = savedResult.appId
+        created.value = savedResult.created
+        step.value = "done"
+        return
+      }
+      clearWizardResult()
+    }
+
+    const savedDraft = readWizardDraft(user.value.id)
+
+    if (!savedDraft || savedDraft.step === "done") {
+      clearWizardDraft()
+      return
+    }
+
+    name.value = savedDraft.name
+    deviceTypeId.value = savedDraft.deviceTypeId
+    appId.value = savedDraft.appId
+    endpointId.value = savedDraft.endpointId
+    obfuscationLevel.value = savedDraft.obfuscationLevel
+
+    const previousSteps = WizardStepOrder.slice(0, WizardStepOrder.indexOf(savedDraft.step))
+    if (previousSteps.every((previousStep) => stepGuards.value[previousStep])) {
+      step.value = savedDraft.step
+      return
+    }
+
+    name.value = ""
+    deviceTypeId.value = null
     appId.value = null
-  })
+    endpointId.value = null
+    obfuscationLevel.value = RecommendedObfuscationLevel
+    clearWizardDraft()
+  }
+
+  const clearStorage = () => clearCreateConfigWizardStorage()
 
   const back = () => {
     if (pending.value) return
@@ -86,17 +164,12 @@ export function useCreateConfigWizard() {
     if (nextStep) step.value = nextStep
   }
 
-  const chooseApp = (id: WizardAppId) => {
-    if (step.value !== "app") return
-    appId.value = id
-    next()
-  }
-
   const submit = async () => {
     if (step.value !== "acknowledge" || pending.value) return false
-    if (!selectedEndpoint.value || !selectedDeviceType.value) return false
+    if (!selectedEndpoint.value || !selectedDeviceType.value || !selectedApp.value) return false
 
     pending.value = true
+    clearWizardDraft()
     try {
       created.value = await createConfig({
         name: name.value.trim(),
@@ -108,6 +181,14 @@ export function useCreateConfigWizard() {
         ),
       })
       step.value = "done"
+      if (user.value) {
+        writeWizardResult({
+          userId: user.value.id,
+          deviceTypeId: selectedDeviceType.value.id,
+          appId: selectedApp.value.id,
+          created: created.value,
+        })
+      }
       return true
     } catch {
       return false
@@ -124,6 +205,7 @@ export function useCreateConfigWizard() {
     stepCount,
     name,
     deviceTypeId,
+    appId,
     endpointId,
     obfuscationLevel,
     created,
@@ -136,8 +218,9 @@ export function useCreateConfigWizard() {
     canContinue,
     back,
     next,
-    chooseApp,
     submit,
+    restoreDraft,
+    clearStorage,
     ready,
   }
 }

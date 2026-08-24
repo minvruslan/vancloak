@@ -18,7 +18,9 @@ const { name, stepNumber, stepCount, canContinue, next } = props.wizard
 
 const nameInput = ref<{ $el: HTMLInputElement } | null>(null)
 
-onMounted(() => nameInput.value?.$el?.focus())
+onMounted(() => {
+  if (window.matchMedia("(min-width: 40rem)").matches) nameInput.value?.$el?.focus()
+})
 </script>
 
 <template>
