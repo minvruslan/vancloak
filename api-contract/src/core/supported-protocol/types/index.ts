@@ -10,7 +10,6 @@ export {
   Amneziawg2IntensitySchema,
   Amneziawg2ObfuscationLevelOrder,
   Amneziawg2ObfuscationPresets,
-  Amneziawg2ObfuscationLevelLetters,
   getAmneziawg2ObfuscationLevel,
   buildAmneziawg2ConfigName,
   type ProtocolCode,

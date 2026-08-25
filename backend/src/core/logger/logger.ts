@@ -17,7 +17,7 @@ export const logger = pino({
   level: env.LOG_LEVEL,
   redact: REDACTED_PATHS,
   serializers: { error: stdSerializers.err },
-  transport: process.env.NODE_ENV === "production" ? undefined : { target: "pino-pretty" },
+  transport: env.NODE_ENV === "production" ? undefined : { target: "pino-pretty" },
 })
 
 export const apiLogger = logger.child({ module: "api" })

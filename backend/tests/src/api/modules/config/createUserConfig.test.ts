@@ -6,7 +6,6 @@ import {
   Amneziawg2BrowserFingerprintSchema,
   Amneziawg2IntensitySchema,
   Amneziawg2ObfuscationDefaults,
-  Amneziawg2ObfuscationPresets,
   Amneziawg2ProtocolProfileSchema,
   ProtocolCodeSchema,
   ProtocolRegistry,
@@ -1408,7 +1407,7 @@ describe("POST /configs", () => {
 
       const configImport = AmneziaConfigImportSchema.parse(JSON.parse(inflated.toString()))
       expect(configImport).toMatchObject({
-        description: buildAmneziawg2ConfigName(configServer.name, Amneziawg2ObfuscationDefaults),
+        description: buildAmneziawg2ConfigName(configServer.name),
         hostName: FakeAmneziawg2EndpointActualState.host,
         dns1: FakeAmneziawg2EndpointActualState.dns,
       })
@@ -1459,7 +1458,7 @@ describe("POST /configs", () => {
       expect(configurationLines).toContain(`I1 = ${lastConfig.I1}`)
     })
 
-    it("names the import link after the slugified server name and the stealth profile letter when the high preset is requested", async () => {
+    it("names the import link after the slugified server name", async () => {
       const { configEndpoint, configDeviceType } = await insertConfigPrerequisites({
         server: { name: "Amsterdam Node" },
       })
@@ -1473,10 +1472,6 @@ describe("POST /configs", () => {
           name: "Created Config",
           endpointId: configEndpoint.id,
           deviceTypeId: configDeviceType.id,
-          protocolOptions: {
-            protocolCode: ProtocolCodeSchema.enum.amneziawg2,
-            ...Amneziawg2ObfuscationPresets.high,
-          },
         },
         headers,
       )
@@ -1489,7 +1484,7 @@ describe("POST /configs", () => {
       const configImport = AmneziaConfigImportSchema.parse(
         JSON.parse(inflateSync(compressed.subarray(4)).toString()),
       )
-      expect(configImport.description).toBe("amsterdam-node-s")
+      expect(configImport.description).toBe("amsterdam-node")
     })
     it("reuses the client identifier of a deleted config", async () => {
       const { configEndpoint, configDeviceType } = await insertConfigPrerequisites()

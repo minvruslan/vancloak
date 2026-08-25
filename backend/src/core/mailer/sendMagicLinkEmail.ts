@@ -1,13 +1,32 @@
-import { writeFile } from "node:fs/promises"
-import { resolve } from "node:path"
+import { env } from "@/core/env/index.js"
 import { authLogger } from "@/core/logger/index.js"
-
-const MAGIC_LINK_FILE = resolve(process.cwd(), "magic-link.log")
+import { createMagicLinkEmail } from "./createMagicLinkEmail.js"
+import { mailerTransporter } from "./mailerTransporter.js"
 
 export async function sendMagicLinkEmail(email: string, url: string) {
   if (process.env.VITEST)
     throw new Error("Real sendMagicLinkEmail reached in tests: mock @/core/mailer instead.")
-  // TODO: wire up a real email provider.
-  await writeFile(MAGIC_LINK_FILE, `${url}\n`)
-  authLogger.info({ url }, `Magic link for ${email} saved to ${MAGIC_LINK_FILE}.`)
+
+  if (!mailerTransporter) {
+    authLogger.info(`Magic link for ${email}: ${url}`)
+    return
+  }
+
+  const { subject, text, html, attachments } = createMagicLinkEmail(url)
+
+  try {
+    await mailerTransporter.sendMail({
+      from: env.MAIL_FROM,
+      to: email,
+      subject,
+      text,
+      html,
+      attachments,
+    })
+  } catch (error) {
+    authLogger.error({ error }, `Failed to send the magic link email to ${email}.`)
+    throw error
+  }
+
+  authLogger.info(`Magic link email sent to ${email}.`)
 }

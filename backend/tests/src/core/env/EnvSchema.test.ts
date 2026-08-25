@@ -184,6 +184,64 @@ describe("EnvSchema", () => {
     expect(parseEnv({ DOMAIN_NAME: "not a domain" }).success).toBe(false)
   })
 
+  it("accepts SMTP_URL together with MAIL_FROM", () => {
+    const parsed = parseEnv({
+      SMTP_URL: "smtp://user:pass@mail.vancloak.test:587",
+      MAIL_FROM: "VanCloak <no-reply@vancloak.test>",
+    })
+
+    expect(parsed.success).toBe(true)
+    expect(parsed.data?.SMTP_URL).toBe("smtp://user:pass@mail.vancloak.test:587")
+  })
+
+  it("rejects SMTP_URL without MAIL_FROM", () => {
+    expect(parseEnv({ SMTP_URL: "smtp://mail.vancloak.test:587" }).success).toBe(false)
+  })
+
+  it("treats empty SMTP_URL and MAIL_FROM as unset", () => {
+    const parsed = parseEnv({ SMTP_URL: "", MAIL_FROM: "" })
+
+    expect(parsed.success).toBe(true)
+    expect(parsed.data?.SMTP_URL).toBeUndefined()
+    expect(parsed.data?.MAIL_FROM).toBeUndefined()
+  })
+
+  it("accepts an smtps:// SMTP_URL", () => {
+    const parsed = parseEnv({
+      SMTP_URL: "smtps://mail.vancloak.test:465",
+      MAIL_FROM: "VanCloak <no-reply@vancloak.test>",
+    })
+
+    expect(parsed.success).toBe(true)
+  })
+
+  it("rejects an SMTP_URL with a non-smtp protocol", () => {
+    expect(
+      parseEnv({
+        SMTP_URL: "https://mail.vancloak.test:587",
+        MAIL_FROM: "VanCloak <no-reply@vancloak.test>",
+      }).success,
+    ).toBe(false)
+  })
+
+  it("rejects a production environment without SMTP_URL", () => {
+    expect(parseEnv({ NODE_ENV: "production" }).success).toBe(false)
+  })
+
+  it("accepts a production environment with SMTP_URL and MAIL_FROM", () => {
+    const parsed = parseEnv({
+      NODE_ENV: "production",
+      SMTP_URL: "smtp://mail.vancloak.test:587",
+      MAIL_FROM: "VanCloak <no-reply@vancloak.test>",
+    })
+
+    expect(parsed.success).toBe(true)
+  })
+
+  it("defaults NODE_ENV to development", () => {
+    expect(parseEnv().data?.NODE_ENV).toBe("development")
+  })
+
   it("rejects an environment missing a required variable", () => {
     expect(EnvSchema.safeParse({}).success).toBe(false)
   })

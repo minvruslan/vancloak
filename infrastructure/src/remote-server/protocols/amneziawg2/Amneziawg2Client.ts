@@ -192,7 +192,7 @@ export class Amneziawg2Client {
     })
 
     const clientConfigurationLink = buildClientConfigurationLink({
-      displayName: buildAmneziawg2ConfigName(displayName, obfuscationOptions),
+      displayName: buildAmneziawg2ConfigName(displayName),
       clientConfiguration,
       clientPrivateKey: clientKeyPair.privateKey,
       clientIp,
