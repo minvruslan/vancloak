@@ -22,7 +22,7 @@ import { eq, sql } from "drizzle-orm"
 import { beforeEach, describe, expect, it, vi, type MockInstance } from "vitest"
 import { z } from "zod"
 import app from "@/api/app.js"
-import { PENDING_CONFIG_RESERVATION_MINUTES } from "@/api/modules/config-limit/queries/constants/PENDING_CONFIG_RESERVATION_MINUTES.js"
+import { PendingConfigReservationMinutes } from "@/api/modules/config-limit/queries/constants/PendingConfigReservationMinutes.js"
 import { configRouter } from "@/api/modules/config/index.js"
 import { findEndpointProtocolClientData } from "@/api/modules/config/queries/findEndpointProtocolClientData.js"
 import { insertUserConfig } from "@/api/modules/config/queries/insertUserConfig.js"
@@ -560,7 +560,7 @@ describe("POST /configs", () => {
       endpointId: configEndpoint.id,
       deviceTypeId: configDeviceType.id,
       status: "pending",
-      createdAt: new Date(Date.now() - (PENDING_CONFIG_RESERVATION_MINUTES - 1) * 60 * 1000),
+      createdAt: new Date(Date.now() - (PendingConfigReservationMinutes - 1) * 60 * 1000),
     })
 
     await expectOrpcError(
@@ -590,7 +590,7 @@ describe("POST /configs", () => {
       endpointId: configEndpoint.id,
       deviceTypeId: configDeviceType.id,
       status: "pending",
-      createdAt: new Date(Date.now() - (PENDING_CONFIG_RESERVATION_MINUTES + 1) * 60 * 1000),
+      createdAt: new Date(Date.now() - (PendingConfigReservationMinutes + 1) * 60 * 1000),
     })
 
     const createdConfig = await callCreateUserConfig(

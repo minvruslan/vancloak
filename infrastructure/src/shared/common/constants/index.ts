@@ -1,1 +1,1 @@
-export { PROJECT_NAME } from "./PROJECT_NAME"
+export { ProjectName } from "./ProjectName"

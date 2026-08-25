@@ -2,12 +2,12 @@ import { bootstrapLogger } from "@/core/logger/index.js"
 import { sql } from "drizzle-orm"
 import { db } from "@/core/database/index.js"
 import { deviceType } from "@/core/database/schemas/domainSchema.js"
-import { DEVICE_TYPES } from "./constants/index.js"
+import { DeviceTypes } from "./constants/index.js"
 
 export async function bootstrapDeviceTypes() {
   const upserted = await db
     .insert(deviceType)
-    .values(DEVICE_TYPES)
+    .values(DeviceTypes)
     .onConflictDoUpdate({
       target: deviceType.code,
       set: { name: sql`excluded.name`, sortOrder: sql`excluded.sort_order` },

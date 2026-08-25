@@ -3,7 +3,7 @@ import type {
   Amneziawg2ClientObfuscation,
   Amneziawg2ServerObfuscation,
 } from "../../../../shared/index.js"
-import { ALLOWED_IPS, PERSISTENT_KEEPALIVE_SECONDS } from "../constants/index.js"
+import { AllowedIps, PersistentKeepaliveSeconds } from "../constants/index.js"
 
 const AMNEZIA_CONTAINER_CODE = "amnezia-awg"
 const AMNEZIA_TRANSPORT_PROTOCOL = "udp"
@@ -50,8 +50,8 @@ export function buildClientConfigurationLink(params: {
     psk_key: presharedKey,
     server_pub_key: serverPublicKey,
     mtu: String(mtu),
-    persistent_keep_alive: String(PERSISTENT_KEEPALIVE_SECONDS),
-    allowed_ips: ALLOWED_IPS,
+    persistent_keep_alive: String(PersistentKeepaliveSeconds),
+    allowed_ips: AllowedIps,
     Jc: String(clientObfuscation.jc),
     Jmin: String(clientObfuscation.jmin),
     Jmax: String(clientObfuscation.jmax),

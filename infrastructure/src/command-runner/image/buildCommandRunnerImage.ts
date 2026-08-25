@@ -1,10 +1,7 @@
-import { dirname } from "node:path"
-import { fileURLToPath } from "node:url"
 import { execa } from "execa"
+import { CommandRunnerImageDirectoryPath } from "./constants/index.js"
 import { CommandRunnerImage } from "./CommandRunnerImage.js"
 
-const imageDirectory = dirname(fileURLToPath(import.meta.url))
-
-await execa("docker", ["build", "-t", CommandRunnerImage.name, imageDirectory], {
+await execa("docker", ["build", "-t", CommandRunnerImage.name, CommandRunnerImageDirectoryPath], {
   stdio: "inherit",
 })

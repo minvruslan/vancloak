@@ -11,7 +11,7 @@ import { RemoteServer } from "@vancloak/infrastructure"
 import { eq } from "drizzle-orm"
 import { beforeEach, describe, expect, it, vi, type MockInstance } from "vitest"
 import app from "@/api/app.js"
-import { PENDING_CONFIG_RESERVATION_MINUTES } from "@/api/modules/config-limit/queries/constants/PENDING_CONFIG_RESERVATION_MINUTES.js"
+import { PendingConfigReservationMinutes } from "@/api/modules/config-limit/queries/constants/PendingConfigReservationMinutes.js"
 import { configRouter } from "@/api/modules/config/index.js"
 import { updateUserConfig as updateUserConfigQuery } from "@/api/modules/config/queries/updateUserConfig.js"
 import { bootstrapDeviceTypes } from "@/core/bootstraps/bootstrapDeviceTypes.js"
@@ -200,7 +200,7 @@ describe("PUT /configs/{id}", () => {
       endpointId: configEndpoint.id,
       deviceTypeId: firstDeviceType.id,
       status: "pending",
-      createdAt: new Date(Date.now() - (PENDING_CONFIG_RESERVATION_MINUTES + 1) * 60 * 1000),
+      createdAt: new Date(Date.now() - (PendingConfigReservationMinutes + 1) * 60 * 1000),
     })
 
     await expectOrpcError(
@@ -229,7 +229,7 @@ describe("PUT /configs/{id}", () => {
       endpointId: configEndpoint.id,
       deviceTypeId: firstDeviceType.id,
       status: "pending",
-      createdAt: new Date(Date.now() - (PENDING_CONFIG_RESERVATION_MINUTES - 1) * 60 * 1000),
+      createdAt: new Date(Date.now() - (PendingConfigReservationMinutes - 1) * 60 * 1000),
     })
 
     const updatedConfig = await callUpdateUserConfig(

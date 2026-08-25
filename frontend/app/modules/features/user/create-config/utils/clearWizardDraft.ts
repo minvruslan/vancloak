@@ -1,9 +1,9 @@
-import { WIZARD_DRAFT_STORAGE_KEY } from "../constants/WIZARD_DRAFT_STORAGE_KEY"
+import { WizardDraftStorageKey } from "../constants/WizardDraftStorageKey"
 
 export function clearWizardDraft(): void {
   if (!import.meta.client) return
   try {
-    sessionStorage.removeItem(WIZARD_DRAFT_STORAGE_KEY)
+    sessionStorage.removeItem(WizardDraftStorageKey)
   } catch {
     return
   }

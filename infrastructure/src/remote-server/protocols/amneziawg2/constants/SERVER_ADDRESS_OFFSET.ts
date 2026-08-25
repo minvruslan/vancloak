@@ -1,1 +1,0 @@
-export const SERVER_ADDRESS_OFFSET = 1

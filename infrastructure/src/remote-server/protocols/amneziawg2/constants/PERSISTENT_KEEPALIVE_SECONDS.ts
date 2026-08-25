@@ -1,1 +1,0 @@
-export const PERSISTENT_KEEPALIVE_SECONDS = 25

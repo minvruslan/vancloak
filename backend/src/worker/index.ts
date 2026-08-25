@@ -1,7 +1,25 @@
 import { checkDatabaseConnection } from "@/core/database/checkDatabaseConnection.js"
+import { env } from "@/core/env/index.js"
+import {
+  checkInfrastructureAssets,
+  checkCommandRunnerBinaries,
+} from "@/core/infrastructure/index.js"
 import { workerLogger } from "@/core/logger/index.js"
 import { checkQueueConnection } from "@/core/queue/index.js"
 import { createProvisioningWorker } from "./createProvisioningWorker.js"
+
+workerLogger.info(`VanCloak ${env.APP_VERSION} starting.`)
+
+try {
+  await checkInfrastructureAssets()
+  await checkCommandRunnerBinaries()
+} catch (error) {
+  workerLogger.error(
+    { error },
+    "Runtime prerequisites are missing — the image is packaged incorrectly.",
+  )
+  process.exit(1)
+}
 
 try {
   await checkDatabaseConnection()

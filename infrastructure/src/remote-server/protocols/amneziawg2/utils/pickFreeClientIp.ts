@@ -5,9 +5,9 @@ import {
   convertNumberToIp,
   parseIpSubnet,
 } from "../../../../shared/index.js"
-import { SERVER_ADDRESS_OFFSET } from "../constants/index.js"
+import { ServerAddressOffset } from "../constants/index.js"
 
-const FIRST_CLIENT_ADDRESS_OFFSET = SERVER_ADDRESS_OFFSET + 1
+const FIRST_CLIENT_ADDRESS_OFFSET = ServerAddressOffset + 1
 
 export function pickFreeClientIp(
   usedIps: (string | null)[],

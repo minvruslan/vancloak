@@ -11,5 +11,5 @@
       "@tests/*": ["./tests/*"]
     }
   },
-  "include": ["src", "tests", "vitest.config.ts"]
+  "include": ["src", "tests", "build.ts", "vitest.config.ts"]
 }

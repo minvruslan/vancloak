@@ -11,7 +11,7 @@ import { eq } from "drizzle-orm"
 import { beforeEach, describe, expect, it, vi, type MockInstance } from "vitest"
 import { z } from "zod"
 import app from "@/api/app.js"
-import { PENDING_CONFIG_RESERVATION_MINUTES } from "@/api/modules/config-limit/queries/constants/PENDING_CONFIG_RESERVATION_MINUTES.js"
+import { PendingConfigReservationMinutes } from "@/api/modules/config-limit/queries/constants/PendingConfigReservationMinutes.js"
 import { configRouter } from "@/api/modules/config/index.js"
 import { findDeletableUserConfigs } from "@/api/modules/config/queries/findDeletableUserConfigs.js"
 import { bootstrapDeviceTypes } from "@/core/bootstraps/bootstrapDeviceTypes.js"
@@ -142,7 +142,7 @@ describe("DELETE /configs/{id}", () => {
       endpointId: configEndpoint.id,
       deviceTypeId: configDeviceType.id,
       status: "pending",
-      createdAt: new Date(Date.now() - (PENDING_CONFIG_RESERVATION_MINUTES - 1) * 60 * 1000),
+      createdAt: new Date(Date.now() - (PendingConfigReservationMinutes - 1) * 60 * 1000),
     })
 
     const deletedConfig = await callDeleteUserConfig(headers, pendingConfig.id)
@@ -165,7 +165,7 @@ describe("DELETE /configs/{id}", () => {
       endpointId: configEndpoint.id,
       deviceTypeId: configDeviceType.id,
       status: "pending",
-      createdAt: new Date(Date.now() - (PENDING_CONFIG_RESERVATION_MINUTES + 1) * 60 * 1000),
+      createdAt: new Date(Date.now() - (PendingConfigReservationMinutes + 1) * 60 * 1000),
     })
 
     const deletedConfig = await callDeleteUserConfig(headers, stalePendingConfig.id)

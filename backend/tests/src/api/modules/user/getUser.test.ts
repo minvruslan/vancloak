@@ -4,7 +4,7 @@ import { UserSchema } from "@vancloak/api-contract"
 import { ProtocolRegistry } from "@vancloak/infrastructure/shared"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import app from "@/api/app.js"
-import { PENDING_CONFIG_RESERVATION_MINUTES } from "@/api/modules/config-limit/queries/constants/PENDING_CONFIG_RESERVATION_MINUTES.js"
+import { PendingConfigReservationMinutes } from "@/api/modules/config-limit/queries/constants/PendingConfigReservationMinutes.js"
 import { userRouter } from "@/api/modules/user/index.js"
 import { findUserById } from "@/api/modules/user/queries/findUserById.js"
 import { bootstrapDeviceTypes } from "@/core/bootstraps/bootstrapDeviceTypes.js"
@@ -135,7 +135,7 @@ describe("GET /users/{id}", () => {
       endpointId: configEndpoint.id,
       deviceTypeId: configDeviceType.id,
       status: "pending",
-      createdAt: new Date(Date.now() - (PENDING_CONFIG_RESERVATION_MINUTES + 1) * 60 * 1000),
+      createdAt: new Date(Date.now() - (PendingConfigReservationMinutes + 1) * 60 * 1000),
     })
 
     const foundUser = await callGetUser(requestedUser.id, await signInTestAdmin())

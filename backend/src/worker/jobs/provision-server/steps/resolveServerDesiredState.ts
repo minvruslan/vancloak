@@ -1,11 +1,7 @@
 import { ServerDesiredStateSchema } from "@vancloak/infrastructure/shared"
 import type { ServerDesiredState } from "@vancloak/infrastructure/shared"
 import { ProvisioningError } from "../ProvisioningError.js"
-import {
-  VPN_NODE_BASE_DIRECTORY,
-  VPN_NODE_SSH_PORT,
-  VPN_NODE_USERNAME,
-} from "../constants/index.js"
+import { VpnNodeBaseDirectoryPath, VpnNodeSshPort, VpnNodeUsername } from "../constants/index.js"
 import type { ProvisioningStep } from "./ProvisioningStep.js"
 
 export const resolveServerDesiredState: ProvisioningStep<
@@ -22,9 +18,9 @@ export const resolveServerDesiredState: ProvisioningStep<
   return ServerDesiredStateSchema.parse({
     ssh: {
       type: "privateKey",
-      username: VPN_NODE_USERNAME,
-      port: VPN_NODE_SSH_PORT,
+      username: VpnNodeUsername,
+      port: VpnNodeSshPort,
     },
-    baseDirectory: VPN_NODE_BASE_DIRECTORY,
+    baseDirectory: VpnNodeBaseDirectoryPath,
   })
 }

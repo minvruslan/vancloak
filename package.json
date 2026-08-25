@@ -1,6 +1,7 @@
 {
   "name": "vancloak",
   "private": true,
+  "packageManager": "pnpm@10.33.0",
   "scripts": {
     "dev": "pnpm run \"/^dev:(frontend|backend-api|backend-worker)$/\"",
     "dev:frontend": "pnpm --filter @vancloak/frontend dev",
@@ -9,7 +10,10 @@
     "build": "pnpm --filter @vancloak/frontend build && pnpm --filter @vancloak/backend build",
     "build:frontend": "pnpm --filter @vancloak/frontend build",
     "build:backend": "pnpm --filter @vancloak/backend build",
-    "build:command-runner-image": "pnpm --filter @vancloak/infrastructure build:command-runner-image",
+    "build:image": "pnpm run \"/^build:image:(backend|frontend|command-runner)$/\"",
+    "build:image:backend": "docker build -t vancloak-backend:${VANCLOAK_VERSION:-0.0.0-local} --build-arg APP_VERSION=${VANCLOAK_VERSION:-0.0.0-local} -f backend/Dockerfile .",
+    "build:image:frontend": "docker build -t vancloak-frontend:${VANCLOAK_VERSION:-0.0.0-local} -f frontend/Dockerfile .",
+    "build:image:command-runner": "pnpm --filter @vancloak/infrastructure build:command-runner-image",
     "test": "pnpm -r test",
     "test:backend": "pnpm --filter @vancloak/backend test",
     "test:backend:unit": "pnpm --filter @vancloak/backend test:unit",

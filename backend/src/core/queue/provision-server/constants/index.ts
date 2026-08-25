@@ -1,2 +1,2 @@
-export { PROVISION_SERVER_QUEUE_NAME } from "./PROVISION_SERVER_QUEUE_NAME.js"
-export { PROVISION_SERVER_JOB_NAME } from "./PROVISION_SERVER_JOB_NAME.js"
+export { ProvisionServerQueueName } from "./ProvisionServerQueueName.js"
+export { ProvisionServerJobName } from "./ProvisionServerJobName.js"

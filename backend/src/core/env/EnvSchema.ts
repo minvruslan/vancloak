@@ -46,6 +46,7 @@ export const EnvSchema = z.object({
   LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace", "silent"]).default("info"),
   ADMIN_EMAIL: z.email(),
   ADMIN_NAME: z.string().min(1).default("Admin"),
+  APP_VERSION: z.string().min(1).default("0.0.0-dev"),
   APP_ENCRYPTION_KEY: z
     .string()
     .min(1)

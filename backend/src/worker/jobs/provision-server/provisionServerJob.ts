@@ -1,7 +1,7 @@
 import { ProtocolRegistry } from "@vancloak/infrastructure/shared"
 import { RemoteServer } from "@vancloak/infrastructure"
 import { env } from "@/core/env/index.js"
-import { VPN_NODE_DNS } from "./constants/index.js"
+import { VpnNodeDns } from "./constants/index.js"
 import type { ProvisionServerJob } from "@/core/queue/provision-server/index.js"
 import { ProvisioningError } from "./ProvisioningError.js"
 import { findServer } from "./queries/findServer.js"
@@ -74,7 +74,7 @@ export async function provisionServerJob(job: ProvisionServerJob) {
   const { endpointDeployments, endpointDataUpdates } = await resolveEndpointDeployments(serverId, {
     remoteServer,
     host: server.domainName ?? server.ip,
-    dns: VPN_NODE_DNS,
+    dns: VpnNodeDns,
     endpoints,
   })
 

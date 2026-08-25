@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm"
 import { describe, expect, it } from "vitest"
-import { DEVICE_TYPES } from "@/core/bootstraps/constants/index.js"
+import { DeviceTypes } from "@/core/bootstraps/constants/index.js"
 import { bootstrapDeviceTypes } from "@/core/bootstraps/bootstrapDeviceTypes.js"
 import { db } from "@/core/database/index.js"
 import { deviceType } from "@/core/database/schemas/index.js"
@@ -16,7 +16,7 @@ describe("bootstrapDeviceTypes", () => {
     const deviceTypeRows = await db.select().from(deviceType)
     expect(
       sortByCode(deviceTypeRows.map(({ code, name, sortOrder }) => ({ code, name, sortOrder }))),
-    ).toEqual(sortByCode(DEVICE_TYPES))
+    ).toEqual(sortByCode(DeviceTypes))
     expect(deviceTypeRows.every((row) => row.isEnabled)).toBe(true)
   })
 
@@ -31,7 +31,7 @@ describe("bootstrapDeviceTypes", () => {
   })
 
   it("adds the missing device types to a partially seeded catalog keeping existing rows", async () => {
-    const catalogEntry = DEVICE_TYPES[0]
+    const catalogEntry = DeviceTypes[0]
     await db.insert(deviceType).values(catalogEntry)
     const [existingDeviceType] = await db.select().from(deviceType)
 
@@ -39,7 +39,7 @@ describe("bootstrapDeviceTypes", () => {
 
     const deviceTypeRows = await db.select().from(deviceType)
     expect(sortByCode(deviceTypeRows).map((row) => row.code)).toEqual(
-      sortByCode(DEVICE_TYPES).map((entry) => entry.code),
+      sortByCode(DeviceTypes).map((entry) => entry.code),
     )
     const existingRows = deviceTypeRows.filter((row) => row.code === catalogEntry.code)
     expect(existingRows).toEqual([existingDeviceType])
@@ -47,7 +47,7 @@ describe("bootstrapDeviceTypes", () => {
 
   it("restores the catalog name of a renamed device type", async () => {
     await bootstrapDeviceTypes()
-    const [catalogEntry, otherCatalogEntry] = DEVICE_TYPES
+    const [catalogEntry, otherCatalogEntry] = DeviceTypes
     await db
       .update(deviceType)
       .set({ name: otherCatalogEntry.name })
