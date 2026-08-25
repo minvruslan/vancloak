@@ -5,7 +5,7 @@ import { ProtocolRegistry } from "@vancloak/infrastructure/shared"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { z } from "zod"
 import app from "@/api/app.js"
-import { PENDING_CONFIG_RESERVATION_MINUTES } from "@/api/modules/config-limit/queries/constants/PENDING_CONFIG_RESERVATION_MINUTES.js"
+import { PendingConfigReservationMinutes } from "@/api/modules/config-limit/queries/constants/PendingConfigReservationMinutes.js"
 import { userRouter } from "@/api/modules/user/index.js"
 import { findUsers } from "@/api/modules/user/queries/findUsers.js"
 import { bootstrapDeviceTypes } from "@/core/bootstraps/bootstrapDeviceTypes.js"
@@ -220,7 +220,7 @@ describe("GET /users", () => {
       endpointId: configEndpoint.id,
       deviceTypeId: configDeviceType.id,
       status: "pending",
-      createdAt: new Date(Date.now() - (PENDING_CONFIG_RESERVATION_MINUTES + 1) * 60 * 1000),
+      createdAt: new Date(Date.now() - (PendingConfigReservationMinutes + 1) * 60 * 1000),
     })
 
     const users = await callGetUsers(await signInTestAdmin())

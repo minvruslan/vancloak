@@ -1,15 +1,15 @@
 import { describe, expect, it } from "vitest"
 import { env } from "@/core/env/index.js"
-import { TEST_DATABASE_URL } from "@tests/constants/TEST_DATABASE_URL.js"
-import { TEST_QUEUE_URL } from "@tests/constants/TEST_QUEUE_URL.js"
+import { TestDatabaseUrl } from "@tests/constants/TestDatabaseUrl.js"
+import { TestQueueUrl } from "@tests/constants/TestQueueUrl.js"
 
 describe("setupTestEnvironment", () => {
   it("points DATABASE_URL at the test database", () => {
-    expect(env.DATABASE_URL).toBe(TEST_DATABASE_URL)
+    expect(env.DATABASE_URL).toBe(TestDatabaseUrl)
   })
 
   it("points QUEUE_URL at the test redis", () => {
-    expect(env.QUEUE_URL).toBe(TEST_QUEUE_URL)
+    expect(env.QUEUE_URL).toBe(TestQueueUrl)
   })
 
   it("uses a 32-byte test encryption key", () => {

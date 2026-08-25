@@ -4,7 +4,7 @@ import { ProtocolRegistry } from "@vancloak/infrastructure/shared"
 import { db } from "@/core/database/index.js"
 import type { ServiceResult } from "@/core/types/index.js"
 import {
-  PROVISION_SERVER_JOB_NAME,
+  ProvisionServerJobName,
   provisionServerQueue,
 } from "@/core/queue/provision-server/index.js"
 import { deleteServer } from "../queries/deleteServer.js"
@@ -116,7 +116,7 @@ export async function createServerService(
   try {
     const queue = provisionServerQueue()
     await queue.add(
-      PROVISION_SERVER_JOB_NAME,
+      ProvisionServerJobName,
       { serverId: result.data.server.id },
       { jobId: result.data.server.id },
     )

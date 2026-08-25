@@ -2,7 +2,7 @@ import { Worker } from "bullmq"
 import { workerLogger } from "@/core/logger/index.js"
 import { queueConnection } from "@/core/queue/index.js"
 import {
-  PROVISION_SERVER_QUEUE_NAME,
+  ProvisionServerQueueName,
   type ProvisionServerJob,
 } from "@/core/queue/provision-server/index.js"
 import { provisionServerJob } from "./jobs/provision-server/provisionServerJob.js"
@@ -11,7 +11,7 @@ import { updateServerStatus } from "./jobs/provision-server/queries/updateServer
 
 export function createProvisioningWorker() {
   const worker = new Worker<ProvisionServerJob>(
-    PROVISION_SERVER_QUEUE_NAME,
+    ProvisionServerQueueName,
     (job) => provisionServerJob(job.data),
     { connection: queueConnection, concurrency: 3 },
   )

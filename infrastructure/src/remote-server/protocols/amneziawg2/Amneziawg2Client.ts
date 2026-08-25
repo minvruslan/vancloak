@@ -1,5 +1,4 @@
-import { dirname, resolve } from "node:path"
-import { fileURLToPath } from "node:url"
+import { resolve } from "node:path"
 import { z } from "zod"
 import {
   Amneziawg2EndpointActualStateSchema,
@@ -21,8 +20,9 @@ import {
   type ProtocolCode,
   type ServerDesiredState,
 } from "../../../shared/index.js"
+import { InfrastructureAssetsDirectoryPath } from "../../../assets/index.js"
 import type { RemoteCommandRunner } from "../../../remote-command-runner/index.js"
-import { TUNNEL_MTU } from "./constants/index.js"
+import { TunnelMtu } from "./constants/index.js"
 import type { Amneziawg2Access } from "./types/index.js"
 import {
   buildClientConfiguration,
@@ -37,15 +37,24 @@ import {
   pickFreeClientIp,
 } from "./utils/index.js"
 
-const AMNEZIAWG2_ANSIBLE_ROLE_DIRECTORY = resolve(
-  dirname(fileURLToPath(import.meta.url)),
-  "ansible",
+const AMNEZIAWG2_DIRECTORY_PATH = resolve(
+  InfrastructureAssetsDirectoryPath,
+  "remote-server",
+  "protocols",
+  "amneziawg2",
 )
-const AMNEZIAWG2_SCRIPTS_DIRECTORY = resolve(dirname(fileURLToPath(import.meta.url)), "scripts")
-const AMNEZIAWG2_APPLY_PEERS_SCRIPT_PATH = resolve(AMNEZIAWG2_SCRIPTS_DIRECTORY, "apply-peers.sh")
-const AMNEZIAWG2_DELETE_PEERS_SCRIPT_PATH = resolve(AMNEZIAWG2_SCRIPTS_DIRECTORY, "delete-peers.sh")
+const AMNEZIAWG2_ANSIBLE_ROLE_DIRECTORY_PATH = resolve(AMNEZIAWG2_DIRECTORY_PATH, "ansible")
+const AMNEZIAWG2_SCRIPTS_DIRECTORY_PATH = resolve(AMNEZIAWG2_DIRECTORY_PATH, "scripts")
+const AMNEZIAWG2_APPLY_PEERS_SCRIPT_PATH = resolve(
+  AMNEZIAWG2_SCRIPTS_DIRECTORY_PATH,
+  "apply-peers.sh",
+)
+const AMNEZIAWG2_DELETE_PEERS_SCRIPT_PATH = resolve(
+  AMNEZIAWG2_SCRIPTS_DIRECTORY_PATH,
+  "delete-peers.sh",
+)
 const AMNEZIAWG2_LIST_ALLOWED_IPS_SCRIPT_PATH = resolve(
-  AMNEZIAWG2_SCRIPTS_DIRECTORY,
+  AMNEZIAWG2_SCRIPTS_DIRECTORY_PATH,
   "list-allowed-ips.sh",
 )
 const AMNEZIAWG2_PROTOCOL_CODE = "amneziawg2" satisfies ProtocolCode
@@ -86,7 +95,7 @@ export class Amneziawg2Client {
   ): Amneziawg2EndpointDesiredState {
     const parsedPort = PortSchema.parse(port)
     const serverKeyPair = generateKeyPair()
-    const mtu = TUNNEL_MTU
+    const mtu = TunnelMtu
 
     return Amneziawg2EndpointDesiredStateSchema.parse({
       protocolCode: this.protocolCode,
@@ -134,7 +143,7 @@ export class Amneziawg2Client {
     const desiredState = this.parseEndpointDesiredState(endpointDesiredState)
     const deployDirectoryPath = `${server.desiredState.baseDirectory}/${desiredState.directoryName}`
 
-    await this.remoteCommandRunner.runAnsibleRole(AMNEZIAWG2_ANSIBLE_ROLE_DIRECTORY, {
+    await this.remoteCommandRunner.runAnsibleRole(AMNEZIAWG2_ANSIBLE_ROLE_DIRECTORY_PATH, {
       service_username: server.desiredState.ssh.username,
       amneziawg2_docker_image_version: desiredState.dockerImageVersion,
       amneziawg2_port: desiredState.port,

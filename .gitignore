@@ -26,3 +26,6 @@ coverage
 .env.*
 !.env.example
 .vercel
+
+# Local deploy keys
+deploy/app_ssh_key*

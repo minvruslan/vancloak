@@ -1,0 +1,124 @@
+name: vancloak-deploy
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "5"
+
+services:
+  postgres:
+    container_name: vancloak-postgres
+    image: postgres:16-alpine
+    restart: unless-stopped
+    logging: *logging
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?set the database user in .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set the database password in .env}
+      POSTGRES_DB: ${POSTGRES_DB:?set the database name in .env}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    container_name: vancloak-redis
+    image: redis:7-alpine
+    restart: unless-stopped
+    logging: *logging
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  migrate:
+    container_name: vancloak-migrate
+    image: vancloak-backend:${VANCLOAK_VERSION:?set the image version in .env}
+    restart: "no"
+    logging: *logging
+    command: ["node", "--enable-source-maps", "dist/migrate.mjs"]
+    env_file: [.env]
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  backend-api:
+    container_name: vancloak-backend-api
+    image: vancloak-backend:${VANCLOAK_VERSION:?set the image version in .env}
+    restart: unless-stopped
+    logging: *logging
+    command: ["node", "--enable-source-maps", "dist/api/index.mjs"]
+    env_file: [.env]
+    environment:
+      HOST: 0.0.0.0
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:4000/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  backend-worker:
+    container_name: vancloak-backend-worker
+    image: vancloak-backend:${VANCLOAK_VERSION:?set the image version in .env}
+    restart: unless-stopped
+    logging: *logging
+    command: ["node", "--enable-source-maps", "dist/worker/index.mjs"]
+    env_file: [.env]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+
+  frontend:
+    container_name: vancloak-frontend
+    image: vancloak-frontend:${VANCLOAK_VERSION:?set the image version in .env}
+    restart: unless-stopped
+    logging: *logging
+    environment:
+      NUXT_PUBLIC_API_BASE_URL: ${NUXT_PUBLIC_API_BASE_URL:?set the API base url in .env}
+      NUXT_PUBLIC_AUTH_BASE_URL: ${NUXT_PUBLIC_AUTH_BASE_URL:?set the auth base url in .env}
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:3000/login"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  caddy:
+    container_name: vancloak-caddy
+    image: caddy:2-alpine
+    restart: unless-stopped
+    logging: *logging
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      CADDY_SITE_ADDRESS: ${CADDY_SITE_ADDRESS:?set the public site address in .env}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      backend-api:
+        condition: service_healthy
+      frontend:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  redis_data:
+  caddy_data:
+  caddy_config:

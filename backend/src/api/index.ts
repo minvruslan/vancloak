@@ -3,12 +3,29 @@ import app from "./app.js"
 import { runBootstraps } from "@/core/bootstraps/index.js"
 import { checkDatabaseConnection } from "@/core/database/checkDatabaseConnection.js"
 import { env } from "@/core/env/index.js"
+import {
+  checkInfrastructureAssets,
+  checkCommandRunnerBinaries,
+} from "@/core/infrastructure/index.js"
 import { startupLogger } from "@/core/logger/index.js"
 import { checkQueueConnection } from "@/core/queue/index.js"
 import { provisionServerQueue } from "@/core/queue/provision-server/index.js"
 
 const port = env.PORT
 const host = env.HOST
+
+startupLogger.info(`VanCloak ${env.APP_VERSION} starting.`)
+
+try {
+  await checkInfrastructureAssets()
+  await checkCommandRunnerBinaries()
+} catch (error) {
+  startupLogger.error(
+    { error },
+    "Runtime prerequisites are missing — the image is packaged incorrectly.",
+  )
+  process.exit(1)
+}
 
 try {
   await checkDatabaseConnection()

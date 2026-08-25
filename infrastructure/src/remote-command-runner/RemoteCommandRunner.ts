@@ -1,8 +1,8 @@
 import { cp, mkdtemp, readFile, rm, writeFile } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
-import { PROJECT_NAME, ServerAccessSchema, type ServerAccess } from "../shared/index.js"
-import { CommandRunner } from "../command-runner/index.js"
+import { ProjectName, ServerAccessSchema, type ServerAccess } from "../shared/index.js"
+import { CommandRunner, resolveCommandRunnerPath } from "../command-runner/index.js"
 import { assertAnsibleAssetExists, quoteShellArgument } from "./utils/index.js"
 
 const SSH_DEFAULT_PORT = 22
@@ -73,9 +73,7 @@ export class RemoteCommandRunner {
   }
 
   async runAnsibleRole(roleDirectory: string, variables: Record<string, unknown>): Promise<void> {
-    const localPlaybookDirectory = await mkdtemp(
-      join(tmpdir(), `${PROJECT_NAME}-ansible-playbook-`),
-    )
+    const localPlaybookDirectory = await mkdtemp(join(tmpdir(), `${ProjectName}-ansible-playbook-`))
 
     try {
       await writeFile(
@@ -98,7 +96,7 @@ export class RemoteCommandRunner {
   }
 
   async execute(remoteCommand: string, remoteStdin?: string): Promise<string> {
-    const localTmpDirectory = await mkdtemp(join(tmpdir(), `${PROJECT_NAME}-ssh-`))
+    const localTmpDirectory = await mkdtemp(join(tmpdir(), `${ProjectName}-ssh-`))
 
     try {
       const profile = await this.buildConnectionProfile(localTmpDirectory)
@@ -110,7 +108,7 @@ export class RemoteCommandRunner {
         "-o",
         "StrictHostKeyChecking=yes",
         "-o",
-        `UserKnownHostsFile=${SSH_KNOWN_HOSTS_MOUNT_PATH}`,
+        `UserKnownHostsFile=${profile.knownHostsPath}`,
         "-o",
         `ConnectTimeout=${SSH_CONNECT_TIMEOUT_SECONDS}`,
         "-o",
@@ -139,22 +137,13 @@ export class RemoteCommandRunner {
   ): Promise<void> {
     await assertAnsibleAssetExists(join(localPlaybookDirectory, playbookFilename))
 
-    const localTmpDirectory = await mkdtemp(join(tmpdir(), `${PROJECT_NAME}-ansible-vars-`))
+    const localTmpDirectory = await mkdtemp(join(tmpdir(), `${ProjectName}-ansible-vars-`))
 
     try {
       const profile = await this.buildConnectionProfile(localTmpDirectory)
 
-      const dockerFlags = [
-        "-e",
-        "ANSIBLE_RETRY_FILES_ENABLED=false",
-        "-e",
-        "ANSIBLE_CALLBACK_RESULT_FORMAT=yaml",
-        "-e",
-        "ANSIBLE_PYTHON_INTERPRETER=auto_silent",
-        "-v",
-        `${localPlaybookDirectory}:${ANSIBLE_MOUNT_PATH}:ro`,
-        ...profile.mounts,
-      ]
+      const playbookDirectory = resolveCommandRunnerPath(localPlaybookDirectory, ANSIBLE_MOUNT_PATH)
+      const dockerFlags = [...playbookDirectory.mount, ...profile.mounts]
 
       const connectionVariables: Record<string, unknown> = {
         ansible_user: this.serverAccess.username,
@@ -166,7 +155,7 @@ export class RemoteCommandRunner {
         "-o",
         "StrictHostKeyChecking=yes",
         "-o",
-        `UserKnownHostsFile=${SSH_KNOWN_HOSTS_MOUNT_PATH}`,
+        `UserKnownHostsFile=${profile.knownHostsPath}`,
         "-o",
         `ConnectTimeout=${SSH_CONNECT_TIMEOUT_SECONDS}`,
         "-o",
@@ -192,7 +181,11 @@ export class RemoteCommandRunner {
         },
       )
 
-      dockerFlags.push("-v", `${localVariablesPath}:${ANSIBLE_VARIABLES_MOUNT_PATH}:ro`)
+      const variablesFile = resolveCommandRunnerPath(
+        localVariablesPath,
+        ANSIBLE_VARIABLES_MOUNT_PATH,
+      )
+      dockerFlags.push(...variablesFile.mount)
 
       await CommandRunner.run(
         dockerFlags,
@@ -201,10 +194,19 @@ export class RemoteCommandRunner {
           "-i",
           `${this.serverAccess.ip},`,
           "--extra-vars",
-          `@${ANSIBLE_VARIABLES_MOUNT_PATH}`,
-          `${ANSIBLE_MOUNT_PATH}/${playbookFilename}`,
+          `@${variablesFile.path}`,
+          `${playbookDirectory.path}/${playbookFilename}`,
         ],
-        { stdout: "inherit", stderr: "inherit", timeout: ANSIBLE_PLAYBOOK_TIMEOUT_MS },
+        {
+          env: {
+            ANSIBLE_RETRY_FILES_ENABLED: "false",
+            ANSIBLE_CALLBACK_RESULT_FORMAT: "yaml",
+            ANSIBLE_PYTHON_INTERPRETER: "auto_silent",
+          },
+          stdout: "inherit",
+          stderr: "inherit",
+          timeout: ANSIBLE_PLAYBOOK_TIMEOUT_MS,
+        },
       )
     } finally {
       await rm(localTmpDirectory, { recursive: true, force: true })
@@ -227,25 +229,29 @@ export class RemoteCommandRunner {
 
   private async buildConnectionProfile(localTmpDirectory: string): Promise<{
     mounts: string[]
+    knownHostsPath: string
     ssh: { commandPrefix: string[] }
     ansible: { variables: Record<string, unknown>; sshArguments: string[] }
   }> {
     const localKnownHostsPath = join(localTmpDirectory, "known-hosts")
     await writeFile(localKnownHostsPath, this.buildKnownHostsContent(), { mode: 0o600 })
 
-    const mounts = ["-v", `${localKnownHostsPath}:${SSH_KNOWN_HOSTS_MOUNT_PATH}:ro`]
+    const knownHosts = resolveCommandRunnerPath(localKnownHostsPath, SSH_KNOWN_HOSTS_MOUNT_PATH)
+    const mounts = [...knownHosts.mount]
 
     if ("privateKey" in this.serverAccess) {
       const localPrivateKeyPath = join(localTmpDirectory, "private-key")
       await writeFile(localPrivateKeyPath, this.serverAccess.privateKey, { mode: 0o600 })
-      mounts.push("-v", `${localPrivateKeyPath}:${SSH_PRIVATE_KEY_MOUNT_PATH}:ro`)
+      const privateKey = resolveCommandRunnerPath(localPrivateKeyPath, SSH_PRIVATE_KEY_MOUNT_PATH)
+      mounts.push(...privateKey.mount)
 
       const keyOptions = ["-o", "IdentitiesOnly=yes", "-o", "BatchMode=yes"]
       return {
         mounts,
-        ssh: { commandPrefix: ["ssh", "-i", SSH_PRIVATE_KEY_MOUNT_PATH, ...keyOptions] },
+        knownHostsPath: knownHosts.path,
+        ssh: { commandPrefix: ["ssh", "-i", privateKey.path, ...keyOptions] },
         ansible: {
-          variables: { ansible_ssh_private_key_file: SSH_PRIVATE_KEY_MOUNT_PATH },
+          variables: { ansible_ssh_private_key_file: privateKey.path },
           sshArguments: keyOptions,
         },
       }
@@ -253,11 +259,13 @@ export class RemoteCommandRunner {
 
     const localPasswordPath = join(localTmpDirectory, "password")
     await writeFile(localPasswordPath, this.serverAccess.password, { mode: 0o600 })
-    mounts.push("-v", `${localPasswordPath}:${SSH_PASSWORD_MOUNT_PATH}:ro`)
+    const password = resolveCommandRunnerPath(localPasswordPath, SSH_PASSWORD_MOUNT_PATH)
+    mounts.push(...password.mount)
 
     return {
       mounts,
-      ssh: { commandPrefix: ["sshpass", "-f", SSH_PASSWORD_MOUNT_PATH, "ssh"] },
+      knownHostsPath: knownHosts.path,
+      ssh: { commandPrefix: ["sshpass", "-f", password.path, "ssh"] },
       ansible: {
         variables: {
           ansible_password: this.serverAccess.password,

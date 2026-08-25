@@ -1,0 +1,7 @@
+collections:
+  - name: devsec.hardening
+    version: 10.6.0
+  - name: ansible.posix
+    version: 2.2.1
+  - name: community.general
+    version: 12.6.2

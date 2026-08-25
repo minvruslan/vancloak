@@ -9,7 +9,7 @@ import {
 } from "@vancloak/infrastructure/shared"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import app from "@/api/app.js"
-import { PENDING_CONFIG_RESERVATION_MINUTES } from "@/api/modules/config-limit/queries/constants/PENDING_CONFIG_RESERVATION_MINUTES.js"
+import { PendingConfigReservationMinutes } from "@/api/modules/config-limit/queries/constants/PendingConfigReservationMinutes.js"
 import { configRouter } from "@/api/modules/config/index.js"
 import { findUserConfig } from "@/api/modules/config/queries/findUserConfig.js"
 import { bootstrapDeviceTypes } from "@/core/bootstraps/bootstrapDeviceTypes.js"
@@ -131,7 +131,7 @@ describe("GET /configs/{id}", () => {
       endpointId: configEndpoint.id,
       deviceTypeId: configDeviceType.id,
       status: "pending",
-      createdAt: new Date(Date.now() - (PENDING_CONFIG_RESERVATION_MINUTES + 1) * 60 * 1000),
+      createdAt: new Date(Date.now() - (PendingConfigReservationMinutes + 1) * 60 * 1000),
     })
 
     await expectOrpcError(callGetUserConfig(headers, stalePendingConfig.id), "NOT_FOUND")
@@ -146,7 +146,7 @@ describe("GET /configs/{id}", () => {
       endpointId: configEndpoint.id,
       deviceTypeId: configDeviceType.id,
       status: "pending",
-      createdAt: new Date(Date.now() - (PENDING_CONFIG_RESERVATION_MINUTES - 1) * 60 * 1000),
+      createdAt: new Date(Date.now() - (PendingConfigReservationMinutes - 1) * 60 * 1000),
     })
 
     const requestedConfig = await callGetUserConfig(headers, pendingConfig.id)

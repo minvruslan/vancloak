@@ -30,7 +30,7 @@ This repo is a **pnpm workspace monorepo** — always use `pnpm`, never `npm` or
 
 - No explanatory comments in code. A comment may only state a constraint the code cannot express; the sole tolerated markers are the frontend desktop/mobile section markers.
 - Spell identifiers out, no abbreviations: `stateDirectory` not `stateDir`, `PRESHARED_KEY` not `PSK`. Acronyms inside identifiers are camelCase (`sshPort`, `clientIp`) — enforced by `vancloakNaming/camel-case-acronyms`.
-- Config/settings objects are PascalCase (`Amneziawg2ObfuscationDefaults`); SCREAMING_SNAKE only for scalar constants.
+- Config/settings objects and any constant exported from its own file are PascalCase, the file named after the export (`TunnelMtu.ts`, `CommandRunnerMode.ts`) — never SCREAMING file names. SCREAMING_SNAKE only for file-local constants (`SSH_PRIVATE_KEY_MOUNT_PATH`).
 - Name by role, never by current value: `service_username`, not `vancloak_username`.
 - Use the library's documented identifier names (oRPC: `os`, `authMiddleware`, `authorized`) — never invent replacements.
 - No premature abstractions: no base classes, interfaces or generics for a single implementation; extract when the second consumer lands.

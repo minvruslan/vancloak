@@ -6,7 +6,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { z } from "zod"
 import app from "@/api/app.js"
 import { configLimitRouter } from "@/api/modules/config-limit/index.js"
-import { PENDING_CONFIG_RESERVATION_MINUTES } from "@/api/modules/config-limit/queries/constants/PENDING_CONFIG_RESERVATION_MINUTES.js"
+import { PendingConfigReservationMinutes } from "@/api/modules/config-limit/queries/constants/PendingConfigReservationMinutes.js"
 import { findUserConfigLimits } from "@/api/modules/config-limit/queries/findUserConfigLimits.js"
 import { bootstrapDeviceTypes } from "@/core/bootstraps/bootstrapDeviceTypes.js"
 import { db } from "@/core/database/index.js"
@@ -154,7 +154,7 @@ describe("GET /config-limits", () => {
     await db
       .update(config)
       .set({
-        createdAt: new Date(Date.now() - (PENDING_CONFIG_RESERVATION_MINUTES + 1) * 60 * 1000),
+        createdAt: new Date(Date.now() - (PendingConfigReservationMinutes + 1) * 60 * 1000),
       })
       .where(eq(config.id, stalePendingConfig.id))
 

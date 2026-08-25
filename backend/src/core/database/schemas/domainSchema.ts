@@ -16,7 +16,7 @@ import {
 import type { ConfigData, ProtocolFamilyCode } from "@vancloak/api-contract"
 import type { EndpointData, ServerData } from "@vancloak/infrastructure/shared"
 import { encryptedJsonb, encryptedText } from "../columns/index.js"
-import { user } from "./authSchema"
+import { user } from "./authSchema.js"
 
 // Enums
 

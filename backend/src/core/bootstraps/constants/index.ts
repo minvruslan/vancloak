@@ -1,1 +1,1 @@
-export { DEVICE_TYPES } from "./DEVICE_TYPES.js"
+export { DeviceTypes } from "./DeviceTypes.js"

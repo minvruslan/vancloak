@@ -16,7 +16,7 @@ import { insertServer } from "@/api/modules/server/queries/insertServer.js"
 import { db } from "@/core/database/index.js"
 import { endpoint, server } from "@/core/database/schemas/index.js"
 import {
-  PROVISION_SERVER_JOB_NAME,
+  ProvisionServerJobName,
   provisionServerQueue,
 } from "@/core/queue/provision-server/index.js"
 import { expectOrpcError } from "@tests/assertions/index.js"
@@ -154,7 +154,7 @@ describe("POST /servers", () => {
 
     const provisionServerJob = await provisionServerQueue().getJob(createdServer.id)
     expect(provisionServerJob).toBeDefined()
-    expect(provisionServerJob?.name).toBe(PROVISION_SERVER_JOB_NAME)
+    expect(provisionServerJob?.name).toBe(ProvisionServerJobName)
     expect(provisionServerJob?.data).toEqual({ serverId: createdServer.id })
   })
 

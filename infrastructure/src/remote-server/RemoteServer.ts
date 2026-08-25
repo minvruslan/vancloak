@@ -1,7 +1,6 @@
 import { mkdtemp, rm, writeFile } from "node:fs/promises"
 import { tmpdir } from "node:os"
-import { dirname, join, resolve } from "node:path"
-import { fileURLToPath } from "node:url"
+import { join, resolve } from "node:path"
 import { z } from "zod"
 import {
   IpSchema,
@@ -15,13 +14,18 @@ import {
   type ProtocolCode,
   type TransportProtocol,
 } from "../shared/index.js"
-import { PROJECT_NAME } from "../shared/index.js"
-import { CommandRunner } from "../command-runner/index.js"
+import { ProjectName } from "../shared/index.js"
+import { InfrastructureAssetsDirectoryPath } from "../assets/index.js"
+import { CommandRunner, resolveCommandRunnerPath } from "../command-runner/index.js"
 import { RemoteCommandRunner } from "../remote-command-runner/index.js"
 import { ProtocolClientFactories } from "./protocols/index.js"
 import type { ProtocolClientByCode } from "./protocols/index.js"
 
-const ANSIBLE_DIRECTORY = resolve(dirname(fileURLToPath(import.meta.url)), "ansible")
+const ANSIBLE_DIRECTORY_PATH = resolve(
+  InfrastructureAssetsDirectoryPath,
+  "remote-server",
+  "ansible",
+)
 const SSH_KEYSCAN_TIMEOUT_SECONDS = 15
 const SSH_PRIVATE_KEY_MOUNT_PATH = "/ssh-private-key"
 
@@ -110,16 +114,23 @@ export class RemoteServer {
   }
 
   static async deriveSshPublicKey(privateKey: string): Promise<string> {
-    const localTmpDirectory = await mkdtemp(join(tmpdir(), `${PROJECT_NAME}-ssh-public-key-`))
+    const localTmpDirectory = await mkdtemp(join(tmpdir(), `${ProjectName}-ssh-public-key-`))
 
     try {
       const localPrivateKeyPath = join(localTmpDirectory, "private-key")
       await writeFile(localPrivateKeyPath, privateKey, { mode: 0o600 })
 
-      const stdout = await CommandRunner.run(
-        ["-v", `${localPrivateKeyPath}:${SSH_PRIVATE_KEY_MOUNT_PATH}:ro`],
-        ["ssh-keygen", "-y", "-f", SSH_PRIVATE_KEY_MOUNT_PATH],
+      const privateKeyFile = resolveCommandRunnerPath(
+        localPrivateKeyPath,
+        SSH_PRIVATE_KEY_MOUNT_PATH,
       )
+
+      const stdout = await CommandRunner.run(privateKeyFile.mount, [
+        "ssh-keygen",
+        "-y",
+        "-f",
+        privateKeyFile.path,
+      ])
 
       const publicKey = stdout.trim()
       if (!publicKey) {
@@ -141,11 +152,14 @@ export class RemoteServer {
   }
 
   installDocker(): Promise<void> {
-    return this.remoteCommandRunner.runAnsibleRole(join(ANSIBLE_DIRECTORY, "roles", "docker"), {})
+    return this.remoteCommandRunner.runAnsibleRole(
+      join(ANSIBLE_DIRECTORY_PATH, "roles", "docker"),
+      {},
+    )
   }
 
   createServiceUser(serviceUsername: string, serviceBaseDirectory: string): Promise<void> {
-    return this.remoteCommandRunner.runAnsibleRole(join(ANSIBLE_DIRECTORY, "roles", "user"), {
+    return this.remoteCommandRunner.runAnsibleRole(join(ANSIBLE_DIRECTORY_PATH, "roles", "user"), {
       service_username: UnixUsernameSchema.parse(serviceUsername),
       service_base_directory: UnixPathSchema.parse(serviceBaseDirectory),
     })
@@ -156,7 +170,7 @@ export class RemoteServer {
     authorizedKeys: string[],
   ): Promise<void> {
     return this.remoteCommandRunner.runAnsibleRole(
-      join(ANSIBLE_DIRECTORY, "roles", "authorized-keys"),
+      join(ANSIBLE_DIRECTORY_PATH, "roles", "authorized-keys"),
       {
         service_username: UnixUsernameSchema.parse(serviceUsername),
         service_authorized_keys: z.array(z.string().min(1)).min(1).parse(authorizedKeys),
@@ -165,14 +179,17 @@ export class RemoteServer {
   }
 
   hardenSshAccess(sshPort: number): Promise<void> {
-    return this.remoteCommandRunner.runAnsibleRole(join(ANSIBLE_DIRECTORY, "roles", "hardening"), {
-      hardening_ssh_port: PortSchema.parse(sshPort),
-    })
+    return this.remoteCommandRunner.runAnsibleRole(
+      join(ANSIBLE_DIRECTORY_PATH, "roles", "hardening"),
+      {
+        hardening_ssh_port: PortSchema.parse(sshPort),
+      },
+    )
   }
 
   allowFirewallPort(port: number, transportProtocol: TransportProtocol): Promise<void> {
     return this.remoteCommandRunner.runAnsibleRole(
-      join(ANSIBLE_DIRECTORY, "roles", "firewall-allow-port"),
+      join(ANSIBLE_DIRECTORY_PATH, "roles", "firewall-allow-port"),
       {
         firewall_port: PortSchema.parse(port),
         firewall_transport_protocol: TransportProtocolSchema.parse(transportProtocol),
