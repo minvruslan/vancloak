@@ -1,6 +1,9 @@
 import { access, readFile } from "node:fs/promises"
 import { resolve } from "node:path"
-import { InfrastructureAssetsManifestFileName, InfrastructureAssetsDirectoryPath } from "./constants/index.js"
+import {
+  InfrastructureAssetsManifestFileName,
+  InfrastructureAssetsDirectoryPath,
+} from "./constants/index.js"
 
 const REQUIRED_ASSET_PATHS = [
   "remote-server/ansible",
@@ -10,7 +13,10 @@ const REQUIRED_ASSET_PATHS = [
 ]
 
 async function readManifestAssetPaths(): Promise<string[] | null> {
-  const manifestPath = resolve(InfrastructureAssetsDirectoryPath, InfrastructureAssetsManifestFileName)
+  const manifestPath = resolve(
+    InfrastructureAssetsDirectoryPath,
+    InfrastructureAssetsManifestFileName,
+  )
 
   let content: string
   try {
