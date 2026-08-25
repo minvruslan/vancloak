@@ -6,7 +6,7 @@ export function buildConfigFileName(config: Config): string {
   const serverName = config.endpoint.server.name
   const name =
     config.data.protocolCode === ProtocolCodeSchema.enum.amneziawg2
-      ? buildAmneziawg2ConfigName(serverName, config.data.options, TUNNEL_NAME_MAXIMUM_LENGTH)
+      ? buildAmneziawg2ConfigName(serverName, TUNNEL_NAME_MAXIMUM_LENGTH)
       : serverName
   return `${name}.conf`
 }

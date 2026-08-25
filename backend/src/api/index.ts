@@ -7,6 +7,7 @@ import {
   checkInfrastructureAssets,
   checkCommandRunnerBinaries,
 } from "@/core/infrastructure/index.js"
+import { checkMailerConnection } from "@/core/mailer/index.js"
 import { startupLogger } from "@/core/logger/index.js"
 import { checkQueueConnection } from "@/core/queue/index.js"
 import { provisionServerQueue } from "@/core/queue/provision-server/index.js"
@@ -35,6 +36,13 @@ try {
     { error },
     "Dependency check failed — is Postgres/Redis running? (docker compose up -d).",
   )
+  process.exit(1)
+}
+
+try {
+  await checkMailerConnection()
+} catch (error) {
+  startupLogger.error({ error }, "Mailer check failed — verify SMTP_URL and MAIL_FROM.")
   process.exit(1)
 }
 

@@ -37,6 +37,7 @@
     "hono": "^4.7.10",
     "ioredis": "^5.11.1",
     "nanoid": "^5.1.9",
+    "nodemailer": "^9.0.5",
     "pino": "^10.3.1",
     "postgres": "^3.4.5",
     "slugify": "^1.6.9",
@@ -45,6 +46,7 @@
   },
   "devDependencies": {
     "@types/node": "^25.6.0",
+    "@types/nodemailer": "^8.0.1",
     "@vancloak/api-contract": "workspace:*",
     "@vancloak/infrastructure": "workspace:*",
     "@vitest/coverage-v8": "^4.1.10",

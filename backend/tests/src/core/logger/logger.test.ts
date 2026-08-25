@@ -60,6 +60,8 @@ describe("logger", () => {
 
   it("uses no transport in production", async () => {
     vi.stubEnv("NODE_ENV", "production")
+    vi.stubEnv("SMTP_URL", "smtp://localhost:587")
+    vi.stubEnv("MAIL_FROM", "VanCloak <no-reply@localhost>")
 
     const pinoOptions = await importLoggerAndReturnPinoOptions()
 
