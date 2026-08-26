@@ -40,7 +40,7 @@ services:
 
   migrate:
     container_name: vancloak-migrate
-    image: vancloak-backend:${VANCLOAK_VERSION:?set the image version in .env}
+    image: ${VANCLOAK_IMAGE_PREFIX:-}vancloak-backend:${VANCLOAK_VERSION:?set the image version in .env}
     restart: "no"
     logging: *logging
     command: ["node", "--enable-source-maps", "dist/migrate.mjs"]
@@ -51,7 +51,7 @@ services:
 
   backend-api:
     container_name: vancloak-backend-api
-    image: vancloak-backend:${VANCLOAK_VERSION:?set the image version in .env}
+    image: ${VANCLOAK_IMAGE_PREFIX:-}vancloak-backend:${VANCLOAK_VERSION:?set the image version in .env}
     restart: unless-stopped
     logging: *logging
     command: ["node", "--enable-source-maps", "dist/api/index.mjs"]
@@ -71,7 +71,7 @@ services:
 
   backend-worker:
     container_name: vancloak-backend-worker
-    image: vancloak-backend:${VANCLOAK_VERSION:?set the image version in .env}
+    image: ${VANCLOAK_IMAGE_PREFIX:-}vancloak-backend:${VANCLOAK_VERSION:?set the image version in .env}
     restart: unless-stopped
     logging: *logging
     command: ["node", "--enable-source-maps", "dist/worker/index.mjs"]
@@ -84,7 +84,7 @@ services:
 
   frontend:
     container_name: vancloak-frontend
-    image: vancloak-frontend:${VANCLOAK_VERSION:?set the image version in .env}
+    image: ${VANCLOAK_IMAGE_PREFIX:-}vancloak-frontend:${VANCLOAK_VERSION:?set the image version in .env}
     restart: unless-stopped
     logging: *logging
     environment:
