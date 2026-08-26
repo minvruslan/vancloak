@@ -18,7 +18,7 @@ import type { CreatedConfig } from "@/modules/entities/config"
 import { useCreateConfig } from "../composables/useCreateConfig"
 import type { CreateConfigFormValues } from "../types"
 import { messages } from "../translations/CreateConfigForm"
-import Amneziawg2ObfuscationFields from "./Amneziawg2ObfuscationFields.vue"
+import Amneziawg3ObfuscationFields from "./Amneziawg3ObfuscationFields.vue"
 
 const emit = defineEmits<{ (e: "created", config: CreatedConfig): void; (e: "cancel"): void }>()
 
@@ -133,10 +133,10 @@ const onSubmit = async () => {
         </p>
       </div>
 
-      <Amneziawg2ObfuscationFields
+      <Amneziawg3ObfuscationFields
         v-if="
           form.protocolOptions &&
-          form.protocolOptions.protocolCode === ProtocolCodeSchema.enum.amneziawg2
+          form.protocolOptions.protocolCode === ProtocolCodeSchema.enum.amneziawg3
         "
         v-model="form.protocolOptions"
       />

@@ -20,7 +20,7 @@ import {
 } from "@/core/database/schemas/index.js"
 import { expectOrpcError } from "@tests/assertions/index.js"
 import {
-  createFakeAmneziawg2Client,
+  createFakeAmneziawg3Client,
   insertTestConfig,
   insertTestConfigLimit,
   insertTestEndpoint,
@@ -56,13 +56,13 @@ async function insertConfigPrerequisites(
   return { configEndpoint, configDeviceType }
 }
 
-let fakeAmneziawg2Client: ReturnType<typeof createFakeAmneziawg2Client>
+let fakeAmneziawg3Client: ReturnType<typeof createFakeAmneziawg3Client>
 
 describe("DELETE /users/{id}", () => {
   beforeEach(async () => {
-    fakeAmneziawg2Client = createFakeAmneziawg2Client()
+    fakeAmneziawg3Client = createFakeAmneziawg3Client()
     vi.spyOn(RemoteServer.prototype, "getProtocolClient").mockReturnValue(
-      fakeAmneziawg2Client.client,
+      fakeAmneziawg3Client.client,
     )
     await bootstrapDeviceTypes()
   })
@@ -76,14 +76,14 @@ describe("DELETE /users/{id}", () => {
     expect(parsed).toEqual({ id: targetUser.id })
     const userRows = await db.select().from(user).where(eq(user.id, targetUser.id))
     expect(userRows).toHaveLength(0)
-    expect(fakeAmneziawg2Client.deleteAccesses).not.toHaveBeenCalled()
+    expect(fakeAmneziawg3Client.deleteAccesses).not.toHaveBeenCalled()
   })
 
   it("removes the user's config limits", async () => {
     const targetUser = await insertTestUser()
     await insertTestConfigLimit({
       userId: targetUser.id,
-      protocolFamily: ProtocolRegistry.amneziawg2.family,
+      protocolFamily: ProtocolRegistry.amneziawg3.family,
       maxCount: 3,
     })
 
@@ -126,7 +126,7 @@ describe("DELETE /users/{id}", () => {
     const targetUser = await insertTestUser()
     await insertTestConfigLimit({
       userId: targetUser.id,
-      protocolFamily: ProtocolRegistry.amneziawg2.family,
+      protocolFamily: ProtocolRegistry.amneziawg3.family,
       maxCount: 0,
     })
     await insertTestConfig({
@@ -164,7 +164,7 @@ describe("DELETE /users/{id}", () => {
       "NOT_FOUND",
     )
 
-    expect(fakeAmneziawg2Client.deleteAccesses).not.toHaveBeenCalled()
+    expect(fakeAmneziawg3Client.deleteAccesses).not.toHaveBeenCalled()
   })
 
   it("returns CONFIG_DELETE_FAILED and keeps the user, their limits and their configs when a node holding the user's configs is unreachable", async () => {
@@ -174,7 +174,7 @@ describe("DELETE /users/{id}", () => {
     const targetUser = await insertTestUser()
     await insertTestConfigLimit({
       userId: targetUser.id,
-      protocolFamily: ProtocolRegistry.amneziawg2.family,
+      protocolFamily: ProtocolRegistry.amneziawg3.family,
       maxCount: 3,
     })
     await insertTestConfig({
@@ -198,7 +198,7 @@ describe("DELETE /users/{id}", () => {
     const configRows = await db.select().from(config).where(eq(config.userId, targetUser.id))
     expect(configRows).toHaveLength(1)
     expect(configRows[0].status).toBe("deleting")
-    expect(fakeAmneziawg2Client.deleteAccesses).not.toHaveBeenCalled()
+    expect(fakeAmneziawg3Client.deleteAccesses).not.toHaveBeenCalled()
   })
 
   it("responds with HTTP 502 when node config deletion fails", async () => {
@@ -250,7 +250,7 @@ describe("DELETE /users/{id}", () => {
       "CONFIG_DELETE_FAILED",
     )
 
-    expect(fakeAmneziawg2Client.deleteAccesses).toHaveBeenCalledTimes(1)
+    expect(fakeAmneziawg3Client.deleteAccesses).toHaveBeenCalledTimes(1)
     const userRows = await db.select().from(user).where(eq(user.id, targetUser.id))
     expect(userRows).toHaveLength(1)
     const reachableConfigRows = await db
@@ -275,7 +275,7 @@ describe("DELETE /users/{id}", () => {
       deviceTypeId: configDeviceType.id,
     })
     let appearedConfigId = ""
-    fakeAmneziawg2Client.deleteAccesses.mockImplementationOnce(async () => {
+    fakeAmneziawg3Client.deleteAccesses.mockImplementationOnce(async () => {
       const appearedConfig = await insertTestConfig({
         userId: targetUser.id,
         endpointId: configEndpoint.id,
@@ -291,7 +291,7 @@ describe("DELETE /users/{id}", () => {
 
     const userRows = await db.select().from(user).where(eq(user.id, targetUser.id))
     expect(userRows).toHaveLength(1)
-    expect(fakeAmneziawg2Client.deleteAccesses).toHaveBeenCalledTimes(1)
+    expect(fakeAmneziawg3Client.deleteAccesses).toHaveBeenCalledTimes(1)
     const targetConfigRows = await db.select().from(config).where(eq(config.id, targetConfig.id))
     expect(targetConfigRows).toHaveLength(0)
     const appearedConfigRows = await db.select().from(config).where(eq(config.id, appearedConfigId))
@@ -306,7 +306,7 @@ describe("DELETE /users/{id}", () => {
       endpointId: configEndpoint.id,
       deviceTypeId: configDeviceType.id,
     })
-    fakeAmneziawg2Client.deleteAccesses.mockImplementationOnce(async () => {
+    fakeAmneziawg3Client.deleteAccesses.mockImplementationOnce(async () => {
       await insertTestConfig({
         userId: targetUser.id,
         endpointId: configEndpoint.id,
@@ -363,7 +363,7 @@ describe("DELETE /users/{id}", () => {
     expect(userRows).toHaveLength(1)
     const appearedConfigRows = await db.select().from(config).where(eq(config.id, appearedConfigId))
     expect(appearedConfigRows).toHaveLength(1)
-    expect(fakeAmneziawg2Client.deleteAccesses).not.toHaveBeenCalled()
+    expect(fakeAmneziawg3Client.deleteAccesses).not.toHaveBeenCalled()
   })
 
   it("rejects deleting a user with role admin with NOT_FOUND", async () => {
@@ -373,7 +373,7 @@ describe("DELETE /users/{id}", () => {
     await expectOrpcError(callDeleteUser(adminUser.id, headers), "NOT_FOUND")
     const userRows = await db.select().from(user).where(eq(user.id, adminUser.id))
     expect(userRows).toHaveLength(1)
-    expect(fakeAmneziawg2Client.deleteAccesses).not.toHaveBeenCalled()
+    expect(fakeAmneziawg3Client.deleteAccesses).not.toHaveBeenCalled()
   })
 
   it("rejects an ordinary user with FORBIDDEN", async () => {
@@ -385,10 +385,10 @@ describe("DELETE /users/{id}", () => {
 
     const userRows = await db.select().from(user).where(eq(user.id, targetUser.id))
     expect(userRows).toHaveLength(1)
-    expect(fakeAmneziawg2Client.deleteAccesses).not.toHaveBeenCalled()
+    expect(fakeAmneziawg3Client.deleteAccesses).not.toHaveBeenCalled()
   })
 
-  describe("amneziawg2", () => {
+  describe("amneziawg3", () => {
     it("deletes the user's VPN configs on the nodes before removing the user", async () => {
       const { configEndpoint, configDeviceType } = await insertConfigPrerequisites()
       const targetUser = await insertTestUser()
@@ -398,14 +398,14 @@ describe("DELETE /users/{id}", () => {
         deviceTypeId: configDeviceType.id,
       })
       let userRowsDuringNodeCall: { id: string }[] = []
-      fakeAmneziawg2Client.deleteAccesses.mockImplementationOnce(async () => {
+      fakeAmneziawg3Client.deleteAccesses.mockImplementationOnce(async () => {
         userRowsDuringNodeCall = await db.select().from(user).where(eq(user.id, targetUser.id))
       })
 
       await callDeleteUser(targetUser.id, await signInTestAdmin())
 
-      expect(fakeAmneziawg2Client.deleteAccesses).toHaveBeenCalledTimes(1)
-      expect(fakeAmneziawg2Client.deleteAccesses).toHaveBeenCalledWith(expect.anything(), [
+      expect(fakeAmneziawg3Client.deleteAccesses).toHaveBeenCalledTimes(1)
+      expect(fakeAmneziawg3Client.deleteAccesses).toHaveBeenCalledWith(expect.anything(), [
         targetConfig.data,
       ])
       expect(userRowsDuringNodeCall).toHaveLength(1)
@@ -429,8 +429,8 @@ describe("DELETE /users/{id}", () => {
 
       await callDeleteUser(targetUser.id, await signInTestAdmin())
 
-      expect(fakeAmneziawg2Client.deleteAccesses).toHaveBeenCalledTimes(1)
-      const [, deletedConfigData] = fakeAmneziawg2Client.deleteAccesses.mock.calls[0]
+      expect(fakeAmneziawg3Client.deleteAccesses).toHaveBeenCalledTimes(1)
+      const [, deletedConfigData] = fakeAmneziawg3Client.deleteAccesses.mock.calls[0]
       expect(deletedConfigData).toHaveLength(2)
       expect(deletedConfigData).toContainEqual(firstConfig.data)
       expect(deletedConfigData).toContainEqual(secondConfig.data)
@@ -450,7 +450,7 @@ describe("DELETE /users/{id}", () => {
       await insertTestSession(bystanderUser)
       const bystanderConfigLimit = await insertTestConfigLimit({
         userId: bystanderUser.id,
-        protocolFamily: ProtocolRegistry.amneziawg2.family,
+        protocolFamily: ProtocolRegistry.amneziawg3.family,
         maxCount: 3,
       })
       const bystanderConfig = await insertTestConfig({
@@ -477,8 +477,8 @@ describe("DELETE /users/{id}", () => {
       expect(configRows).toHaveLength(1)
       expect(configRows[0].id).toBe(bystanderConfig.id)
       expect(configRows[0].status).toBe("active")
-      expect(fakeAmneziawg2Client.deleteAccesses).toHaveBeenCalledTimes(1)
-      expect(fakeAmneziawg2Client.deleteAccesses).toHaveBeenCalledWith(expect.anything(), [
+      expect(fakeAmneziawg3Client.deleteAccesses).toHaveBeenCalledTimes(1)
+      expect(fakeAmneziawg3Client.deleteAccesses).toHaveBeenCalledWith(expect.anything(), [
         targetConfig.data,
       ])
     })
@@ -493,7 +493,7 @@ describe("DELETE /users/{id}", () => {
 
       const userRows = await db.select().from(user).where(eq(user.id, targetUser.id))
       expect(userRows).toHaveLength(1)
-      expect(fakeAmneziawg2Client.deleteAccesses).not.toHaveBeenCalled()
+      expect(fakeAmneziawg3Client.deleteAccesses).not.toHaveBeenCalled()
     })
 
     it("responds with HTTP 500 when the user delete throws", async () => {

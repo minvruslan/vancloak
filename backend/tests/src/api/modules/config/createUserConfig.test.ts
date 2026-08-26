@@ -3,10 +3,10 @@ import { inflateSync } from "node:zlib"
 import { call } from "@orpc/server"
 import { ConfigSchema, type UpsertConfig } from "@vancloak/api-contract"
 import {
-  Amneziawg2BrowserFingerprintSchema,
-  Amneziawg2IntensitySchema,
-  Amneziawg2ObfuscationDefaults,
-  Amneziawg2ProtocolProfileSchema,
+  Amneziawg3BrowserFingerprintSchema,
+  Amneziawg3IntensitySchema,
+  Amneziawg3ObfuscationDefaults,
+  Amneziawg3ProtocolProfileSchema,
   ProtocolCodeSchema,
   ProtocolRegistry,
   convertIpToNumber,
@@ -16,7 +16,7 @@ import {
   type ServerData,
 } from "@vancloak/infrastructure/shared"
 import { RemoteServer } from "@vancloak/infrastructure"
-import { buildAmneziawg2ConfigName } from "@vancloak/infrastructure/shared"
+import { buildAmneziawg3ConfigName } from "@vancloak/infrastructure/shared"
 import { eq, sql } from "drizzle-orm"
 import { beforeEach, describe, expect, it, vi, type MockInstance } from "vitest"
 import { z } from "zod"
@@ -30,9 +30,9 @@ import { db } from "@/core/database/index.js"
 import { config, deviceType, endpoint, protocol, server } from "@/core/database/schemas/index.js"
 import { expectOrpcError } from "@tests/assertions/index.js"
 import {
-  createFakeAmneziawg2Client,
-  FakeAmneziawg2EndpointActualState,
-  FakeAmneziawg2CreateAccessResult,
+  createFakeAmneziawg3Client,
+  FakeAmneziawg3EndpointActualState,
+  FakeAmneziawg3CreateAccessResult,
   FAKE_SERVER_SSH_HOST_KEY,
   insertTestConfig,
   insertTestConfigLimit,
@@ -117,9 +117,9 @@ const AmneziaLastConfigSchema = z.object({
 const FIRST_CLIENT_ADDRESS_OFFSET = 2
 const ADDRESSES_PER_OCTET = 256
 
-const fakeConfigData = FakeAmneziawg2CreateAccessResult.configData
-const fakeClientConfiguration = FakeAmneziawg2CreateAccessResult.clientConfiguration
-const fakeClientConfigurationLink = FakeAmneziawg2CreateAccessResult.clientConfigurationLink
+const fakeConfigData = FakeAmneziawg3CreateAccessResult.configData
+const fakeClientConfiguration = FakeAmneziawg3CreateAccessResult.clientConfiguration
+const fakeClientConfigurationLink = FakeAmneziawg3CreateAccessResult.clientConfigurationLink
 
 const validServerData: ServerData = {
   facts: { sshHostKeys: [FAKE_SERVER_SSH_HOST_KEY] },
@@ -131,7 +131,7 @@ const validServerData: ServerData = {
 }
 
 const validEndpointData: EndpointData = {
-  actualState: FakeAmneziawg2EndpointActualState,
+  actualState: FakeAmneziawg3EndpointActualState,
 }
 
 const serverDataWithoutSshHostKeys: ServerData = {
@@ -139,9 +139,9 @@ const serverDataWithoutSshHostKeys: ServerData = {
   facts: { sshHostKeys: [] },
 }
 
-const endpointActualStateWithoutHost = { ...FakeAmneziawg2EndpointActualState, host: undefined }
+const endpointActualStateWithoutHost = { ...FakeAmneziawg3EndpointActualState, host: undefined }
 
-const endpointActualStateWithoutDns = { ...FakeAmneziawg2EndpointActualState, dns: undefined }
+const endpointActualStateWithoutDns = { ...FakeAmneziawg3EndpointActualState, dns: undefined }
 
 const unparsableEndpointData = "not-endpoint-data" as unknown as EndpointData
 
@@ -152,7 +152,7 @@ const unsupportedProtocolClientData = {
   endpointData: validEndpointData,
 }
 
-let fakeAmneziawg2Client: ReturnType<typeof createFakeAmneziawg2Client>
+let fakeAmneziawg3Client: ReturnType<typeof createFakeAmneziawg3Client>
 let getProtocolClientSpy: MockInstance<RemoteServer["getProtocolClient"]>
 
 function callCreateUserConfig(input: unknown, headers: Headers) {
@@ -184,10 +184,10 @@ async function insertConfigPrerequisites(
 
 describe("POST /configs", () => {
   beforeEach(async () => {
-    fakeAmneziawg2Client = createFakeAmneziawg2Client()
+    fakeAmneziawg3Client = createFakeAmneziawg3Client()
     getProtocolClientSpy = vi
       .spyOn(RemoteServer.prototype, "getProtocolClient")
-      .mockReturnValue(fakeAmneziawg2Client.client)
+      .mockReturnValue(fakeAmneziawg3Client.client)
     await bootstrapDeviceTypes()
   })
 
@@ -217,7 +217,7 @@ describe("POST /configs", () => {
     expect(configRows[0].userId).toBe(requestUser.id)
     expect(configRows[0].clientIdentifier).toBe(fakeConfigData.clientIp)
     expect(configRows[0].data).toEqual(fakeConfigData)
-    expect(fakeAmneziawg2Client.createAccess).toHaveBeenCalledTimes(1)
+    expect(fakeAmneziawg3Client.createAccess).toHaveBeenCalledTimes(1)
   })
 
   it("responds with HTTP 201 on success", async () => {
@@ -316,7 +316,7 @@ describe("POST /configs", () => {
 
     const configRows = await db.select().from(config).where(eq(config.userId, requestUser.id))
     expect(configRows).toHaveLength(0)
-    expect(fakeAmneziawg2Client.createAccess).not.toHaveBeenCalled()
+    expect(fakeAmneziawg3Client.createAccess).not.toHaveBeenCalled()
   })
 
   it("rejects an endpoint whose server is not active with ENDPOINT_INVALID without writing a config row or calling the node", async () => {
@@ -340,7 +340,7 @@ describe("POST /configs", () => {
 
     const configRows = await db.select().from(config).where(eq(config.userId, requestUser.id))
     expect(configRows).toHaveLength(0)
-    expect(fakeAmneziawg2Client.createAccess).not.toHaveBeenCalled()
+    expect(fakeAmneziawg3Client.createAccess).not.toHaveBeenCalled()
   })
 
   it("rejects an unknown deviceTypeId with DEVICE_TYPE_INVALID without writing a config row or calling the node", async () => {
@@ -358,7 +358,7 @@ describe("POST /configs", () => {
 
     const configRows = await db.select().from(config).where(eq(config.userId, requestUser.id))
     expect(configRows).toHaveLength(0)
-    expect(fakeAmneziawg2Client.createAccess).not.toHaveBeenCalled()
+    expect(fakeAmneziawg3Client.createAccess).not.toHaveBeenCalled()
   })
 
   it("rejects a disabled device type with DEVICE_TYPE_INVALID without writing a config row or calling the node", async () => {
@@ -384,14 +384,14 @@ describe("POST /configs", () => {
 
     const configRows = await db.select().from(config).where(eq(config.userId, requestUser.id))
     expect(configRows).toHaveLength(0)
-    expect(fakeAmneziawg2Client.createAccess).not.toHaveBeenCalled()
+    expect(fakeAmneziawg3Client.createAccess).not.toHaveBeenCalled()
   })
 
   it("rejects the creation with NO_AVAILABLE_IP and leaves no config row when the endpoint has no free client IP", async () => {
     const { configEndpoint, configDeviceType } = await insertConfigPrerequisites()
     const requestUser = await insertTestUser()
     const headers = await insertTestSession(requestUser)
-    fakeAmneziawg2Client.allocateClientIdentifier.mockReturnValueOnce(null)
+    fakeAmneziawg3Client.allocateClientIdentifier.mockReturnValueOnce(null)
 
     await expectOrpcError(
       callCreateUserConfig(
@@ -407,7 +407,7 @@ describe("POST /configs", () => {
 
     const configRows = await db.select().from(config).where(eq(config.userId, requestUser.id))
     expect(configRows).toHaveLength(0)
-    expect(fakeAmneziawg2Client.createAccess).not.toHaveBeenCalled()
+    expect(fakeAmneziawg3Client.createAccess).not.toHaveBeenCalled()
   })
 
   it("rejects the creation with LIMIT_REACHED without writing a config row or calling the node when slot-reserving configs equal maxCount", async () => {
@@ -416,7 +416,7 @@ describe("POST /configs", () => {
     const headers = await insertTestSession(requestUser)
     await insertTestConfigLimit({
       userId: requestUser.id,
-      protocolFamily: ProtocolRegistry.amneziawg2.family,
+      protocolFamily: ProtocolRegistry.amneziawg3.family,
       maxCount: 2,
     })
     const activeConfig = await insertTestConfig({
@@ -448,7 +448,7 @@ describe("POST /configs", () => {
     expect(configRows.map((row) => row.id).sort()).toEqual(
       [activeConfig.id, pendingConfig.id].sort(),
     )
-    expect(fakeAmneziawg2Client.createAccess).not.toHaveBeenCalled()
+    expect(fakeAmneziawg3Client.createAccess).not.toHaveBeenCalled()
   })
 
   it("rejects the creation with LIMIT_REACHED when slot-reserving configs already exceed maxCount", async () => {
@@ -457,7 +457,7 @@ describe("POST /configs", () => {
     const headers = await insertTestSession(requestUser)
     await insertTestConfigLimit({
       userId: requestUser.id,
-      protocolFamily: ProtocolRegistry.amneziawg2.family,
+      protocolFamily: ProtocolRegistry.amneziawg3.family,
       maxCount: 1,
     })
     const firstActiveConfig = await insertTestConfig({
@@ -489,7 +489,7 @@ describe("POST /configs", () => {
     expect(configRows.map((row) => row.id).sort()).toEqual(
       [firstActiveConfig.id, secondActiveConfig.id].sort(),
     )
-    expect(fakeAmneziawg2Client.createAccess).not.toHaveBeenCalled()
+    expect(fakeAmneziawg3Client.createAccess).not.toHaveBeenCalled()
   })
 
   it("creates a config when slot-reserving configs are one below maxCount", async () => {
@@ -498,7 +498,7 @@ describe("POST /configs", () => {
     const headers = await insertTestSession(requestUser)
     await insertTestConfigLimit({
       userId: requestUser.id,
-      protocolFamily: ProtocolRegistry.amneziawg2.family,
+      protocolFamily: ProtocolRegistry.amneziawg3.family,
       maxCount: 2,
     })
     await insertTestConfig({
@@ -551,7 +551,7 @@ describe("POST /configs", () => {
     const headers = await insertTestSession(requestUser)
     await insertTestConfigLimit({
       userId: requestUser.id,
-      protocolFamily: ProtocolRegistry.amneziawg2.family,
+      protocolFamily: ProtocolRegistry.amneziawg3.family,
       maxCount: 1,
     })
     await insertTestConfig({
@@ -581,7 +581,7 @@ describe("POST /configs", () => {
     const headers = await insertTestSession(requestUser)
     await insertTestConfigLimit({
       userId: requestUser.id,
-      protocolFamily: ProtocolRegistry.amneziawg2.family,
+      protocolFamily: ProtocolRegistry.amneziawg3.family,
       maxCount: 1,
     })
     await insertTestConfig({
@@ -607,7 +607,7 @@ describe("POST /configs", () => {
     const headers = await insertTestSession(requestUser)
     await insertTestConfigLimit({
       userId: requestUser.id,
-      protocolFamily: ProtocolRegistry.amneziawg2.family,
+      protocolFamily: ProtocolRegistry.amneziawg3.family,
       maxCount: 1,
     })
     await insertTestConfig({
@@ -633,7 +633,7 @@ describe("POST /configs", () => {
     const otherUser = await insertTestUser()
     await insertTestConfigLimit({
       userId: requestUser.id,
-      protocolFamily: ProtocolRegistry.amneziawg2.family,
+      protocolFamily: ProtocolRegistry.amneziawg3.family,
       maxCount: 1,
     })
     await insertTestConfig({
@@ -659,7 +659,7 @@ describe("POST /configs", () => {
     const otherUser = await insertTestUser()
     await insertTestConfigLimit({
       userId: otherUser.id,
-      protocolFamily: ProtocolRegistry.amneziawg2.family,
+      protocolFamily: ProtocolRegistry.amneziawg3.family,
       maxCount: 0,
     })
 
@@ -689,7 +689,7 @@ describe("POST /configs", () => {
     const headers = await insertTestSession(requestUser)
     await insertTestConfigLimit({
       userId: requestUser.id,
-      protocolFamily: ProtocolRegistry.amneziawg2.family,
+      protocolFamily: ProtocolRegistry.amneziawg3.family,
       maxCount: 1,
     })
     let releaseInsert!: () => void
@@ -732,7 +732,7 @@ describe("POST /configs", () => {
     const headers = await insertTestSession(requestUser)
     await insertTestConfigLimit({
       userId: requestUser.id,
-      protocolFamily: ProtocolRegistry.amneziawg2.family,
+      protocolFamily: ProtocolRegistry.amneziawg3.family,
       maxCount: 1,
     })
     let releaseReservation!: () => void
@@ -816,9 +816,9 @@ describe("POST /configs", () => {
     const clientIdentifiers = configRows.map((row) => row.clientIdentifier)
     expect(new Set(clientIdentifiers).size).toBe(2)
     expect(configRows.every((row) => row.data.clientIp === row.clientIdentifier)).toBe(true)
-    expect(fakeAmneziawg2Client.createAccess).toHaveBeenCalledTimes(2)
+    expect(fakeAmneziawg3Client.createAccess).toHaveBeenCalledTimes(2)
     expect(
-      fakeAmneziawg2Client.createAccess.mock.calls
+      fakeAmneziawg3Client.createAccess.mock.calls
         .map(([, clientIdentifier]) => clientIdentifier)
         .sort(),
     ).toEqual([...clientIdentifiers].sort())
@@ -834,7 +834,7 @@ describe("POST /configs", () => {
       deviceTypeId: configDeviceType.id,
       status: "pending",
     })
-    fakeAmneziawg2Client.createAccess.mockRejectedValueOnce(new Error("Node-side failure"))
+    fakeAmneziawg3Client.createAccess.mockRejectedValueOnce(new Error("Node-side failure"))
 
     await expectOrpcError(
       callCreateUserConfig(
@@ -853,7 +853,7 @@ describe("POST /configs", () => {
     expect(configRows[0].id).toBe(otherPendingConfig.id)
     expect(configRows[0].status).toBe("pending")
     expect(configRows[0].data).toEqual(otherPendingConfig.data)
-    expect(fakeAmneziawg2Client.deleteAccessByClientIdentifier).toHaveBeenCalledWith(
+    expect(fakeAmneziawg3Client.deleteAccessByClientIdentifier).toHaveBeenCalledWith(
       expect.anything(),
       fakeConfigData.clientIp,
     )
@@ -863,8 +863,8 @@ describe("POST /configs", () => {
     const { configEndpoint, configDeviceType } = await insertConfigPrerequisites()
     const requestUser = await insertTestUser()
     const headers = await insertTestSession(requestUser)
-    fakeAmneziawg2Client.createAccess.mockRejectedValueOnce(new Error("Node-side failure"))
-    fakeAmneziawg2Client.deleteAccessByClientIdentifier.mockRejectedValueOnce(
+    fakeAmneziawg3Client.createAccess.mockRejectedValueOnce(new Error("Node-side failure"))
+    fakeAmneziawg3Client.deleteAccessByClientIdentifier.mockRejectedValueOnce(
       new Error("Rollback failure"),
     )
 
@@ -889,7 +889,7 @@ describe("POST /configs", () => {
     const { configEndpoint, configDeviceType } = await insertConfigPrerequisites()
     const requestUser = await insertTestUser()
     const headers = await insertTestSession(requestUser)
-    fakeAmneziawg2Client.createAccess.mockImplementationOnce(async () => {
+    fakeAmneziawg3Client.createAccess.mockImplementationOnce(async () => {
       await db.update(config).set({ status: "deleting" }).where(eq(config.userId, requestUser.id))
       return {
         configData: fakeConfigData,
@@ -913,7 +913,7 @@ describe("POST /configs", () => {
     const configRows = await db.select().from(config).where(eq(config.userId, requestUser.id))
     expect(configRows).toHaveLength(1)
     expect(configRows[0].status).toBe("deleting")
-    expect(fakeAmneziawg2Client.deleteAccessByClientIdentifier).toHaveBeenCalledWith(
+    expect(fakeAmneziawg3Client.deleteAccessByClientIdentifier).toHaveBeenCalledWith(
       expect.anything(),
       fakeConfigData.clientIp,
     )
@@ -940,7 +940,7 @@ describe("POST /configs", () => {
 
     const configRows = await db.select().from(config).where(eq(config.userId, requestUser.id))
     expect(configRows).toHaveLength(0)
-    expect(fakeAmneziawg2Client.createAccess).not.toHaveBeenCalled()
+    expect(fakeAmneziawg3Client.createAccess).not.toHaveBeenCalled()
   })
 
   it("returns FAILED when the server facts contain no ssh host keys", async () => {
@@ -964,7 +964,7 @@ describe("POST /configs", () => {
 
     const configRows = await db.select().from(config).where(eq(config.userId, requestUser.id))
     expect(configRows).toHaveLength(0)
-    expect(fakeAmneziawg2Client.createAccess).not.toHaveBeenCalled()
+    expect(fakeAmneziawg3Client.createAccess).not.toHaveBeenCalled()
   })
 
   it("returns FAILED when the endpoint actual state has no host", async () => {
@@ -988,7 +988,7 @@ describe("POST /configs", () => {
 
     const configRows = await db.select().from(config).where(eq(config.userId, requestUser.id))
     expect(configRows).toHaveLength(0)
-    expect(fakeAmneziawg2Client.createAccess).not.toHaveBeenCalled()
+    expect(fakeAmneziawg3Client.createAccess).not.toHaveBeenCalled()
   })
 
   it("returns FAILED when the endpoint data does not parse as valid endpoint data", async () => {
@@ -1012,14 +1012,14 @@ describe("POST /configs", () => {
 
     const configRows = await db.select().from(config).where(eq(config.userId, requestUser.id))
     expect(configRows).toHaveLength(0)
-    expect(fakeAmneziawg2Client.createAccess).not.toHaveBeenCalled()
+    expect(fakeAmneziawg3Client.createAccess).not.toHaveBeenCalled()
   })
 
   it("responds with HTTP 502 when the node-side creation fails", async () => {
     const { configEndpoint, configDeviceType } = await insertConfigPrerequisites()
     const requestUser = await insertTestUser()
     const headers = await insertTestSession(requestUser)
-    fakeAmneziawg2Client.createAccess.mockRejectedValueOnce(new Error("Node-side failure"))
+    fakeAmneziawg3Client.createAccess.mockRejectedValueOnce(new Error("Node-side failure"))
 
     const response = await requestCreateUserConfig(
       { name: "Created Config", endpointId: configEndpoint.id, deviceTypeId: configDeviceType.id },
@@ -1033,7 +1033,7 @@ describe("POST /configs", () => {
     const { configEndpoint, configDeviceType } = await insertConfigPrerequisites()
     const requestUser = await insertTestUser()
     const headers = await insertTestSession(requestUser)
-    fakeAmneziawg2Client.allocateClientIdentifier.mockReturnValueOnce(null)
+    fakeAmneziawg3Client.allocateClientIdentifier.mockReturnValueOnce(null)
 
     const response = await requestCreateUserConfig(
       { name: "Created Config", endpointId: configEndpoint.id, deviceTypeId: configDeviceType.id },
@@ -1049,7 +1049,7 @@ describe("POST /configs", () => {
     const headers = await insertTestSession(requestUser)
     await insertTestConfigLimit({
       userId: requestUser.id,
-      protocolFamily: ProtocolRegistry.amneziawg2.family,
+      protocolFamily: ProtocolRegistry.amneziawg3.family,
       maxCount: 0,
     })
 
@@ -1101,7 +1101,7 @@ describe("POST /configs", () => {
     expect(parsed.name).toBe("Created Config")
   })
 
-  describe("amneziawg2", () => {
+  describe("amneziawg3", () => {
     it.todo("reserves the client identifiers of configs on the server's other endpoints")
 
     it("adds the peer to the node for the target endpoint", async () => {
@@ -1111,7 +1111,7 @@ describe("POST /configs", () => {
         endpoint: {
           data: {
             actualState: {
-              ...FakeAmneziawg2EndpointActualState,
+              ...FakeAmneziawg3EndpointActualState,
               host: targetEndpointHost,
               port: targetEndpointPort,
             },
@@ -1130,10 +1130,10 @@ describe("POST /configs", () => {
         headers,
       )
 
-      expect(getProtocolClientSpy).toHaveBeenCalledWith(ProtocolCodeSchema.enum.amneziawg2)
-      expect(fakeAmneziawg2Client.createAccess).toHaveBeenCalledTimes(1)
+      expect(getProtocolClientSpy).toHaveBeenCalledWith(ProtocolCodeSchema.enum.amneziawg3)
+      expect(fakeAmneziawg3Client.createAccess).toHaveBeenCalledTimes(1)
       const [endpointActualState, clientIdentifier] =
-        fakeAmneziawg2Client.createAccess.mock.calls[0]
+        fakeAmneziawg3Client.createAccess.mock.calls[0]
       expect(endpointActualState).toMatchObject({
         host: targetEndpointHost,
         port: targetEndpointPort,
@@ -1141,7 +1141,7 @@ describe("POST /configs", () => {
       expect(clientIdentifier).toBe(fakeConfigData.clientIp)
     })
 
-    it("returns exactly the amneziawg2 config data fields and the client configuration and import link at the top level", async () => {
+    it("returns exactly the amneziawg3 config data fields and the client configuration and import link at the top level", async () => {
       const { configEndpoint, configDeviceType } = await insertConfigPrerequisites()
       const requestUser = await insertTestUser()
       const headers = await insertTestSession(requestUser)
@@ -1201,11 +1201,11 @@ describe("POST /configs", () => {
       const requestUser = await insertTestUser()
       const headers = await insertTestSession(requestUser)
       const requestedObfuscationOptions = {
-        protocolProfile: Amneziawg2ProtocolProfileSchema.enum.quic_initial,
-        browserFingerprint: Amneziawg2BrowserFingerprintSchema.enum.firefox,
-        junkPacketCount: Amneziawg2IntensitySchema.enum.high,
-        junkPacketSize: Amneziawg2IntensitySchema.enum.low,
-        noisePackets: Amneziawg2IntensitySchema.enum.medium,
+        protocolProfile: Amneziawg3ProtocolProfileSchema.enum.quic_initial,
+        browserFingerprint: Amneziawg3BrowserFingerprintSchema.enum.firefox,
+        junkPacketCount: Amneziawg3IntensitySchema.enum.high,
+        junkPacketSize: Amneziawg3IntensitySchema.enum.low,
+        noisePackets: Amneziawg3IntensitySchema.enum.medium,
       }
 
       const createdConfig = await callCreateUserConfig(
@@ -1214,7 +1214,7 @@ describe("POST /configs", () => {
           endpointId: configEndpoint.id,
           deviceTypeId: configDeviceType.id,
           protocolOptions: {
-            protocolCode: ProtocolCodeSchema.enum.amneziawg2,
+            protocolCode: ProtocolCodeSchema.enum.amneziawg3,
             ...requestedObfuscationOptions,
           },
         },
@@ -1242,9 +1242,9 @@ describe("POST /configs", () => {
       )
 
       const parsed = CreateUserConfigOutputSchema.parse(createdConfig)
-      expect(parsed.data.options).toEqual(Amneziawg2ObfuscationDefaults)
+      expect(parsed.data.options).toEqual(Amneziawg3ObfuscationDefaults)
       const configRows = await db.select().from(config).where(eq(config.id, createdConfig.id))
-      expect(configRows[0].data.options).toEqual(Amneziawg2ObfuscationDefaults)
+      expect(configRows[0].data.options).toEqual(Amneziawg3ObfuscationDefaults)
     })
 
     it("fills unspecified obfuscation fields with defaults when protocolOptions carries only the protocolCode", async () => {
@@ -1257,15 +1257,15 @@ describe("POST /configs", () => {
           name: "Created Config",
           endpointId: configEndpoint.id,
           deviceTypeId: configDeviceType.id,
-          protocolOptions: { protocolCode: ProtocolCodeSchema.enum.amneziawg2 },
+          protocolOptions: { protocolCode: ProtocolCodeSchema.enum.amneziawg3 },
         },
         headers,
       )
 
       const parsed = CreateUserConfigOutputSchema.parse(createdConfig)
-      expect(parsed.data.options).toEqual(Amneziawg2ObfuscationDefaults)
+      expect(parsed.data.options).toEqual(Amneziawg3ObfuscationDefaults)
       const configRows = await db.select().from(config).where(eq(config.id, createdConfig.id))
-      expect(configRows[0].data.options).toEqual(Amneziawg2ObfuscationDefaults)
+      expect(configRows[0].data.options).toEqual(Amneziawg3ObfuscationDefaults)
     })
 
     it("persists an explicit null browserFingerprint instead of the chrome default", async () => {
@@ -1279,19 +1279,19 @@ describe("POST /configs", () => {
           endpointId: configEndpoint.id,
           deviceTypeId: configDeviceType.id,
           protocolOptions: {
-            protocolCode: ProtocolCodeSchema.enum.amneziawg2,
+            protocolCode: ProtocolCodeSchema.enum.amneziawg3,
             browserFingerprint: null,
           },
         },
         headers,
       )
 
-      expect(Amneziawg2ObfuscationDefaults.browserFingerprint).toBe(
-        Amneziawg2BrowserFingerprintSchema.enum.chrome,
+      expect(Amneziawg3ObfuscationDefaults.browserFingerprint).toBe(
+        Amneziawg3BrowserFingerprintSchema.enum.chrome,
       )
       const parsed = CreateUserConfigOutputSchema.parse(createdConfig)
       expect(parsed.data.options).toEqual({
-        ...Amneziawg2ObfuscationDefaults,
+        ...Amneziawg3ObfuscationDefaults,
         browserFingerprint: null,
       })
       const configRows = await db.select().from(config).where(eq(config.id, createdConfig.id))
@@ -1303,14 +1303,14 @@ describe("POST /configs", () => {
       const requestUser = await insertTestUser()
       const headers = await insertTestSession(requestUser)
       const requestedProtocolOptions = {
-        protocolCode: ProtocolCodeSchema.enum.amneziawg2,
-        protocolProfile: Amneziawg2ProtocolProfileSchema.enum.quic_initial,
-        browserFingerprint: Amneziawg2BrowserFingerprintSchema.enum.safari,
-        junkPacketCount: Amneziawg2IntensitySchema.enum.low,
-        junkPacketSize: Amneziawg2IntensitySchema.enum.high,
-        noisePackets: Amneziawg2IntensitySchema.enum.low,
+        protocolCode: ProtocolCodeSchema.enum.amneziawg3,
+        protocolProfile: Amneziawg3ProtocolProfileSchema.enum.quic_initial,
+        browserFingerprint: Amneziawg3BrowserFingerprintSchema.enum.safari,
+        junkPacketCount: Amneziawg3IntensitySchema.enum.low,
+        junkPacketSize: Amneziawg3IntensitySchema.enum.high,
+        noisePackets: Amneziawg3IntensitySchema.enum.low,
       }
-      fakeAmneziawg2Client.createAccess.mockImplementationOnce(
+      fakeAmneziawg3Client.createAccess.mockImplementationOnce(
         async (_endpointActualState, clientIdentifier, protocolOptions) => ({
           configData: { ...fakeConfigData, clientIp: clientIdentifier },
           clientConfiguration: JSON.stringify(protocolOptions),
@@ -1337,12 +1337,12 @@ describe("POST /configs", () => {
       const { configServer, configEndpoint, configDeviceType } = await insertConfigPrerequisites({
         server: { ip: "203.0.113.9", domainName: "live.example.com" },
         endpoint: {
-          data: { actualState: { ...FakeAmneziawg2EndpointActualState, host: appliedHost } },
+          data: { actualState: { ...FakeAmneziawg3EndpointActualState, host: appliedHost } },
         },
       })
       const requestUser = await insertTestUser()
       const headers = await insertTestSession(requestUser)
-      fakeAmneziawg2Client.createAccess.mockImplementation(
+      fakeAmneziawg3Client.createAccess.mockImplementation(
         async (endpointActualState, clientIdentifier) => ({
           configData: { ...fakeConfigData, clientIp: clientIdentifier },
           clientConfiguration: `Endpoint = ${endpointActualState.host}:${endpointActualState.port}`,
@@ -1384,8 +1384,8 @@ describe("POST /configs", () => {
       const { configServer, configEndpoint, configDeviceType } = await insertConfigPrerequisites()
       const requestUser = await insertTestUser()
       const headers = await insertTestSession(requestUser)
-      fakeAmneziawg2Client.createAccess.mockRestore()
-      vi.spyOn(fakeAmneziawg2Client.client, "applyAccesses").mockResolvedValue(undefined)
+      fakeAmneziawg3Client.createAccess.mockRestore()
+      vi.spyOn(fakeAmneziawg3Client.client, "applyAccesses").mockResolvedValue(undefined)
 
       const createdConfig = await callCreateUserConfig(
         {
@@ -1407,26 +1407,26 @@ describe("POST /configs", () => {
 
       const configImport = AmneziaConfigImportSchema.parse(JSON.parse(inflated.toString()))
       expect(configImport).toMatchObject({
-        description: buildAmneziawg2ConfigName(configServer.name),
-        hostName: FakeAmneziawg2EndpointActualState.host,
-        dns1: FakeAmneziawg2EndpointActualState.dns,
+        description: buildAmneziawg3ConfigName(configServer.name),
+        hostName: FakeAmneziawg3EndpointActualState.host,
+        dns1: FakeAmneziawg3EndpointActualState.dns,
       })
       expect(configImport.dns2).toBeUndefined()
       expect(configImport.containers[0].awg.port).toBe(
-        String(FakeAmneziawg2EndpointActualState.port),
+        String(FakeAmneziawg3EndpointActualState.port),
       )
 
       const lastConfig = AmneziaLastConfigSchema.parse(
         JSON.parse(configImport.containers[0].awg.last_config),
       )
-      const endpointObfuscation = FakeAmneziawg2EndpointActualState.obfuscation
+      const endpointObfuscation = FakeAmneziawg3EndpointActualState.obfuscation
       expect(lastConfig).toMatchObject({
         config: parsed.clientConfiguration,
-        hostName: FakeAmneziawg2EndpointActualState.host,
-        port: FakeAmneziawg2EndpointActualState.port,
+        hostName: FakeAmneziawg3EndpointActualState.host,
+        port: FakeAmneziawg3EndpointActualState.port,
         client_ip: `${parsed.data.clientIp}/32`,
         psk_key: parsed.data.presharedKey,
-        server_pub_key: FakeAmneziawg2EndpointActualState.serverPublicKey,
+        server_pub_key: FakeAmneziawg3EndpointActualState.serverPublicKey,
         allowed_ips: ["0.0.0.0/0", "::/0"],
         S1: String(endpointObfuscation.s1),
         S2: String(endpointObfuscation.s2),
@@ -1464,8 +1464,8 @@ describe("POST /configs", () => {
       })
       const requestUser = await insertTestUser()
       const headers = await insertTestSession(requestUser)
-      fakeAmneziawg2Client.createAccess.mockRestore()
-      vi.spyOn(fakeAmneziawg2Client.client, "applyAccesses").mockResolvedValue(undefined)
+      fakeAmneziawg3Client.createAccess.mockRestore()
+      vi.spyOn(fakeAmneziawg3Client.client, "applyAccesses").mockResolvedValue(undefined)
 
       const createdConfig = await callCreateUserConfig(
         {
@@ -1560,7 +1560,7 @@ describe("POST /configs", () => {
       const clientIdentifiers = configRows.map((row) => row.clientIdentifier)
       expect(new Set(clientIdentifiers).size).toBe(2)
       const { networkNumber, broadcastNumber } = parseIpSubnet(
-        FakeAmneziawg2EndpointActualState.subnet,
+        FakeAmneziawg3EndpointActualState.subnet,
       )
       expect(
         clientIdentifiers.every((clientIdentifier) => {
@@ -1572,7 +1572,7 @@ describe("POST /configs", () => {
 
     it("allocates the lowest free client identifier when a gap is left between taken ones", async () => {
       const { configEndpoint, configDeviceType } = await insertConfigPrerequisites()
-      const { networkNumber } = parseIpSubnet(FakeAmneziawg2EndpointActualState.subnet)
+      const { networkNumber } = parseIpSubnet(FakeAmneziawg3EndpointActualState.subnet)
       const gapAddress = convertNumberToIp(networkNumber + FIRST_CLIENT_ADDRESS_OFFSET + 1)
       const otherUser = await insertTestUser()
       for (const offset of [FIRST_CLIENT_ADDRESS_OFFSET, FIRST_CLIENT_ADDRESS_OFFSET + 2]) {
@@ -1601,7 +1601,7 @@ describe("POST /configs", () => {
 
     it("allocates the address past the octet boundary when every address below it is taken", async () => {
       const { configEndpoint, configDeviceType } = await insertConfigPrerequisites()
-      const { networkNumber } = parseIpSubnet(FakeAmneziawg2EndpointActualState.subnet)
+      const { networkNumber } = parseIpSubnet(FakeAmneziawg3EndpointActualState.subnet)
       const otherUser = await insertTestUser()
       await db.insert(config).values(
         Array.from(
@@ -1656,7 +1656,7 @@ describe("POST /configs", () => {
 
       const configRows = await db.select().from(config).where(eq(config.userId, requestUser.id))
       expect(configRows).toHaveLength(0)
-      expect(fakeAmneziawg2Client.createAccess).not.toHaveBeenCalled()
+      expect(fakeAmneziawg3Client.createAccess).not.toHaveBeenCalled()
     })
   })
 

@@ -1,0 +1,30 @@
+services:
+  amneziawg3:
+    build:
+      context: ./docker
+      args:
+        VERSION: "{{ amneziawg3_docker_image_version }}"
+    image: "{{ amneziawg3_container_name }}:latest"
+    container_name: "{{ amneziawg3_container_name }}"
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    sysctls:
+      - net.ipv4.ip_forward=1
+      - net.ipv4.conf.all.src_valid_mark=1
+    environment:
+      SERVER_PUBLIC_KEY: "{{ amneziawg3_server_public_key }}"
+      SERVER_PUBLIC_KEY_FILE: "{{ amneziawg3_container_state_directory_path }}/server_public.key"
+      CONFIGURATION_FILE: "{{ amneziawg3_container_state_directory_path }}/{{ amneziawg3_interface_name }}.conf"
+    volumes:
+      - {{ amneziawg3_state_directory_path }}:{{ amneziawg3_container_state_directory_path }}
+    ports:
+      - "{{ amneziawg3_port }}:{{ amneziawg3_port }}/udp"
+    healthcheck:
+      test: ["CMD", "awg", "show", "{{ amneziawg3_interface_name }}"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    restart: unless-stopped

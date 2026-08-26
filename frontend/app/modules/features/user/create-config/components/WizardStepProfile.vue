@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ChevronRight } from "@lucide/vue"
 import { Button } from "@/components/ui/button"
-import { Amneziawg2ObfuscationLevelOrder } from "@vancloak/api-contract"
+import { Amneziawg3ObfuscationLevelOrder } from "@vancloak/api-contract"
 import { ConfigObfuscationLevelIcon } from "@/modules/entities/config"
 import type { CreateConfigWizardMachine } from "../types/CreateConfigWizardMachine"
 import WizardSelectableTile from "./WizardSelectableTile.vue"
@@ -32,7 +32,7 @@ const { obfuscationLevel, stepNumber, stepCount, canContinue, next, back } = pro
 
     <div class="flex flex-col gap-2.5">
       <WizardSelectableTile
-        v-for="level in Amneziawg2ObfuscationLevelOrder"
+        v-for="level in Amneziawg3ObfuscationLevelOrder"
         :key="level"
         class="gap-4"
         :selected="obfuscationLevel === level"

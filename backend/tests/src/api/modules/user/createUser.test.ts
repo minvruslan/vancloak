@@ -71,7 +71,7 @@ describe("POST /users", () => {
       {
         name: "Created User",
         email,
-        limits: [{ protocolFamily: ProtocolRegistry.amneziawg2.family, maxCount: 4 }],
+        limits: [{ protocolFamily: ProtocolRegistry.amneziawg3.family, maxCount: 4 }],
       },
       await signInTestAdmin(),
     )
@@ -97,7 +97,7 @@ describe("POST /users", () => {
         "updatedAt",
         "used",
       ])
-      expect(limit.protocolFamily).toBe(ProtocolRegistry.amneziawg2.family)
+      expect(limit.protocolFamily).toBe(ProtocolRegistry.amneziawg3.family)
       expect(limit.maxCount).toBe(4)
       expect(limit.used).toBe(0)
     }
@@ -106,7 +106,7 @@ describe("POST /users", () => {
       .from(configLimit)
       .where(eq(configLimit.userId, createdUser.id))
     expect(configLimitRows).toHaveLength(1)
-    expect(configLimitRows[0].protocolFamily).toBe(ProtocolRegistry.amneziawg2.family)
+    expect(configLimitRows[0].protocolFamily).toBe(ProtocolRegistry.amneziawg3.family)
     expect(configLimitRows[0].maxCount).toBe(4)
     const userRows = await db.select().from(user).where(eq(user.id, createdUser.id))
     expect(userRows).toHaveLength(1)
@@ -148,7 +148,7 @@ describe("POST /users", () => {
     const bystanderUser = await insertTestUser()
     const bystanderConfigLimit = await insertTestConfigLimit({
       userId: bystanderUser.id,
-      protocolFamily: ProtocolRegistry.amneziawg2.family,
+      protocolFamily: ProtocolRegistry.amneziawg3.family,
       maxCount: 6,
     })
 
@@ -156,7 +156,7 @@ describe("POST /users", () => {
       {
         name: "Created User",
         email: createTestEmail(),
-        limits: [{ protocolFamily: ProtocolRegistry.amneziawg2.family, maxCount: 4 }],
+        limits: [{ protocolFamily: ProtocolRegistry.amneziawg3.family, maxCount: 4 }],
       },
       await signInTestAdmin(),
     )
@@ -186,8 +186,8 @@ describe("POST /users", () => {
           name: "Created User",
           email: createTestEmail(),
           limits: [
-            { protocolFamily: ProtocolRegistry.amneziawg2.family, maxCount: 1 },
-            { protocolFamily: ProtocolRegistry.amneziawg2.family, maxCount: 2 },
+            { protocolFamily: ProtocolRegistry.amneziawg3.family, maxCount: 1 },
+            { protocolFamily: ProtocolRegistry.amneziawg3.family, maxCount: 2 },
           ],
         },
         await signInTestAdmin(),
@@ -318,7 +318,7 @@ describe("POST /users", () => {
         body: JSON.stringify({
           name: "Created User",
           email,
-          limits: [{ protocolFamily: ProtocolRegistry.amneziawg2.family, maxCount: 4 }],
+          limits: [{ protocolFamily: ProtocolRegistry.amneziawg3.family, maxCount: 4 }],
         }),
       })
       expect(response.status).toBe(500)

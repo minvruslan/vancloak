@@ -1,1 +1,1 @@
-export * from "./amneziawg2"
+export * from "./amneziawg3"

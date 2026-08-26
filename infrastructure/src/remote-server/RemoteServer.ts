@@ -178,9 +178,18 @@ export class RemoteServer {
     )
   }
 
-  hardenSshAccess(sshPort: number): Promise<void> {
+  hardenSsh(sshPort: number): Promise<void> {
     return this.remoteCommandRunner.runAnsibleRole(
-      join(ANSIBLE_DIRECTORY_PATH, "roles", "hardening"),
+      join(ANSIBLE_DIRECTORY_PATH, "roles", "ssh-hardening"),
+      {
+        hardening_ssh_port: PortSchema.parse(sshPort),
+      },
+    )
+  }
+
+  hardenFirewall(sshPort: number): Promise<void> {
+    return this.remoteCommandRunner.runAnsibleRole(
+      join(ANSIBLE_DIRECTORY_PATH, "roles", "firewall-hardening"),
       {
         hardening_ssh_port: PortSchema.parse(sshPort),
       },

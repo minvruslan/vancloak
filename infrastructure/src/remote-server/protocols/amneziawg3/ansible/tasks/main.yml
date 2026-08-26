@@ -1,0 +1,95 @@
+- name: Assert required AmneziaWG variables are provided
+  ansible.builtin.assert:
+    that:
+      - service_username is defined
+      - amneziawg3_docker_image_version is defined
+      - amneziawg3_deploy_directory_path is defined
+      - amneziawg3_state_directory_path is defined
+      - amneziawg3_container_state_directory_path is defined
+      - amneziawg3_port is defined
+      - amneziawg3_mtu is defined
+      - amneziawg3_address is defined
+      - amneziawg3_container_name is defined
+      - amneziawg3_interface_name is defined
+      - amneziawg3_server_private_key is defined
+      - amneziawg3_server_public_key is defined
+      - amneziawg3_obfuscation is defined
+      - amneziawg3_peers is defined
+    fail_msg: >-
+      Missing required variables. In production they are injected automatically by
+      the AmneziaWG protocol client (@vancloak/infrastructure); for manual runs pass
+      them via --extra-vars.
+
+- name: Create AmneziaWG directory owned by {{ service_username }}
+  ansible.builtin.file:
+    path: "{{ amneziawg3_deploy_directory_path }}"
+    state: directory
+    owner: "{{ service_username }}"
+    group: "{{ service_username }}"
+    mode: "0750"
+
+- name: Copy AmneziaWG docker build context
+  ansible.builtin.copy:
+    src: docker/
+    dest: "{{ amneziawg3_deploy_directory_path }}/docker/"
+    owner: "{{ service_username }}"
+    group: "{{ service_username }}"
+    mode: "0750"
+
+- name: Render docker-compose for AmneziaWG
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: "{{ amneziawg3_deploy_directory_path }}/docker-compose.yml"
+    owner: "{{ service_username }}"
+    group: "{{ service_username }}"
+    mode: "0640"
+
+- name: Create AmneziaWG state directory
+  ansible.builtin.file:
+    path: "{{ amneziawg3_state_directory_path }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
+
+- name: Write AmneziaWG interface configuration into the state directory
+  no_log: true
+  ansible.builtin.template:
+    src: wg0.conf.j2
+    dest: "{{ amneziawg3_state_directory_path }}/{{ amneziawg3_interface_name }}.conf"
+    owner: root
+    group: root
+    mode: "0600"
+
+- name: Write AmneziaWG server public key into the state directory
+  ansible.builtin.copy:
+    content: "{{ amneziawg3_server_public_key }}"
+    dest: "{{ amneziawg3_state_directory_path }}/server_public.key"
+    owner: root
+    group: root
+    mode: "0600"
+
+- name: Build and start AmneziaWG container (as {{ service_username }} via docker group)
+  block:
+    - name: Run docker compose up
+      become: true
+      become_user: "{{ service_username }}"
+      ansible.builtin.command: docker compose up -d --build --wait --wait-timeout 60
+      args:
+        chdir: "{{ amneziawg3_deploy_directory_path }}"
+      register: compose_up
+      changed_when: >-
+        'Started' in compose_up.stderr or 'Created' in compose_up.stderr
+        or 'Built' in compose_up.stderr
+  rescue:
+    - name: Collect AmneziaWG container logs
+      become: true
+      become_user: "{{ service_username }}"
+      ansible.builtin.command: docker logs --tail 20 {{ amneziawg3_container_name }}
+      register: container_logs
+      changed_when: false
+      failed_when: false
+
+    - name: Fail with AmneziaWG container logs
+      ansible.builtin.fail:
+        msg: "{{ compose_up.stderr | default('') }}\n{{ container_logs.stdout | default('') }}\n{{ container_logs.stderr | default('') }}"

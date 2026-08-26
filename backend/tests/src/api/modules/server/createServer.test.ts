@@ -103,7 +103,7 @@ describe("POST /servers", () => {
 
   it("returns every contract field at every nesting level with the endpoint protocol family matching its code", async () => {
     const expectedFamiliesByCode: Record<Protocol["code"], Protocol["family"]> = {
-      [ProtocolCodeSchema.enum.amneziawg2]: ProtocolRegistry.amneziawg2.family,
+      [ProtocolCodeSchema.enum.amneziawg3]: ProtocolRegistry.amneziawg3.family,
     }
     const serverProtocol = await insertTestProtocol()
 
@@ -229,7 +229,7 @@ describe("POST /servers", () => {
 
     const parsed = ServerSchema.parse(createdServer)
     expect(parsed.endpoints).toHaveLength(1)
-    expect(parsed.endpoints[0]?.port).toBe(ProtocolRegistry.amneziawg2.defaultPort)
+    expect(parsed.endpoints[0]?.port).toBe(ProtocolRegistry.amneziawg3.defaultPort)
   })
 
   it("persists a provided domainName and returns it", async () => {

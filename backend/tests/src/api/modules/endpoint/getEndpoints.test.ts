@@ -34,7 +34,7 @@ function callGetEndpoints(headers: Headers) {
 describe("GET /endpoints", () => {
   it("returns active endpoints of active servers matching the contract schema", async () => {
     const expectedFamiliesByCode: Record<Protocol["code"], Protocol["family"]> = {
-      [ProtocolCodeSchema.enum.amneziawg2]: ProtocolRegistry.amneziawg2.family,
+      [ProtocolCodeSchema.enum.amneziawg3]: ProtocolRegistry.amneziawg3.family,
     }
     const endpointProtocol = await insertTestProtocol()
     const endpointServer = await insertTestServer()

@@ -27,7 +27,7 @@ function callGetProtocols(headers: Headers) {
 describe("GET /protocols", () => {
   it("returns the enabled protocol catalog matching the contract schema", async () => {
     const expectedFamiliesByCode: Record<Protocol["code"], Protocol["family"]> = {
-      [ProtocolCodeSchema.enum.amneziawg2]: ProtocolRegistry.amneziawg2.family,
+      [ProtocolCodeSchema.enum.amneziawg3]: ProtocolRegistry.amneziawg3.family,
     }
     await bootstrapProtocols()
 

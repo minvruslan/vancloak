@@ -7,8 +7,8 @@ import {
 
 const REQUIRED_ASSET_PATHS = [
   "remote-server/ansible",
-  "remote-server/protocols/amneziawg2/ansible",
-  "remote-server/protocols/amneziawg2/scripts",
+  "remote-server/protocols/amneziawg3/ansible",
+  "remote-server/protocols/amneziawg3/scripts",
   "command-runner/image/Dockerfile",
 ]
 

@@ -1,0 +1,26 @@
+- name: Assert required variables are provided
+  ansible.builtin.assert:
+    that:
+      - hardening_ssh_port is defined
+    fail_msg: >-
+      Missing required variables. They are injected automatically by
+      RemoteServer.hardenSsh (@vancloak/infrastructure);
+      for manual runs pass them via --extra-vars.
+
+- name: Assert the node OS family is supported
+  ansible.builtin.assert:
+    that:
+      - ansible_facts['os_family'] == 'Debian'
+    fail_msg: >-
+      SSH hardening supports Debian-family nodes only;
+      got "{{ ansible_facts['os_family'] | default('unknown') }}".
+
+- name: Harden the SSH daemon
+  ansible.builtin.include_role:
+    name: devsec.hardening.ssh_hardening
+  vars:
+    ssh_server_ports: ["{{ hardening_ssh_port }}"]
+    ssh_permit_root_login: "no"
+    ssh_server_password_login: false
+    ssh_use_pam: true
+    sftp_enabled: true
