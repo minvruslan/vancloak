@@ -1,0 +1,118 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+  packages: write
+
+concurrency:
+  group: ${{ github.workflow }}
+
+jobs:
+  release:
+    name: Build, smoke and publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      GH_TOKEN: ${{ github.token }}
+      IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}/
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate the tag
+        run: |
+          TAG="$GITHUB_REF_NAME"
+          if ! printf '%s' "$TAG" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "Tag $TAG does not match vX.Y.Z"
+            exit 1
+          fi
+
+          git fetch --quiet origin main
+          if ! git merge-base --is-ancestor "$(git rev-parse HEAD)" origin/main; then
+            echo "Tag $TAG points to a commit that is not on main"
+            exit 1
+          fi
+
+          LATEST_TAG="$(gh release list --exclude-drafts --exclude-pre-releases --limit 1 --json tagName --jq '.[0].tagName // empty')"
+          if [ -n "$LATEST_TAG" ]; then
+            HIGHEST="$(printf '%s\n%s\n' "$LATEST_TAG" "$TAG" | sort -V | tail -1)"
+            if [ "$HIGHEST" != "$TAG" ] || [ "$TAG" = "$LATEST_TAG" ]; then
+              echo "Tag $TAG is not greater than the latest release $LATEST_TAG"
+              exit 1
+            fi
+          fi
+
+          echo "VERSION=${TAG#v}" >> "$GITHUB_ENV"
+
+      - name: Build the images
+        run: |
+          docker build -t "vancloak-backend:$VERSION" --build-arg "APP_VERSION=$VERSION" -f backend/Dockerfile .
+          docker build -t "vancloak-frontend:$VERSION" -f frontend/Dockerfile .
+          docker build -t "vancloak-command-runner:$VERSION" infrastructure/src/command-runner/image
+
+      - name: Smoke test the deploy stack
+        working-directory: deploy
+        run: |
+          ssh-keygen -q -t ed25519 -N "" -f smoke_ssh_key
+          POSTGRES_PASSWORD="$(openssl rand -hex 16)"
+          {
+            echo "VANCLOAK_VERSION=$VERSION"
+            echo "CADDY_SITE_ADDRESS=http://localhost"
+            echo "POSTGRES_USER=vancloak"
+            echo "POSTGRES_PASSWORD=$POSTGRES_PASSWORD"
+            echo "POSTGRES_DB=vancloak"
+            echo "DATABASE_URL=postgresql://vancloak:$POSTGRES_PASSWORD@postgres:5432/vancloak"
+            echo "QUEUE_URL=redis://redis:6379"
+            echo "BETTER_AUTH_SECRET=$(openssl rand -base64 32)"
+            echo "BETTER_AUTH_URL=http://localhost"
+            echo "BETTER_AUTH_TRUSTED_ORIGINS=http://localhost"
+            echo "ADMIN_EMAIL=smoke@vancloak.test"
+            echo "ADMIN_NAME=Smoke Admin"
+            echo "APP_ENCRYPTION_KEY=$(openssl rand -base64 32)"
+            echo "APP_SSH_PRIVATE_KEY=$(awk '{printf "%s\\n", $0}' smoke_ssh_key)"
+            echo "OPERATOR_SSH_PUBLIC_KEY="
+            echo "DOMAIN_NAME="
+            echo "IP=203.0.113.10"
+            echo "COUNTRY=NL"
+            echo "NUXT_PUBLIC_API_BASE_URL=http://backend-api:4000"
+            echo "NUXT_PUBLIC_AUTH_BASE_URL=http://backend-api:4000"
+          } > .env
+
+          docker compose -f docker-compose.yml -f docker-compose.smoke.yml up -d --wait --wait-timeout 300
+
+          curl -fsS -o /dev/null http://localhost/login
+          docker compose logs backend-api | grep -q "Mailer connection ok."
+
+          for ATTEMPT in 1 2 3; do
+            docker compose logs backend-worker | grep -q "Command runner binaries ok." && break
+            test "$ATTEMPT" != 3 || exit 1
+            sleep 2
+          done
+
+      - name: Show the stack logs on failure
+        if: failure()
+        working-directory: deploy
+        run: docker compose -f docker-compose.yml -f docker-compose.smoke.yml logs
+
+      - name: Push the images to GHCR
+        run: |
+          echo "$GH_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          MAJOR_MINOR="${VERSION%.*}"
+          for IMAGE in backend frontend command-runner; do
+            for IMAGE_TAG in "$VERSION" "$MAJOR_MINOR" latest; do
+              docker tag "vancloak-$IMAGE:$VERSION" "${IMAGE_PREFIX}vancloak-$IMAGE:$IMAGE_TAG"
+              docker push "${IMAGE_PREFIX}vancloak-$IMAGE:$IMAGE_TAG"
+            done
+          done
+
+      - name: Create the draft release
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            --draft \
+            --generate-notes \
+            deploy/docker-compose.yml deploy/Caddyfile deploy/.env.example

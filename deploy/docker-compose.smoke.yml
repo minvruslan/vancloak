@@ -1,0 +1,26 @@
+services:
+  mailpit:
+    container_name: vancloak-mailpit
+    image: axllent/mailpit:latest
+    restart: "no"
+
+  migrate:
+    environment:
+      SMTP_URL: smtp://mailpit:1025
+      MAIL_FROM: VanCloak <no-reply@vancloak.test>
+
+  backend-api:
+    environment:
+      SMTP_URL: smtp://mailpit:1025
+      MAIL_FROM: VanCloak <no-reply@vancloak.test>
+    depends_on:
+      mailpit:
+        condition: service_started
+
+  backend-worker:
+    environment:
+      SMTP_URL: smtp://mailpit:1025
+      MAIL_FROM: VanCloak <no-reply@vancloak.test>
+    depends_on:
+      mailpit:
+        condition: service_started
