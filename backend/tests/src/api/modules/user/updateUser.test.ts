@@ -70,7 +70,7 @@ describe("PUT /users/{id}", () => {
         id: targetUser.id,
         name: "Updated Name",
         email: targetUser.email,
-        limits: [{ protocolFamily: ProtocolRegistry.amneziawg2.family, maxCount: 2 }],
+        limits: [{ protocolFamily: ProtocolRegistry.amneziawg3.family, maxCount: 2 }],
       },
       await signInTestAdmin(),
     )
@@ -135,7 +135,7 @@ describe("PUT /users/{id}", () => {
     const targetUser = await insertTestUser()
     await insertTestConfigLimit({
       userId: targetUser.id,
-      protocolFamily: ProtocolRegistry.amneziawg2.family,
+      protocolFamily: ProtocolRegistry.amneziawg3.family,
       maxCount: 2,
     })
 
@@ -144,14 +144,14 @@ describe("PUT /users/{id}", () => {
         id: targetUser.id,
         name: targetUser.name,
         email: targetUser.email,
-        limits: [{ protocolFamily: ProtocolRegistry.amneziawg2.family, maxCount: 7 }],
+        limits: [{ protocolFamily: ProtocolRegistry.amneziawg3.family, maxCount: 7 }],
       },
       await signInTestAdmin(),
     )
 
     expect(updatedUser.limits).toHaveLength(1)
     for (const limit of updatedUser.limits) {
-      expect(limit.protocolFamily).toBe(ProtocolRegistry.amneziawg2.family)
+      expect(limit.protocolFamily).toBe(ProtocolRegistry.amneziawg3.family)
       expect(limit.maxCount).toBe(7)
     }
   })
@@ -164,14 +164,14 @@ describe("PUT /users/{id}", () => {
         id: targetUser.id,
         name: targetUser.name,
         email: targetUser.email,
-        limits: [{ protocolFamily: ProtocolRegistry.amneziawg2.family, maxCount: 3 }],
+        limits: [{ protocolFamily: ProtocolRegistry.amneziawg3.family, maxCount: 3 }],
       },
       await signInTestAdmin(),
     )
 
     expect(updatedUser.limits).toHaveLength(1)
     for (const limit of updatedUser.limits) {
-      expect(limit.protocolFamily).toBe(ProtocolRegistry.amneziawg2.family)
+      expect(limit.protocolFamily).toBe(ProtocolRegistry.amneziawg3.family)
       expect(limit.maxCount).toBe(3)
       expect(limit.used).toBe(0)
     }
@@ -181,7 +181,7 @@ describe("PUT /users/{id}", () => {
     const targetUser = await insertTestUser()
     await insertTestConfigLimit({
       userId: targetUser.id,
-      protocolFamily: ProtocolRegistry.amneziawg2.family,
+      protocolFamily: ProtocolRegistry.amneziawg3.family,
       maxCount: 2,
     })
 
@@ -197,7 +197,7 @@ describe("PUT /users/{id}", () => {
     const targetUser = await insertTestUser()
     await insertTestConfigLimit({
       userId: targetUser.id,
-      protocolFamily: ProtocolRegistry.amneziawg2.family,
+      protocolFamily: ProtocolRegistry.amneziawg3.family,
       maxCount: 2,
     })
 
@@ -206,7 +206,7 @@ describe("PUT /users/{id}", () => {
         id: targetUser.id,
         name: targetUser.name,
         email: targetUser.email,
-        limits: [{ protocolFamily: ProtocolRegistry.amneziawg2.family, maxCount: 9 }],
+        limits: [{ protocolFamily: ProtocolRegistry.amneziawg3.family, maxCount: 9 }],
       },
       await signInTestAdmin(),
     )
@@ -216,7 +216,7 @@ describe("PUT /users/{id}", () => {
       .from(configLimit)
       .where(eq(configLimit.userId, targetUser.id))
     expect(configLimitRows).toHaveLength(1)
-    expect(configLimitRows[0].protocolFamily).toBe(ProtocolRegistry.amneziawg2.family)
+    expect(configLimitRows[0].protocolFamily).toBe(ProtocolRegistry.amneziawg3.family)
     expect(configLimitRows[0].maxCount).toBe(9)
   })
 
@@ -224,13 +224,13 @@ describe("PUT /users/{id}", () => {
     const targetUser = await insertTestUser()
     await insertTestConfigLimit({
       userId: targetUser.id,
-      protocolFamily: ProtocolRegistry.amneziawg2.family,
+      protocolFamily: ProtocolRegistry.amneziawg3.family,
       maxCount: 2,
     })
     const bystanderUser = await insertTestUser()
     const bystanderConfigLimit = await insertTestConfigLimit({
       userId: bystanderUser.id,
-      protocolFamily: ProtocolRegistry.amneziawg2.family,
+      protocolFamily: ProtocolRegistry.amneziawg3.family,
       maxCount: 6,
     })
 
@@ -239,7 +239,7 @@ describe("PUT /users/{id}", () => {
         id: targetUser.id,
         name: targetUser.name,
         email: targetUser.email,
-        limits: [{ protocolFamily: ProtocolRegistry.amneziawg2.family, maxCount: 9 }],
+        limits: [{ protocolFamily: ProtocolRegistry.amneziawg3.family, maxCount: 9 }],
       },
       await signInTestAdmin(),
     )
@@ -268,7 +268,7 @@ describe("PUT /users/{id}", () => {
         id: targetUser.id,
         name: targetUser.name,
         email: targetUser.email,
-        limits: [{ protocolFamily: ProtocolRegistry.amneziawg2.family, maxCount: 5 }],
+        limits: [{ protocolFamily: ProtocolRegistry.amneziawg3.family, maxCount: 5 }],
       },
       await signInTestAdmin(),
     )
@@ -284,7 +284,7 @@ describe("PUT /users/{id}", () => {
     const targetUser = await insertTestUser()
     await insertTestConfigLimit({
       userId: targetUser.id,
-      protocolFamily: ProtocolRegistry.amneziawg2.family,
+      protocolFamily: ProtocolRegistry.amneziawg3.family,
       maxCount: 5,
     })
     await insertTestConfig({
@@ -303,7 +303,7 @@ describe("PUT /users/{id}", () => {
         id: targetUser.id,
         name: targetUser.name,
         email: targetUser.email,
-        limits: [{ protocolFamily: ProtocolRegistry.amneziawg2.family, maxCount: 1 }],
+        limits: [{ protocolFamily: ProtocolRegistry.amneziawg3.family, maxCount: 1 }],
       },
       await signInTestAdmin(),
     )
@@ -321,7 +321,7 @@ describe("PUT /users/{id}", () => {
     const targetUser = await insertTestUser()
     await insertTestConfigLimit({
       userId: targetUser.id,
-      protocolFamily: ProtocolRegistry.amneziawg2.family,
+      protocolFamily: ProtocolRegistry.amneziawg3.family,
       maxCount: 5,
     })
     await insertTestConfig({
@@ -340,7 +340,7 @@ describe("PUT /users/{id}", () => {
         id: targetUser.id,
         name: targetUser.name,
         email: targetUser.email,
-        limits: [{ protocolFamily: ProtocolRegistry.amneziawg2.family, maxCount: 1 }],
+        limits: [{ protocolFamily: ProtocolRegistry.amneziawg3.family, maxCount: 1 }],
       },
       await signInTestAdmin(),
     )
@@ -358,7 +358,7 @@ describe("PUT /users/{id}", () => {
     const targetUser = await insertTestUser()
     await insertTestConfigLimit({
       userId: targetUser.id,
-      protocolFamily: ProtocolRegistry.amneziawg2.family,
+      protocolFamily: ProtocolRegistry.amneziawg3.family,
       maxCount: 5,
     })
     const firstConfig = await insertTestConfig({
@@ -445,7 +445,7 @@ describe("PUT /users/{id}", () => {
     const otherUser = await insertTestUser()
     await insertTestConfigLimit({
       userId: targetUser.id,
-      protocolFamily: ProtocolRegistry.amneziawg2.family,
+      protocolFamily: ProtocolRegistry.amneziawg3.family,
       maxCount: 2,
     })
 
@@ -455,7 +455,7 @@ describe("PUT /users/{id}", () => {
           id: targetUser.id,
           name: "Updated Name",
           email: otherUser.email,
-          limits: [{ protocolFamily: ProtocolRegistry.amneziawg2.family, maxCount: 9 }],
+          limits: [{ protocolFamily: ProtocolRegistry.amneziawg3.family, maxCount: 9 }],
         },
         await signInTestAdmin(),
       ),

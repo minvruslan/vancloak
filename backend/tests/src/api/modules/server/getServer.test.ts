@@ -29,7 +29,7 @@ function callGetServer(id: string, headers: Headers) {
 describe("GET /servers/{id}", () => {
   it("returns the server matching the contract schema with every field at every nesting level and the endpoint protocol family matching its code", async () => {
     const expectedFamiliesByCode: Record<Protocol["code"], Protocol["family"]> = {
-      [ProtocolCodeSchema.enum.amneziawg2]: ProtocolRegistry.amneziawg2.family,
+      [ProtocolCodeSchema.enum.amneziawg3]: ProtocolRegistry.amneziawg3.family,
     }
     const serverProtocol = await insertTestProtocol()
     const requestedServer = await insertTestServer()

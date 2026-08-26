@@ -10,9 +10,9 @@ export async function insertTestProtocol(
   const [insertedProtocol] = await executor
     .insert(protocol)
     .values({
-      code: ProtocolCodeSchema.enum.amneziawg2,
-      family: ProtocolRegistry.amneziawg2.family,
-      name: ProtocolRegistry.amneziawg2.name,
+      code: ProtocolCodeSchema.enum.amneziawg3,
+      family: ProtocolRegistry.amneziawg3.family,
+      name: ProtocolRegistry.amneziawg3.name,
       ...overrides,
     })
     .returning()

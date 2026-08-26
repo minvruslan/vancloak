@@ -2,12 +2,12 @@ import type { z } from "zod"
 import type { TransportProtocol } from "../../common/network/types/TransportProtocol"
 import type { EndpointActualState } from "../../endpoint/types/EndpointActualState"
 import type { EndpointDesiredState } from "../../endpoint/types/EndpointDesiredState"
-import { Amneziawg2EndpointActualStateSchema } from "../../endpoint/protocols/amneziawg2/types/Amneziawg2EndpointActualStateSchema"
-import { Amneziawg2EndpointDesiredStateSchema } from "../../endpoint/protocols/amneziawg2/types/Amneziawg2EndpointDesiredStateSchema"
-import { Amneziawg2ClientIdentifierSchema } from "../../config/protocols/amneziawg2/types/Amneziawg2ClientIdentifierSchema"
-import { Amneziawg2ConfigDataSchema } from "../../config/protocols/amneziawg2/types/Amneziawg2ConfigDataSchema"
-import { Amneziawg2ConfigOptionsSchema } from "../../config/protocols/amneziawg2/types/Amneziawg2ConfigOptionsSchema"
-import { Amneziawg2ObfuscationDefaults } from "../amneziawg2/constants/Amneziawg2ObfuscationDefaults"
+import { Amneziawg3EndpointActualStateSchema } from "../../endpoint/protocols/amneziawg3/types/Amneziawg3EndpointActualStateSchema"
+import { Amneziawg3EndpointDesiredStateSchema } from "../../endpoint/protocols/amneziawg3/types/Amneziawg3EndpointDesiredStateSchema"
+import { Amneziawg3ClientIdentifierSchema } from "../../config/protocols/amneziawg3/types/Amneziawg3ClientIdentifierSchema"
+import { Amneziawg3ConfigDataSchema } from "../../config/protocols/amneziawg3/types/Amneziawg3ConfigDataSchema"
+import { Amneziawg3ConfigOptionsSchema } from "../../config/protocols/amneziawg3/types/Amneziawg3ConfigOptionsSchema"
+import { Amneziawg3ObfuscationDefaults } from "../amneziawg3/constants/Amneziawg3ObfuscationDefaults"
 import type { ProtocolCode } from "../types/ProtocolCode"
 import type { ProtocolFamilyCode } from "../types/ProtocolFamilyCode"
 
@@ -25,16 +25,16 @@ type ProtocolRegistryRecord = {
 }
 
 export const ProtocolRegistry = {
-  amneziawg2: {
+  amneziawg3: {
     family: "amneziawg",
-    name: "AmneziaWG 2",
+    name: "AmneziaWG 3",
     defaultPort: 443,
     transportProtocol: "udp",
-    configDataSchema: Amneziawg2ConfigDataSchema,
-    configOptionsSchema: Amneziawg2ConfigOptionsSchema,
-    configOptionsDefaults: { protocolCode: "amneziawg2", ...Amneziawg2ObfuscationDefaults },
-    clientIdentifierSchema: Amneziawg2ClientIdentifierSchema,
-    endpointDesiredStateSchema: Amneziawg2EndpointDesiredStateSchema,
-    endpointActualStateSchema: Amneziawg2EndpointActualStateSchema,
+    configDataSchema: Amneziawg3ConfigDataSchema,
+    configOptionsSchema: Amneziawg3ConfigOptionsSchema,
+    configOptionsDefaults: { protocolCode: "amneziawg3", ...Amneziawg3ObfuscationDefaults },
+    clientIdentifierSchema: Amneziawg3ClientIdentifierSchema,
+    endpointDesiredStateSchema: Amneziawg3EndpointDesiredStateSchema,
+    endpointActualStateSchema: Amneziawg3EndpointActualStateSchema,
   },
 } as const satisfies Record<ProtocolCode, ProtocolRegistryRecord>

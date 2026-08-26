@@ -41,7 +41,7 @@ export const protocol = pgTable(
       .notNull(),
   },
   (t) => [
-    check("protocol_code_check", sql`${t.code} in ('amneziawg2')`),
+    check("protocol_code_check", sql`${t.code} in ('amneziawg3')`),
     check("protocol_family_check", sql`${t.family} in ('amneziawg')`),
   ],
 )

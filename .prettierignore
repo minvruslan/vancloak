@@ -5,5 +5,5 @@ pnpm-lock.yaml
 node_modules
 dist
 coverage
-infrastructure/src/remote-server/protocols/amneziawg2/vendor
+infrastructure/src/remote-server/protocols/amneziawg3/vendor
 backend/drizzle/meta

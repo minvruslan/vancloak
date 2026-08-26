@@ -1,8 +1,8 @@
 import {
-  Amneziawg2ObfuscationPresets,
+  Amneziawg3ObfuscationPresets,
   ProtocolCodeSchema,
   UpsertConfigSchema,
-  type Amneziawg2ObfuscationLevel,
+  type Amneziawg3ObfuscationLevel,
   type ConfigProtocolOptions,
   type ProtocolCode,
 } from "@vancloak/api-contract"
@@ -28,10 +28,10 @@ import type { WizardAppId } from "../types/WizardAppId"
 
 function createProtocolOptions(
   protocolCode: ProtocolCode,
-  obfuscationLevel: Amneziawg2ObfuscationLevel,
+  obfuscationLevel: Amneziawg3ObfuscationLevel,
 ): ConfigProtocolOptions | undefined {
-  if (protocolCode !== ProtocolCodeSchema.enum.amneziawg2) return undefined
-  return { protocolCode, ...Amneziawg2ObfuscationPresets[obfuscationLevel] }
+  if (protocolCode !== ProtocolCodeSchema.enum.amneziawg3) return undefined
+  return { protocolCode, ...Amneziawg3ObfuscationPresets[obfuscationLevel] }
 }
 
 export function useCreateConfigWizard() {
@@ -44,7 +44,7 @@ export function useCreateConfigWizard() {
   const deviceTypeId = ref<string | null>(null)
   const appId = ref<WizardAppId | null>(null)
   const endpointId = ref<string | null>(null)
-  const obfuscationLevel = ref<Amneziawg2ObfuscationLevel>(RecommendedObfuscationLevel)
+  const obfuscationLevel = ref<Amneziawg3ObfuscationLevel>(RecommendedObfuscationLevel)
   const created = ref<CreatedConfig | null>(null)
   const pending = ref(false)
 

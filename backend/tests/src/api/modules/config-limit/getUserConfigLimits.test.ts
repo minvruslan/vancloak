@@ -54,7 +54,7 @@ describe("GET /config-limits", () => {
     const headers = await insertTestSession(requestUser)
     const insertedConfigLimit = await insertTestConfigLimit({
       userId: requestUser.id,
-      protocolFamily: ProtocolRegistry.amneziawg2.family,
+      protocolFamily: ProtocolRegistry.amneziawg3.family,
       maxCount: 3,
     })
 
@@ -63,7 +63,7 @@ describe("GET /config-limits", () => {
     const parsed = z.array(ConfigLimitSchema).parse(configLimits)
     expect(parsed).toHaveLength(1)
     expect(parsed[0].id).toBe(insertedConfigLimit.id)
-    expect(parsed[0].protocolFamily).toBe(ProtocolRegistry.amneziawg2.family)
+    expect(parsed[0].protocolFamily).toBe(ProtocolRegistry.amneziawg3.family)
     expect(parsed[0].maxCount).toBe(3)
     expect(parsed[0].used).toBe(0)
   })
@@ -74,7 +74,7 @@ describe("GET /config-limits", () => {
     const headers = await insertTestSession(requestUser)
     await insertTestConfigLimit({
       userId: requestUser.id,
-      protocolFamily: ProtocolRegistry.amneziawg2.family,
+      protocolFamily: ProtocolRegistry.amneziawg3.family,
       maxCount: 5,
     })
     await insertTestConfig({
@@ -102,7 +102,7 @@ describe("GET /config-limits", () => {
     const headers = await insertTestSession(requestUser)
     await insertTestConfigLimit({
       userId: requestUser.id,
-      protocolFamily: ProtocolRegistry.amneziawg2.family,
+      protocolFamily: ProtocolRegistry.amneziawg3.family,
       maxCount: 3,
     })
 
@@ -119,7 +119,7 @@ describe("GET /config-limits", () => {
     const headers = await insertTestSession(requestUser)
     await insertTestConfigLimit({
       userId: requestUser.id,
-      protocolFamily: ProtocolRegistry.amneziawg2.family,
+      protocolFamily: ProtocolRegistry.amneziawg3.family,
       maxCount: 3,
     })
     await insertTestConfig({
@@ -142,7 +142,7 @@ describe("GET /config-limits", () => {
     const headers = await insertTestSession(requestUser)
     await insertTestConfigLimit({
       userId: requestUser.id,
-      protocolFamily: ProtocolRegistry.amneziawg2.family,
+      protocolFamily: ProtocolRegistry.amneziawg3.family,
       maxCount: 3,
     })
     const stalePendingConfig = await insertTestConfig({
@@ -171,7 +171,7 @@ describe("GET /config-limits", () => {
     const headers = await insertTestSession(requestUser)
     await insertTestConfigLimit({
       userId: requestUser.id,
-      protocolFamily: ProtocolRegistry.amneziawg2.family,
+      protocolFamily: ProtocolRegistry.amneziawg3.family,
       maxCount: 3,
     })
     await insertTestConfig({
@@ -196,7 +196,7 @@ describe("GET /config-limits", () => {
     const headers = await insertTestSession(requestUser)
     await insertTestConfigLimit({
       userId: requestUser.id,
-      protocolFamily: ProtocolRegistry.amneziawg2.family,
+      protocolFamily: ProtocolRegistry.amneziawg3.family,
       maxCount: 3,
     })
     await insertTestConfig({
@@ -219,7 +219,7 @@ describe("GET /config-limits", () => {
     const headers = await insertTestSession(requestUser)
     await insertTestConfigLimit({
       userId: requestUser.id,
-      protocolFamily: ProtocolRegistry.amneziawg2.family,
+      protocolFamily: ProtocolRegistry.amneziawg3.family,
       maxCount: 2,
     })
     await insertTestConfig({
@@ -247,7 +247,7 @@ describe("GET /config-limits", () => {
     const headers = await insertTestSession(requestUser)
     await insertTestConfigLimit({
       userId: requestUser.id,
-      protocolFamily: ProtocolRegistry.amneziawg2.family,
+      protocolFamily: ProtocolRegistry.amneziawg3.family,
       maxCount: 1,
     })
     await insertTestConfig({
@@ -274,7 +274,7 @@ describe("GET /config-limits", () => {
     const headers = await insertTestSession(requestUser)
     await insertTestConfigLimit({
       userId: requestUser.id,
-      protocolFamily: ProtocolRegistry.amneziawg2.family,
+      protocolFamily: ProtocolRegistry.amneziawg3.family,
       maxCount: 0,
     })
 
@@ -303,7 +303,7 @@ describe("GET /config-limits", () => {
     const otherUser = await insertTestUser()
     await insertTestConfigLimit({
       userId: requestUser.id,
-      protocolFamily: ProtocolRegistry.amneziawg2.family,
+      protocolFamily: ProtocolRegistry.amneziawg3.family,
       maxCount: 3,
     })
     await insertTestConfig({
@@ -335,12 +335,12 @@ describe("GET /config-limits", () => {
     const otherUser = await insertTestUser()
     const requestUserConfigLimit = await insertTestConfigLimit({
       userId: requestUser.id,
-      protocolFamily: ProtocolRegistry.amneziawg2.family,
+      protocolFamily: ProtocolRegistry.amneziawg3.family,
       maxCount: 3,
     })
     await insertTestConfigLimit({
       userId: otherUser.id,
-      protocolFamily: ProtocolRegistry.amneziawg2.family,
+      protocolFamily: ProtocolRegistry.amneziawg3.family,
       maxCount: 3,
     })
 
@@ -354,7 +354,7 @@ describe("GET /config-limits", () => {
     const headers = await insertTestSession(adminUser)
     const adminConfigLimit = await insertTestConfigLimit({
       userId: adminUser.id,
-      protocolFamily: ProtocolRegistry.amneziawg2.family,
+      protocolFamily: ProtocolRegistry.amneziawg3.family,
       maxCount: 3,
     })
 

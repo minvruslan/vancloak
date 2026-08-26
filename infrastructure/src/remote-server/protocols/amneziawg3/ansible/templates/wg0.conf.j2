@@ -1,0 +1,49 @@
+[Interface]
+PrivateKey = {{ amneziawg3_server_private_key }}
+Address = {{ amneziawg3_address }}
+ListenPort = {{ amneziawg3_port }}
+MTU = {{ amneziawg3_mtu }}
+
+Jc = {{ amneziawg3_obfuscation.jc }}
+Jmin = {{ amneziawg3_obfuscation.jmin }}
+Jmax = {{ amneziawg3_obfuscation.jmax }}
+S1 = {{ amneziawg3_obfuscation.s1 }}
+S2 = {{ amneziawg3_obfuscation.s2 }}
+S3 = {{ amneziawg3_obfuscation.s3 }}
+S4 = {{ amneziawg3_obfuscation.s4 }}
+H1 = {{ amneziawg3_obfuscation.h1 }}
+H2 = {{ amneziawg3_obfuscation.h2 }}
+H3 = {{ amneziawg3_obfuscation.h3 }}
+H4 = {{ amneziawg3_obfuscation.h4 }}
+I1 = {{ amneziawg3_obfuscation.i1 }}
+{% for signature_key in ["i2", "i3", "i4", "i5"] %}
+{% if amneziawg3_obfuscation[signature_key] is defined %}
+{{ signature_key | upper }} = {{ amneziawg3_obfuscation[signature_key] }}
+{% endif %}
+{% endfor %}
+HeaderProtectionKey = {{ amneziawg3_obfuscation.headerProtectionKey }}
+RekeyAfterTime = {{ amneziawg3_obfuscation.rekeyAfterTime }}
+RekeyTimeout = {{ amneziawg3_obfuscation.rekeyTimeout }}
+RejectAfterTime = {{ amneziawg3_obfuscation.rejectAfterTime }}
+KeepaliveTimeout = {{ amneziawg3_obfuscation.keepaliveTimeout }}
+MaxHandshakeAttempts = {{ amneziawg3_obfuscation.maxHandshakeAttempts }}
+
+PostUp = iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+PostDown = iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
+
+PostUp = iptables -A FORWARD -i %i -o %i -j DROP
+PostDown = iptables -D FORWARD -i %i -o %i -j DROP
+
+PostUp = iptables -A FORWARD -i %i -d 10.0.0.0/8 -j DROP
+PostUp = iptables -A FORWARD -i %i -d 172.16.0.0/12 -j DROP
+PostUp = iptables -A FORWARD -i %i -d 192.168.0.0/16 -j DROP
+PostDown = iptables -D FORWARD -i %i -d 10.0.0.0/8 -j DROP
+PostDown = iptables -D FORWARD -i %i -d 172.16.0.0/12 -j DROP
+PostDown = iptables -D FORWARD -i %i -d 192.168.0.0/16 -j DROP
+{% for peer in amneziawg3_peers %}
+
+[Peer]
+PublicKey = {{ peer.publicKey }}
+PresharedKey = {{ peer.presharedKey }}
+AllowedIPs = {{ peer.clientIp }}/32
+{% endfor %}

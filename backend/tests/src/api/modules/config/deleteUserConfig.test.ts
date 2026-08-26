@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto"
 import { call } from "@orpc/server"
 import { ConfigSchema, type UpsertConfig } from "@vancloak/api-contract"
 import {
-  Amneziawg2ObfuscationDefaults,
+  Amneziawg3ObfuscationDefaults,
   ProtocolCodeSchema,
   ProtocolRegistry,
 } from "@vancloak/infrastructure/shared"
@@ -19,9 +19,9 @@ import { db } from "@/core/database/index.js"
 import { config, deviceType, endpoint, protocol, server } from "@/core/database/schemas/index.js"
 import { expectOrpcError } from "@tests/assertions/index.js"
 import {
-  createFakeAmneziawg2Client,
+  createFakeAmneziawg3Client,
   createTestIp,
-  FakeAmneziawg2EndpointActualState,
+  FakeAmneziawg3EndpointActualState,
   insertTestConfig,
   insertTestConfigLimit,
   insertTestEndpoint,
@@ -41,7 +41,7 @@ vi.mock("@/api/modules/config/queries/findDeletableUserConfigs.js", async (impor
 
 const DeleteUserConfigOutputSchema = z.object({ id: z.uuid() })
 
-let fakeAmneziawg2Client: ReturnType<typeof createFakeAmneziawg2Client>
+let fakeAmneziawg3Client: ReturnType<typeof createFakeAmneziawg3Client>
 let getProtocolClientSpy: MockInstance<RemoteServer["getProtocolClient"]>
 
 function callDeleteUserConfig(headers: Headers, id: string) {
@@ -68,10 +68,10 @@ async function insertConfigPrerequisites(
 
 describe("DELETE /configs/{id}", () => {
   beforeEach(async () => {
-    fakeAmneziawg2Client = createFakeAmneziawg2Client()
+    fakeAmneziawg3Client = createFakeAmneziawg3Client()
     getProtocolClientSpy = vi
       .spyOn(RemoteServer.prototype, "getProtocolClient")
-      .mockReturnValue(fakeAmneziawg2Client.client)
+      .mockReturnValue(fakeAmneziawg3Client.client)
     await bootstrapDeviceTypes()
   })
 
@@ -87,9 +87,9 @@ describe("DELETE /configs/{id}", () => {
       status: "active",
       clientIdentifier,
       data: {
-        protocolCode: ProtocolCodeSchema.enum.amneziawg2,
+        protocolCode: ProtocolCodeSchema.enum.amneziawg3,
         clientIp: clientIdentifier,
-        options: { ...Amneziawg2ObfuscationDefaults },
+        options: { ...Amneziawg3ObfuscationDefaults },
       },
     })
 
@@ -99,7 +99,7 @@ describe("DELETE /configs/{id}", () => {
     expect(parsed.id).toBe(insertedConfig.id)
     const configRows = await db.select().from(config).where(eq(config.id, insertedConfig.id))
     expect(configRows).toHaveLength(0)
-    expect(fakeAmneziawg2Client.deleteAccesses).toHaveBeenCalledWith(expect.anything(), [
+    expect(fakeAmneziawg3Client.deleteAccesses).toHaveBeenCalledWith(expect.anything(), [
       insertedConfig.data,
     ])
   })
@@ -110,7 +110,7 @@ describe("DELETE /configs/{id}", () => {
     const headers = await insertTestSession(requestUser)
     await insertTestConfigLimit({
       userId: requestUser.id,
-      protocolFamily: ProtocolRegistry.amneziawg2.family,
+      protocolFamily: ProtocolRegistry.amneziawg3.family,
       maxCount: 1,
     })
     const insertedConfig = await insertTestConfig({
@@ -151,7 +151,7 @@ describe("DELETE /configs/{id}", () => {
     expect(parsed.id).toBe(pendingConfig.id)
     const configRows = await db.select().from(config).where(eq(config.id, pendingConfig.id))
     expect(configRows).toHaveLength(0)
-    expect(fakeAmneziawg2Client.deleteAccesses).toHaveBeenCalledWith(expect.anything(), [
+    expect(fakeAmneziawg3Client.deleteAccesses).toHaveBeenCalledWith(expect.anything(), [
       pendingConfig.data,
     ])
   })
@@ -174,7 +174,7 @@ describe("DELETE /configs/{id}", () => {
     expect(parsed.id).toBe(stalePendingConfig.id)
     const configRows = await db.select().from(config).where(eq(config.id, stalePendingConfig.id))
     expect(configRows).toHaveLength(0)
-    expect(fakeAmneziawg2Client.deleteAccesses).toHaveBeenCalledWith(expect.anything(), [
+    expect(fakeAmneziawg3Client.deleteAccesses).toHaveBeenCalledWith(expect.anything(), [
       stalePendingConfig.data,
     ])
   })
@@ -196,7 +196,7 @@ describe("DELETE /configs/{id}", () => {
     expect(parsed.id).toBe(deletingConfig.id)
     const configRows = await db.select().from(config).where(eq(config.id, deletingConfig.id))
     expect(configRows).toHaveLength(0)
-    expect(fakeAmneziawg2Client.deleteAccesses).toHaveBeenCalledWith(expect.anything(), [
+    expect(fakeAmneziawg3Client.deleteAccesses).toHaveBeenCalledWith(expect.anything(), [
       deletingConfig.data,
     ])
   })
@@ -248,7 +248,7 @@ describe("DELETE /configs/{id}", () => {
     expect(configRows).toHaveLength(1)
     expect(configRows[0].status).toBe("active")
     expect(configRows[0].data).toEqual(siblingConfig.data)
-    expect(fakeAmneziawg2Client.deleteAccesses).toHaveBeenCalledWith(expect.anything(), [
+    expect(fakeAmneziawg3Client.deleteAccesses).toHaveBeenCalledWith(expect.anything(), [
       deletedConfigRow.data,
     ])
   })
@@ -277,7 +277,7 @@ describe("DELETE /configs/{id}", () => {
     expect(configRows).toHaveLength(1)
     expect(configRows[0].status).toBe("active")
     expect(configRows[0].data).toEqual(otherUserConfig.data)
-    expect(fakeAmneziawg2Client.deleteAccesses).toHaveBeenCalledWith(expect.anything(), [
+    expect(fakeAmneziawg3Client.deleteAccesses).toHaveBeenCalledWith(expect.anything(), [
       requestUserConfig.data,
     ])
   })
@@ -298,7 +298,7 @@ describe("DELETE /configs/{id}", () => {
     const configRows = await db.select().from(config).where(eq(config.id, insertedConfig.id))
     expect(configRows).toHaveLength(1)
     expect(configRows[0].status).toBe("active")
-    expect(fakeAmneziawg2Client.deleteAccesses).not.toHaveBeenCalled()
+    expect(fakeAmneziawg3Client.deleteAccesses).not.toHaveBeenCalled()
   })
 
   it("rejects another user's config with NOT_FOUND, leaves its row unchanged and does not call the node", async () => {
@@ -319,7 +319,7 @@ describe("DELETE /configs/{id}", () => {
     expect(configRows).toHaveLength(1)
     expect(configRows[0].status).toBe("active")
     expect(configRows[0].data).toEqual(otherUserConfig.data)
-    expect(fakeAmneziawg2Client.deleteAccesses).not.toHaveBeenCalled()
+    expect(fakeAmneziawg3Client.deleteAccesses).not.toHaveBeenCalled()
   })
 
   it("returns the deleted id, keeps the config row with status deleting and hides it from the user's config list when the node-side delete fails", async () => {
@@ -332,7 +332,7 @@ describe("DELETE /configs/{id}", () => {
       deviceTypeId: configDeviceType.id,
       status: "active",
     })
-    fakeAmneziawg2Client.deleteAccesses.mockRejectedValueOnce(new Error("Node-side failure"))
+    fakeAmneziawg3Client.deleteAccesses.mockRejectedValueOnce(new Error("Node-side failure"))
 
     const deletedConfig = await callDeleteUserConfig(headers, insertedConfig.id)
 
@@ -341,7 +341,7 @@ describe("DELETE /configs/{id}", () => {
     const configRows = await db.select().from(config).where(eq(config.id, insertedConfig.id))
     expect(configRows).toHaveLength(1)
     expect(configRows[0].status).toBe("deleting")
-    expect(fakeAmneziawg2Client.deleteAccesses).toHaveBeenCalledWith(expect.anything(), [
+    expect(fakeAmneziawg3Client.deleteAccesses).toHaveBeenCalledWith(expect.anything(), [
       insertedConfig.data,
     ])
     const configs = await call(configRouter.getUserConfigs, undefined, { context: { headers } })
@@ -368,7 +368,7 @@ describe("DELETE /configs/{id}", () => {
     const configRows = await db.select().from(config).where(eq(config.id, insertedConfig.id))
     expect(configRows).toHaveLength(1)
     expect(configRows[0].status).toBe("deleting")
-    expect(fakeAmneziawg2Client.deleteAccesses).not.toHaveBeenCalled()
+    expect(fakeAmneziawg3Client.deleteAccesses).not.toHaveBeenCalled()
   })
 
   it("allows an admin user as well", async () => {
@@ -388,7 +388,7 @@ describe("DELETE /configs/{id}", () => {
     expect(parsed.id).toBe(adminConfig.id)
   })
 
-  describe("amneziawg2", () => {
+  describe("amneziawg3", () => {
     it("removes the peer from the node by the config's client identifier for the target endpoint", async () => {
       const targetEndpointHost = "target-endpoint.example.test"
       const targetEndpointPort = 51999
@@ -396,7 +396,7 @@ describe("DELETE /configs/{id}", () => {
         endpoint: {
           data: {
             actualState: {
-              ...FakeAmneziawg2EndpointActualState,
+              ...FakeAmneziawg3EndpointActualState,
               host: targetEndpointHost,
               port: targetEndpointPort,
             },
@@ -413,22 +413,22 @@ describe("DELETE /configs/{id}", () => {
         status: "active",
         clientIdentifier,
         data: {
-          protocolCode: ProtocolCodeSchema.enum.amneziawg2,
+          protocolCode: ProtocolCodeSchema.enum.amneziawg3,
           clientIp: clientIdentifier,
           publicKey: "test-public-key",
           presharedKey: "test-preshared-key",
-          options: { ...Amneziawg2ObfuscationDefaults },
+          options: { ...Amneziawg3ObfuscationDefaults },
         },
       })
 
       await callDeleteUserConfig(headers, insertedConfig.id)
 
-      expect(getProtocolClientSpy).toHaveBeenCalledWith(ProtocolCodeSchema.enum.amneziawg2)
-      expect(fakeAmneziawg2Client.deleteAccesses).toHaveBeenCalledWith(
+      expect(getProtocolClientSpy).toHaveBeenCalledWith(ProtocolCodeSchema.enum.amneziawg3)
+      expect(fakeAmneziawg3Client.deleteAccesses).toHaveBeenCalledWith(
         expect.objectContaining({ host: targetEndpointHost, port: targetEndpointPort }),
         [insertedConfig.data],
       )
-      const [, deletedAccessesData] = fakeAmneziawg2Client.deleteAccesses.mock.calls[0]
+      const [, deletedAccessesData] = fakeAmneziawg3Client.deleteAccesses.mock.calls[0]
       expect(deletedAccessesData).toEqual([
         expect.objectContaining({ clientIp: insertedConfig.clientIdentifier }),
       ])

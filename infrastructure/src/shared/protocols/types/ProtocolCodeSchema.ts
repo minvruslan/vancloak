@@ -1,3 +1,3 @@
 import { z } from "zod"
 
-export const ProtocolCodeSchema = z.enum(["amneziawg2"])
+export const ProtocolCodeSchema = z.enum(["amneziawg3"])

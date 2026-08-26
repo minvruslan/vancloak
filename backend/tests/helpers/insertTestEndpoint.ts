@@ -1,7 +1,7 @@
 import type { DbOrTx } from "@/core/database/index.js"
 import { db } from "@/core/database/index.js"
 import { endpoint } from "@/core/database/schemas/index.js"
-import { FakeAmneziawg2EndpointActualState } from "./createFakeAmneziawg2Client.js"
+import { FakeAmneziawg3EndpointActualState } from "./createFakeAmneziawg3Client.js"
 
 export async function insertTestEndpoint(
   overrides: Partial<typeof endpoint.$inferInsert> &
@@ -13,7 +13,7 @@ export async function insertTestEndpoint(
     .values({
       port: 51820,
       data: {
-        actualState: FakeAmneziawg2EndpointActualState,
+        actualState: FakeAmneziawg3EndpointActualState,
       },
       ...overrides,
     })

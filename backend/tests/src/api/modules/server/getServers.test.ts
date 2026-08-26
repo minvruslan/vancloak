@@ -47,7 +47,7 @@ describe("GET /servers", () => {
 
   it("returns every contract field at every nesting level with the endpoint protocol family matching its code", async () => {
     const expectedFamiliesByCode: Record<Protocol["code"], Protocol["family"]> = {
-      [ProtocolCodeSchema.enum.amneziawg2]: ProtocolRegistry.amneziawg2.family,
+      [ProtocolCodeSchema.enum.amneziawg3]: ProtocolRegistry.amneziawg3.family,
     }
     const serverProtocol = await insertTestProtocol()
     const listedServer = await insertTestServer()

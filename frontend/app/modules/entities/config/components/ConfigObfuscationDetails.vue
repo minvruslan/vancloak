@@ -9,7 +9,7 @@ const props = defineProps<{ data: ConfigData }>()
 const { t } = useI18n({ useScope: "local", messages })
 
 const options = computed(() =>
-  props.data.protocolCode === ProtocolCodeSchema.enum.amneziawg2 ? props.data.options : null,
+  props.data.protocolCode === ProtocolCodeSchema.enum.amneziawg3 ? props.data.options : null,
 )
 </script>
 

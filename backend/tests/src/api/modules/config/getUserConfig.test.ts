@@ -2,9 +2,9 @@ import { randomUUID } from "node:crypto"
 import { call } from "@orpc/server"
 import { ConfigSchema } from "@vancloak/api-contract"
 import {
-  Amneziawg2BrowserFingerprintSchema,
-  Amneziawg2IntensitySchema,
-  Amneziawg2ProtocolProfileSchema,
+  Amneziawg3BrowserFingerprintSchema,
+  Amneziawg3IntensitySchema,
+  Amneziawg3ProtocolProfileSchema,
   ProtocolCodeSchema,
 } from "@vancloak/infrastructure/shared"
 import { beforeEach, describe, expect, it, vi } from "vitest"
@@ -192,8 +192,8 @@ describe("GET /configs/{id}", () => {
     expect(parsed.id).toBe(adminConfig.id)
   })
 
-  describe("amneziawg2", () => {
-    it("returns exactly the amneziawg2 config data fields", async () => {
+  describe("amneziawg3", () => {
+    it("returns exactly the amneziawg3 config data fields", async () => {
       const { configEndpoint, configDeviceType } = await insertConfigPrerequisites()
       const requestUser = await insertTestUser()
       const headers = await insertTestSession(requestUser)
@@ -203,16 +203,16 @@ describe("GET /configs/{id}", () => {
         deviceTypeId: configDeviceType.id,
         status: "active",
         data: {
-          protocolCode: ProtocolCodeSchema.enum.amneziawg2,
+          protocolCode: ProtocolCodeSchema.enum.amneziawg3,
           clientIp: "10.8.0.2",
           publicKey: "test-public-key",
           presharedKey: "test-preshared-key",
           options: {
-            protocolProfile: Amneziawg2ProtocolProfileSchema.enum.quic_initial,
-            browserFingerprint: Amneziawg2BrowserFingerprintSchema.enum.firefox,
-            junkPacketCount: Amneziawg2IntensitySchema.enum.high,
-            junkPacketSize: Amneziawg2IntensitySchema.enum.low,
-            noisePackets: Amneziawg2IntensitySchema.enum.medium,
+            protocolProfile: Amneziawg3ProtocolProfileSchema.enum.quic_initial,
+            browserFingerprint: Amneziawg3BrowserFingerprintSchema.enum.firefox,
+            junkPacketCount: Amneziawg3IntensitySchema.enum.high,
+            junkPacketSize: Amneziawg3IntensitySchema.enum.low,
+            noisePackets: Amneziawg3IntensitySchema.enum.medium,
           },
         },
       })

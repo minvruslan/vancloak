@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type { Amneziawg2ConfigObfuscationLevel } from "@vancloak/api-contract"
+import type { Amneziawg3ConfigObfuscationLevel } from "@vancloak/api-contract"
 import ConfigObfuscationLevelIcon from "./ConfigObfuscationLevelIcon.vue"
 import ConfigObfuscationLevelName from "./ConfigObfuscationLevelName.vue"
 
-defineProps<{ level: Amneziawg2ConfigObfuscationLevel }>()
+defineProps<{ level: Amneziawg3ConfigObfuscationLevel }>()
 </script>
 
 <template>

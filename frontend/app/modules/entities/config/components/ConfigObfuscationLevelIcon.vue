@@ -2,11 +2,11 @@
 import type { Component } from "vue"
 import { computed } from "vue"
 import { Ghost, Scale, SlidersHorizontal } from "@lucide/vue"
-import type { Amneziawg2ConfigObfuscationLevel } from "@vancloak/api-contract"
+import type { Amneziawg3ConfigObfuscationLevel } from "@vancloak/api-contract"
 
-const props = defineProps<{ level: Amneziawg2ConfigObfuscationLevel }>()
+const props = defineProps<{ level: Amneziawg3ConfigObfuscationLevel }>()
 
-const IconByLevel: Record<Amneziawg2ConfigObfuscationLevel, Component> = {
+const IconByLevel: Record<Amneziawg3ConfigObfuscationLevel, Component> = {
   medium: Scale,
   high: Ghost,
   custom: SlidersHorizontal,

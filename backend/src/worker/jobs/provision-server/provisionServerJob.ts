@@ -15,7 +15,8 @@ import { scanSshHostKeys } from "./steps/scanSshHostKeys.js"
 import { resolveServerAccess } from "./steps/resolveServerAccess.js"
 import { installRequiredSoftware } from "./steps/installRequiredSoftware.js"
 import { createServiceUserAccess } from "./steps/createServiceUserAccess.js"
-import { hardenSshAccess } from "./steps/hardenSshAccess.js"
+import { hardenSsh } from "./steps/hardenSsh.js"
+import { hardenFirewall } from "./steps/hardenFirewall.js"
 import { resolveEndpointDeployments } from "./steps/resolveEndpointDeployments.js"
 
 export async function provisionServerJob(job: ProvisionServerJob) {
@@ -58,10 +59,11 @@ export async function provisionServerJob(job: ProvisionServerJob) {
   let remoteServer = new RemoteServer(currentAccess)
   await installRequiredSoftware(serverId, { remoteServer })
   await createServiceUserAccess(serverId, { remoteServer, desiredState, authorizedKeys })
-  await hardenSshAccess(serverId, { currentAccess, targetAccess })
+  await hardenSsh(serverId, { currentAccess, targetAccess })
 
   remoteServer = new RemoteServer(targetAccess)
   await remoteServer.assertConnectivity()
+  await hardenFirewall(serverId, { remoteServer, sshPort: targetAccess.port })
 
   serverData = {
     ...serverData,

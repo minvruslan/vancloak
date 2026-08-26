@@ -1,9 +1,9 @@
 export {
-  createFakeAmneziawg2Client,
-  FakeAmneziawg2CreateAccessResult,
-  FakeAmneziawg2EndpointActualState,
+  createFakeAmneziawg3Client,
+  FakeAmneziawg3CreateAccessResult,
+  FakeAmneziawg3EndpointActualState,
   FAKE_SERVER_SSH_HOST_KEY,
-} from "./createFakeAmneziawg2Client.js"
+} from "./createFakeAmneziawg3Client.js"
 export { createTestEmail } from "./createTestEmail.js"
 export { createTestIp } from "./createTestIp.js"
 export { fetchCheckConstraintValues } from "./fetchCheckConstraintValues.js"

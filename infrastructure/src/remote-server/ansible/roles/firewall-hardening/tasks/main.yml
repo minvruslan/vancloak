@@ -1,0 +1,58 @@
+- name: Assert required variables are provided
+  ansible.builtin.assert:
+    that:
+      - hardening_ssh_port is defined
+    fail_msg: >-
+      Missing required variables. They are injected automatically by
+      RemoteServer.hardenFirewall (@vancloak/infrastructure);
+      for manual runs pass them via --extra-vars.
+
+- name: Assert the node OS family is supported
+  ansible.builtin.assert:
+    that:
+      - ansible_facts['os_family'] == 'Debian'
+    fail_msg: >-
+      ufw and fail2ban management support Debian-family nodes only;
+      got "{{ ansible_facts['os_family'] | default('unknown') }}".
+
+- name: Install ufw
+  ansible.builtin.apt:
+    name: ufw
+    state: present
+    update_cache: true
+
+- name: Deny incoming traffic by default
+  community.general.ufw:
+    direction: incoming
+    policy: deny
+
+- name: Allow SSH on port {{ hardening_ssh_port }}
+  community.general.ufw:
+    rule: allow
+    port: "{{ hardening_ssh_port }}"
+    proto: tcp
+
+- name: Enable ufw
+  community.general.ufw:
+    state: enabled
+
+- name: Install fail2ban
+  ansible.builtin.apt:
+    name: fail2ban
+    state: present
+    update_cache: true
+
+- name: Configure fail2ban sshd jail
+  ansible.builtin.template:
+    src: jail.local.j2
+    dest: /etc/fail2ban/jail.local
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart fail2ban
+
+- name: Enable and start fail2ban
+  ansible.builtin.service:
+    name: fail2ban
+    state: started
+    enabled: true

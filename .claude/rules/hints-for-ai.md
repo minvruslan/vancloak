@@ -11,7 +11,7 @@ This repo is a **pnpm workspace monorepo** — always use `pnpm`, never `npm` or
 
 ## Backend tests
 
-- Test file layout: root `describe` = protocol-independent flow; `describe("amneziawg2")` = tests coupled to the protocol implementation (to be mirrored per protocol); `describe("technical")` = states unreachable with honest data, via query-layer mocks. No other `describe` sections. Section order is fixed: all root-level tests first, then the nested sections at the bottom of the file, with `describe("technical")` always last.
+- Test file layout: root `describe` = protocol-independent flow; `describe("amneziawg3")` = tests coupled to the protocol implementation (to be mirrored per protocol); `describe("technical")` = states unreachable with honest data, via query-layer mocks. No other `describe` sections. Section order is fixed: all root-level tests first, then the nested sections at the bottom of the file, with `describe("technical")` always last.
 - One scenario → one test: identical arrange + act means ONE test asserting every consequence; the condition lives in the test name ("... when the node-side delete fails"). Separate tests are justified only by different arranges or triggers, never by different assertions on the same act.
 - Every rejection path asserts the absence of side effects: no rows written or changed, no node calls (`not.toHaveBeenCalled()`). Every retry/cleanup path asserts the node call actually happened.
 - Protocol identifiers only via `ProtocolCodeSchema.enum.*` / `ProtocolRegistry.*` — never string literals. Time offsets derive from the implementation constant (`CONSTANT + 1` minute), never magic numbers.

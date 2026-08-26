@@ -67,7 +67,7 @@ describe("GET /users", () => {
     const listedUser = await insertTestUser()
     await insertTestConfigLimit({
       userId: listedUser.id,
-      protocolFamily: ProtocolRegistry.amneziawg2.family,
+      protocolFamily: ProtocolRegistry.amneziawg3.family,
       maxCount: 3,
     })
 
@@ -106,12 +106,12 @@ describe("GET /users", () => {
     const thirdUser = await insertTestUser()
     const firstConfigLimit = await insertTestConfigLimit({
       userId: firstUser.id,
-      protocolFamily: ProtocolRegistry.amneziawg2.family,
+      protocolFamily: ProtocolRegistry.amneziawg3.family,
       maxCount: 1,
     })
     const secondConfigLimit = await insertTestConfigLimit({
       userId: secondUser.id,
-      protocolFamily: ProtocolRegistry.amneziawg2.family,
+      protocolFamily: ProtocolRegistry.amneziawg3.family,
       maxCount: 2,
     })
 
@@ -181,7 +181,7 @@ describe("GET /users", () => {
     const limitedUser = await insertTestUser()
     await insertTestConfigLimit({
       userId: limitedUser.id,
-      protocolFamily: ProtocolRegistry.amneziawg2.family,
+      protocolFamily: ProtocolRegistry.amneziawg3.family,
       maxCount: 5,
     })
     for (const status of ["active", "pending", "deleting"] as const) {
@@ -200,7 +200,7 @@ describe("GET /users", () => {
     for (const entry of entries) {
       expect(entry.limits).toHaveLength(1)
       for (const limit of entry.limits) {
-        expect(limit.protocolFamily).toBe(ProtocolRegistry.amneziawg2.family)
+        expect(limit.protocolFamily).toBe(ProtocolRegistry.amneziawg3.family)
         expect(limit.maxCount).toBe(5)
         expect(limit.used).toBe(2)
       }
@@ -212,7 +212,7 @@ describe("GET /users", () => {
     const limitedUser = await insertTestUser()
     await insertTestConfigLimit({
       userId: limitedUser.id,
-      protocolFamily: ProtocolRegistry.amneziawg2.family,
+      protocolFamily: ProtocolRegistry.amneziawg3.family,
       maxCount: 5,
     })
     await insertTestConfig({
@@ -241,7 +241,7 @@ describe("GET /users", () => {
     const otherUser = await insertTestUser()
     await insertTestConfigLimit({
       userId: limitedUser.id,
-      protocolFamily: ProtocolRegistry.amneziawg2.family,
+      protocolFamily: ProtocolRegistry.amneziawg3.family,
       maxCount: 5,
     })
     await insertTestConfig({
@@ -277,7 +277,7 @@ describe("GET /users", () => {
     const overLimitUser = await insertTestUser()
     await insertTestConfigLimit({
       userId: overLimitUser.id,
-      protocolFamily: ProtocolRegistry.amneziawg2.family,
+      protocolFamily: ProtocolRegistry.amneziawg3.family,
       maxCount: 1,
     })
     await insertTestConfig({
@@ -330,7 +330,7 @@ describe("GET /users", () => {
     const limitedUser = await insertTestUser()
     await insertTestConfigLimit({
       userId: limitedUser.id,
-      protocolFamily: ProtocolRegistry.amneziawg2.family,
+      protocolFamily: ProtocolRegistry.amneziawg3.family,
       maxCount: 2,
     })
     await insertTestConfig({
@@ -346,7 +346,7 @@ describe("GET /users", () => {
     for (const entry of entries) {
       expect(entry.limits).toHaveLength(1)
       for (const limit of entry.limits) {
-        expect(limit.protocolFamily).toBe(ProtocolRegistry.amneziawg2.family)
+        expect(limit.protocolFamily).toBe(ProtocolRegistry.amneziawg3.family)
         expect(limit.maxCount).toBe(2)
         expect(limit.used).toBe(1)
       }

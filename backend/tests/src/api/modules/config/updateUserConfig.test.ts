@@ -2,9 +2,9 @@ import { randomUUID } from "node:crypto"
 import { call } from "@orpc/server"
 import { ConfigSchema, type UpdateConfig } from "@vancloak/api-contract"
 import {
-  Amneziawg2BrowserFingerprintSchema,
-  Amneziawg2IntensitySchema,
-  Amneziawg2ProtocolProfileSchema,
+  Amneziawg3BrowserFingerprintSchema,
+  Amneziawg3IntensitySchema,
+  Amneziawg3ProtocolProfileSchema,
   ProtocolCodeSchema,
 } from "@vancloak/infrastructure/shared"
 import { RemoteServer } from "@vancloak/infrastructure"
@@ -19,7 +19,7 @@ import { db } from "@/core/database/index.js"
 import { config, deviceType, protocol } from "@/core/database/schemas/index.js"
 import { expectOrpcError } from "@tests/assertions/index.js"
 import {
-  createFakeAmneziawg2Client,
+  createFakeAmneziawg3Client,
   createTestIp,
   insertTestConfig,
   insertTestEndpoint,
@@ -58,10 +58,10 @@ async function insertConfigPrerequisites(
 
 describe("PUT /configs/{id}", () => {
   beforeEach(async () => {
-    const fakeAmneziawg2Client = createFakeAmneziawg2Client()
+    const fakeAmneziawg3Client = createFakeAmneziawg3Client()
     getProtocolClientSpy = vi
       .spyOn(RemoteServer.prototype, "getProtocolClient")
-      .mockReturnValue(fakeAmneziawg2Client.client)
+      .mockReturnValue(fakeAmneziawg3Client.client)
     await bootstrapDeviceTypes()
   })
 
@@ -362,8 +362,8 @@ describe("PUT /configs/{id}", () => {
         name: "Updated Config",
         deviceTypeId: secondDeviceType.id,
         protocolOptions: {
-          protocolCode: ProtocolCodeSchema.enum.amneziawg2,
-          browserFingerprint: Amneziawg2BrowserFingerprintSchema.enum.firefox,
+          protocolCode: ProtocolCodeSchema.enum.amneziawg3,
+          browserFingerprint: Amneziawg3BrowserFingerprintSchema.enum.firefox,
         },
       },
       headers,
@@ -455,8 +455,8 @@ describe("PUT /configs/{id}", () => {
     expect(parsed.name).toBe("Updated Config")
   })
 
-  describe("amneziawg2", () => {
-    it("returns exactly the amneziawg2 config data fields", async () => {
+  describe("amneziawg3", () => {
+    it("returns exactly the amneziawg3 config data fields", async () => {
       const { configEndpoint, firstDeviceType, secondDeviceType } =
         await insertConfigPrerequisites()
       const requestUser = await insertTestUser()
@@ -467,16 +467,16 @@ describe("PUT /configs/{id}", () => {
         deviceTypeId: firstDeviceType.id,
         status: "active",
         data: {
-          protocolCode: ProtocolCodeSchema.enum.amneziawg2,
+          protocolCode: ProtocolCodeSchema.enum.amneziawg3,
           clientIp: "10.8.0.2",
           publicKey: "test-public-key",
           presharedKey: "test-preshared-key",
           options: {
-            protocolProfile: Amneziawg2ProtocolProfileSchema.enum.quic_initial,
-            browserFingerprint: Amneziawg2BrowserFingerprintSchema.enum.firefox,
-            junkPacketCount: Amneziawg2IntensitySchema.enum.high,
-            junkPacketSize: Amneziawg2IntensitySchema.enum.low,
-            noisePackets: Amneziawg2IntensitySchema.enum.medium,
+            protocolProfile: Amneziawg3ProtocolProfileSchema.enum.quic_initial,
+            browserFingerprint: Amneziawg3BrowserFingerprintSchema.enum.firefox,
+            junkPacketCount: Amneziawg3IntensitySchema.enum.high,
+            junkPacketSize: Amneziawg3IntensitySchema.enum.low,
+            noisePackets: Amneziawg3IntensitySchema.enum.medium,
           },
         },
       })
