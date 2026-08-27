@@ -15,6 +15,24 @@
       SSH hardening supports Debian-family nodes only;
       got "{{ ansible_facts['os_family'] | default('unknown') }}".
 
+- name: Check whether the ssh systemd socket unit exists
+  ansible.builtin.command:
+    cmd: systemctl list-unit-files ssh.socket
+  register: hardening_ssh_socket_lookup
+  changed_when: false
+  failed_when: false
+
+- name: Replace ssh socket activation with the ssh service
+  ansible.builtin.shell:
+    cmd: >-
+      systemctl daemon-reload &&
+      systemctl disable --now ssh.socket &&
+      systemctl mask ssh.socket &&
+      systemctl daemon-reload &&
+      systemctl enable ssh.service &&
+      systemctl start ssh.service
+  when: "'ssh.socket' in hardening_ssh_socket_lookup.stdout and 'masked' not in hardening_ssh_socket_lookup.stdout"
+
 - name: Harden the SSH daemon
   ansible.builtin.include_role:
     name: devsec.hardening.ssh_hardening
