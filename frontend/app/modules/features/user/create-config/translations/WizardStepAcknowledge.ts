@@ -2,7 +2,7 @@ export const messages = {
   ru: {
     title: "Одна конфигурация — одно устройство",
     description:
-      "Конфигурация — это личный ключ, по которому приложение подключает ваше устройство к VPN-серверу. Сейчас мы его создадим, а потом покажем, как добавить в приложение.",
+      "Конфигурация — это личный ключ для подключения вашего устройства к VPN-серверу. Сейчас мы её создадим, а потом покажем, как добавить в приложение.",
     warningBanner: {
       title: "Не делитесь конфигурацией",
       description:
@@ -15,7 +15,7 @@ export const messages = {
   en: {
     title: "One configuration, one device",
     description:
-      "A configuration is your personal key that the app uses to connect your device to the VPN server. We’ll create it now and then show you how to add it to the app.",
+      "A configuration is a personal key that connects your device to the VPN server. We’ll create it now and then show you how to add it to the app.",
     warningBanner: {
       title: "Don’t share the configuration",
       description:

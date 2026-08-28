@@ -1,12 +1,14 @@
 export const messages = {
   ru: {
     title: "Проверьте почту",
-    body: "Мы отправили ссылку для входа на {email}. Откройте её на этом устройстве, чтобы продолжить.",
-    useDifferentEmailAction: "Использовать другой email",
+    bodyBeforeEmail: "Мы отправили ссылку для входа на",
+    wrongEmailQuestion: "Ошиблись почтой?",
+    useDifferentEmailAction: "Изменить email",
   },
   en: {
     title: "Check your inbox",
-    body: "We sent a login link to {email}. Open it on this device to continue.",
-    useDifferentEmailAction: "Use a different email",
+    bodyBeforeEmail: "We sent a login link to",
+    wrongEmailQuestion: "Wrong email?",
+    useDifferentEmailAction: "Change email address",
   },
 }

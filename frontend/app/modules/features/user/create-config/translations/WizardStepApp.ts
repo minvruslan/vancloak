@@ -2,9 +2,9 @@ export const messages = {
   ru: {
     title: "Установите одно из приложений",
     description:
-      "Выберите приложение, которое больше нравится и доступно в вашем регионе. Установите его и подтвердите выбор кнопкой. Далее мы покажем инструкцию именно для него.",
+      "Подойдёт любое из доступных в вашем регионе — дальше покажем настройку именно для него.",
     downloadAction: "Скачать",
-    installedAction: "Я установил {name}",
+    installedContinueAction: "Я установил {name}",
     continueAction: "Продолжить",
     apps: {
       amneziavpn: {
@@ -21,10 +21,9 @@ export const messages = {
   },
   en: {
     title: "Install one of these apps",
-    description:
-      "Pick the app that you like best and that is available in your region. Install it and confirm your choice with the button below. Then we’ll show instructions for that exact app.",
+    description: "Pick any app available in your region — next we’ll show setup steps for it.",
     downloadAction: "Download",
-    installedAction: "I installed {name}",
+    installedContinueAction: "I installed {name}",
     continueAction: "Continue",
     apps: {
       amneziavpn: {

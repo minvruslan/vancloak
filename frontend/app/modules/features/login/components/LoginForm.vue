@@ -19,8 +19,8 @@ const onSubmit = () => {
 
 <template>
   <div class="mb-4 flex flex-col items-center gap-1.5">
-    <h1 class="text-lg font-semibold tracking-tight">{{ t("title") }}</h1>
-    <span class="text-xs text-muted-foreground">{{ t("subTitle") }}</span>
+    <h1 class="text-xl font-semibold tracking-tight">{{ t("title") }}</h1>
+    <span class="text-sm font-medium text-muted-foreground">{{ t("subTitle") }}</span>
   </div>
 
   <form class="flex flex-col gap-4" novalidate @submit.prevent="onSubmit">
@@ -32,6 +32,7 @@ const onSubmit = () => {
         v-model="email"
         type="email"
         autocomplete="email"
+        class="bg-background"
         :placeholder="t('email.placeholder')"
       />
     </div>

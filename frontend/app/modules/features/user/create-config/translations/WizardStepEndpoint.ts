@@ -9,7 +9,7 @@ export const messages = {
   en: {
     title: "Choose a server",
     description:
-      "All servers work the same — the only difference is the country you will appear to browse from.",
+      "All servers work the same. The only difference is the country you’ll go online from.",
     empty: "No servers available.",
     continueAction: "Continue",
   },

@@ -16,7 +16,10 @@ defineEmits<{ (e: "open", config: Config): void }>()
 </script>
 
 <template>
-  <div v-if="pending" class="mt-3 flex flex-col gap-3">
+  <div
+    v-if="pending"
+    class="-m-1 mt-3.5 -mr-7 flex min-h-0 flex-1 flex-col gap-2.5 p-1 pr-7 max-sm:-mr-4.5 max-sm:pr-4.5 sm:mt-6"
+  >
     <ConfigCardSkeleton v-for="i in skeletonCount" :key="i" />
   </div>
 

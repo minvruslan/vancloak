@@ -10,9 +10,9 @@ export function createMagicLinkEmail(url: string): {
   attachments: { filename: string; content: Buffer; cid: string; contentType: string }[]
 } {
   return {
-    subject: "Sign in to VanCloak",
+    subject: "Log in to VanCloak",
     text: [
-      "Sign in to VanCloak by opening this link:",
+      "Log in to VanCloak by opening this link:",
       "",
       url,
       "",
@@ -33,12 +33,12 @@ export function createMagicLinkEmail(url: string): {
                 </tr>
                 <tr>
                   <td align="center" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:22px;line-height:28px;font-weight:600;color:#18181b;padding-bottom:12px;">
-                    Sign in to VanCloak
+                    Log in to VanCloak
                   </td>
                 </tr>
                 <tr>
                   <td align="center" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:15px;line-height:23px;color:#52525b;padding-bottom:28px;">
-                    Click the button below to securely sign in to your account. This link can be used once and expires shortly.
+                    Click the button below to complete your login. This link expires in 5 minutes.
                   </td>
                 </tr>
                 <tr>
@@ -46,7 +46,7 @@ export function createMagicLinkEmail(url: string): {
                     <table role="presentation" cellpadding="0" cellspacing="0">
                       <tr>
                         <td align="center" style="background-color:${BRAND_COLOR};border-radius:8px;">
-                          <a href="${url}" style="display:inline-block;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:15px;font-weight:600;line-height:20px;color:#ffffff;text-decoration:none;padding:13px 40px;border-radius:8px;">Sign in</a>
+                          <a href="${url}" style="display:inline-block;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:15px;font-weight:600;line-height:20px;color:#ffffff;text-decoration:none;padding:13px 40px;border-radius:8px;">Log in</a>
                         </td>
                       </tr>
                     </table>
