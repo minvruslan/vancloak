@@ -15,7 +15,11 @@ onMounted(() => heading.value?.focus())
   <div class="flex flex-col items-center gap-4 text-center">
     <div class="flex items-center gap-2.5">
       <CheckCircle2 class="size-5.5 text-green-600" aria-hidden="true" />
-      <h1 ref="heading" tabindex="-1" class="mt-px text-xl font-semibold tracking-tight outline-none">
+      <h1
+        ref="heading"
+        tabindex="-1"
+        class="mt-px text-xl font-semibold tracking-tight outline-none"
+      >
         {{ t("title") }}
       </h1>
     </div>

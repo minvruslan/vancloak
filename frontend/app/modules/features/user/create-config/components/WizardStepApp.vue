@@ -69,13 +69,7 @@ const openDownload = (app: WizardApp) => {
           {{ t(`apps.${app.id}.description`) }}
         </p>
 
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          class="w-full"
-          @click="openDownload(app)"
-        >
+        <Button type="button" variant="outline" size="sm" class="w-full" @click="openDownload(app)">
           <Download class="size-4" aria-hidden="true" />
           {{ t("downloadAction") }}
         </Button>

@@ -25,7 +25,11 @@ watch(failed, async () => {
   <div v-else class="flex flex-col items-center gap-4 text-center">
     <div class="flex items-center gap-2.5">
       <XCircle class="size-5.5 text-destructive" aria-hidden="true" />
-      <h1 ref="heading" tabindex="-1" class="mt-px text-xl font-semibold tracking-tight outline-none">
+      <h1
+        ref="heading"
+        tabindex="-1"
+        class="mt-px text-xl font-semibold tracking-tight outline-none"
+      >
         {{ t("failedTitle") }}
       </h1>
     </div>

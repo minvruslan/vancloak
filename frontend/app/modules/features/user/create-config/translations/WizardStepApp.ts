@@ -21,8 +21,7 @@ export const messages = {
   },
   en: {
     title: "Install one of these apps",
-    description:
-      "Pick any app available in your region — next we’ll show setup steps for it.",
+    description: "Pick any app available in your region — next we’ll show setup steps for it.",
     downloadAction: "Download",
     installedContinueAction: "I installed {name}",
     continueAction: "Continue",

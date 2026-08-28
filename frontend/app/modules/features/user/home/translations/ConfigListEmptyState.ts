@@ -7,8 +7,7 @@ export const messages = {
   },
   en: {
     title: "Let’s set up your VPN",
-    description:
-      "Add your first device. We’ll show you every step — it takes about two minutes.",
+    description: "Add your first device. We’ll show you every step — it takes about two minutes.",
     createAction: "Add device",
   },
 }
