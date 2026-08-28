@@ -4,7 +4,7 @@ import MobileNav from "@/components/admin-layout/MobileNav.vue"
 </script>
 
 <template>
-  <div class="flex h-dvh flex-col bg-muted/40">
+  <div class="flex h-dvh flex-col bg-muted/50">
     <!-- Mobile -->
     <header class="z-30 shrink-0 border-b bg-background lg:hidden">
       <MobileNav />

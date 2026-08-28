@@ -10,7 +10,7 @@ const onBrandClick = (event: MouseEvent) => {
 </script>
 
 <template>
-  <div class="flex h-dvh flex-col bg-muted sm:justify-center">
+  <div class="flex h-dvh flex-col bg-muted/50 sm:justify-center">
     <div class="mx-auto w-full max-w-140 px-5 pt-5 max-sm:px-3.5 max-sm:pt-3">
       <header
         class="flex items-center justify-between gap-3 rounded-xl border bg-card py-2.5 pl-4.5 pr-2.5 max-sm:py-2 max-sm:pl-3.5 max-sm:pr-2"

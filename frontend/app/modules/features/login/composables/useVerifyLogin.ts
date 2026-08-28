@@ -6,14 +6,32 @@ export function useVerifyLogin() {
   const pending = ref(false)
   const failed = ref(false)
 
-  onMounted(() => {
-    token.value = new URLSearchParams(window.location.hash.slice(1)).get("token")
-    if (!token.value) failed.value = true
+  function consumeTokenFromHash(): string | null {
+    const tokenFromHash = new URLSearchParams(window.location.hash.slice(1)).get("token")
     window.history.replaceState(
       window.history.state,
       "",
       window.location.pathname + window.location.search,
     )
+    return tokenFromHash
+  }
+
+  function onHashChange() {
+    if (pending.value) return
+    const tokenFromHash = consumeTokenFromHash()
+    if (!tokenFromHash) return
+    token.value = tokenFromHash
+    failed.value = false
+  }
+
+  onMounted(() => {
+    token.value = consumeTokenFromHash()
+    if (!token.value) failed.value = true
+    window.addEventListener("hashchange", onHashChange)
+  })
+
+  onUnmounted(() => {
+    window.removeEventListener("hashchange", onHashChange)
   })
 
   async function submit() {

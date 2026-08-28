@@ -9,7 +9,7 @@ export const messages = {
     sendLoginLinkAction: "Отправить ссылку для входа",
   },
   en: {
-    title: "Login to VanCloak",
+    title: "Log in to VanCloak",
     subTitle: "Invite-only access",
     email: {
       label: "Email",
