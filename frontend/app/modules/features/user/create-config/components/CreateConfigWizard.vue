@@ -4,6 +4,7 @@ import { useCreateConfigWizard } from "../composables/useCreateConfigWizard"
 import { WizardStepOrder } from "../types/WizardStepOrder"
 import WizardStepAcknowledge from "./WizardStepAcknowledge.vue"
 import WizardStepApp from "./WizardStepApp.vue"
+import WizardStepAppMacos from "./WizardStepAppMacos.vue"
 import WizardStepDevice from "./WizardStepDevice.vue"
 import WizardStepDone from "./WizardStepDone.vue"
 import WizardStepEndpoint from "./WizardStepEndpoint.vue"
@@ -14,7 +15,7 @@ import WizardStepSkeleton from "./WizardStepSkeleton.vue"
 const emit = defineEmits<{ (e: "exit" | "done"): void }>()
 
 const wizard = useCreateConfigWizard()
-const { step } = wizard
+const { step, selectedDeviceType } = wizard
 
 const direction = ref<"forward" | "back">("forward")
 const restored = ref(false)
@@ -59,6 +60,10 @@ else onMounted(restore)
         <WizardStepSkeleton v-if="!restored" />
         <WizardStepName v-else-if="step === 'name'" :wizard="wizard" @exit="emit('exit')" />
         <WizardStepDevice v-else-if="step === 'device'" :wizard="wizard" />
+        <WizardStepAppMacos
+          v-else-if="step === 'app' && selectedDeviceType?.code === 'macos'"
+          :wizard="wizard"
+        />
         <WizardStepApp v-else-if="step === 'app'" :wizard="wizard" />
         <WizardStepEndpoint v-else-if="step === 'endpoint'" :wizard="wizard" />
         <WizardStepProfile v-else-if="step === 'profile'" :wizard="wizard" />

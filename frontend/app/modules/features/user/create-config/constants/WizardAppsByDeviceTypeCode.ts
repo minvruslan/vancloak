@@ -44,22 +44,10 @@ export const WizardAppsByDeviceTypeCode: Record<DeviceType["code"], WizardApp[]>
   ],
   macos: [
     {
-      id: "defaultvpn",
-      name: "DefaultVPN",
-      iconUrl: "/images/apps/defaultvpn.jpg",
-      downloadUrl: "https://apps.apple.com/app/wireguard/id1451685025",
-    },
-    {
       id: "amneziavpn",
       name: "AmneziaVPN",
       iconUrl: "/images/apps/amneziavpn.jpg",
       downloadUrl: "https://amnezia.org/downloads",
-    },
-    {
-      id: "amneziawg",
-      name: "AmneziaWG",
-      iconUrl: "/images/apps/amneziawg.jpg",
-      downloadUrl: "https://apps.apple.com/app/amneziawg/id6478942365",
     },
   ],
   windows: [

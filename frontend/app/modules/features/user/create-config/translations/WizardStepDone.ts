@@ -28,12 +28,22 @@ export const messages = {
       copyError: "Не удалось скопировать ссылку.",
     },
     apps: {
-      amneziavpn: stepsForAllDeviceTypeCodes([
-        "Нажмите «Скопировать ссылку» выше.",
-        "В приложении нажмите «+» в нижнем меню.",
-        "Вставьте скопированную ссылку в поле «Вставьте ключ» и нажмите «Продолжить».",
-        "Нажмите «Connect» и дайте согласие на все запрашиваемые разрешения.",
-      ]),
+      amneziavpn: {
+        ...stepsForAllDeviceTypeCodes([
+          "Нажмите «Скопировать ссылку» выше.",
+          "В приложении нажмите «+» в нижнем меню.",
+          "Вставьте скопированную ссылку в поле «Вставьте ключ» и нажмите «Продолжить».",
+          "Нажмите «Connect» и дайте согласие на все запрашиваемые разрешения.",
+        ]),
+        macos: {
+          steps: [
+            "Нажмите «Скопировать ссылку» выше.",
+            "В приложении нажмите «+» в нижнем меню.",
+            "Вставьте скопированную ссылку в поле «Вставьте ключ» и нажмите «Продолжить».",
+            "Нажмите «Connect» и разрешите добавление конфигураций VPN.",
+          ],
+        },
+      },
       amneziawg: stepsForAllDeviceTypeCodes([
         "Нажмите «Скачать файл» и разрешите загрузку.",
         "Откройте AmneziaWG, нажмите «+» и выберите «Создать из файла или архива».",
@@ -61,12 +71,22 @@ export const messages = {
       copyError: "Could not copy the link.",
     },
     apps: {
-      amneziavpn: stepsForAllDeviceTypeCodes([
-        "Tap “Copy link” above.",
-        "In the app, tap “+” in the bottom menu.",
-        "Paste the copied link into the “Insert key” field and tap “Continue”.",
-        "Tap “Connect” and allow all requested permissions.",
-      ]),
+      amneziavpn: {
+        ...stepsForAllDeviceTypeCodes([
+          "Tap “Copy link” above.",
+          "In the app, tap “+” in the bottom menu.",
+          "Paste the copied link into the “Insert key” field and tap “Continue”.",
+          "Tap “Connect” and allow all requested permissions.",
+        ]),
+        macos: {
+          steps: [
+            "Click “Copy link” above.",
+            "In the app, click “+” in the bottom menu.",
+            "Paste the copied link into the “Insert key” field and click “Continue”.",
+            "Click “Connect” and allow adding VPN configurations.",
+          ],
+        },
+      },
       amneziawg: stepsForAllDeviceTypeCodes([
         "Tap “Download file” and allow the download.",
         "Open AmneziaWG, tap “+” and choose “Create from file or archive”.",
