@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { computed } from "vue"
-import { Check, CheckCircle2, Copy, Download, ListChecks } from "@lucide/vue"
+import { Check, Copy, Download } from "@lucide/vue"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { useCountries } from "@/modules/shared/composables"
-import { buildConfigFileName } from "@/modules/entities/config"
-import { DeviceTypeName } from "@/modules/entities/device-type"
+import {
+  buildConfigFileName,
+  ConfigObfuscationLevelName,
+  getConfigObfuscationLevel,
+} from "@/modules/entities/config"
 import type { CreateConfigWizardMachine } from "../types/CreateConfigWizardMachine"
 import WizardStepLayout from "./WizardStepLayout.vue"
 import { messages } from "../translations/WizardStepDone"
@@ -28,6 +31,10 @@ const instructionSteps = computed(() =>
 
 const fileName = computed(() =>
   created.value ? buildConfigFileName(created.value) : "config.conf",
+)
+
+const obfuscationLevel = computed(() =>
+  created.value ? getConfigObfuscationLevel(created.value.data) : null,
 )
 
 const downloadConfiguration = () => {
@@ -56,18 +63,22 @@ const copyLink = async () => {
   <WizardStepLayout v-if="created && selectedApp">
     <template #header>
       <div class="mb-4 flex items-center gap-2.5 sm:mb-4.5">
-        <CheckCircle2
-          class="-mt-px size-4.5 shrink-0 text-emerald-600 dark:text-emerald-400"
+        <span
+          class="flex size-6 shrink-0 items-center justify-center rounded-sm border bg-emerald-600/10 dark:bg-emerald-400/10"
           aria-hidden="true"
-        />
-        <h1 class="text-base font-semibold">{{ t("title") }}</h1>
+        >
+          <Check class="size-4 text-emerald-600 dark:text-emerald-400" />
+        </span>
+        <h1 class="mt-px text-base font-semibold">{{ t("title") }}</h1>
       </div>
     </template>
 
     <div class="flex flex-col gap-4 sm:gap-4.5">
       <p class="text-sm text-muted-foreground">
-        {{ created.endpoint.server.name }} · {{ getCountryName(created.endpoint.server.country) }} ·
-        <DeviceTypeName :code="created.deviceType.code" />
+        {{ created.endpoint.server.name }} · {{ getCountryName(created.endpoint.server.country) }}
+        <template v-if="obfuscationLevel">
+          · <ConfigObfuscationLevelName :level="obfuscationLevel" />
+        </template>
       </p>
 
       <div class="flex flex-col gap-3.5">
@@ -97,8 +108,14 @@ const copyLink = async () => {
 
       <div class="flex flex-col gap-3.5">
         <div class="flex items-center gap-2.5">
-          <ListChecks class="-mt-px size-4.5 shrink-0 text-muted-foreground" aria-hidden="true" />
-          <h2 class="text-base font-semibold">{{ t("setupTitle", { name: selectedApp.name }) }}</h2>
+          <img
+            :src="selectedApp.iconUrl"
+            :alt="selectedApp.name"
+            class="-mt-px size-6 shrink-0 rounded-sm border"
+          />
+          <h2 class="mt-px text-base font-semibold">
+            {{ t("setupTitle", { name: selectedApp.name }) }}
+          </h2>
         </div>
 
         <ol class="flex flex-col gap-3">
@@ -108,7 +125,7 @@ const copyLink = async () => {
             >
               {{ index + 1 }}
             </span>
-            <span class="text-sm leading-relaxed text-muted-foreground">
+            <span class="mt-px text-sm leading-relaxed text-muted-foreground">
               {{ rt(step) }}
             </span>
           </li>

@@ -30,7 +30,7 @@ const { obfuscationLevel, stepNumber, stepCount, canContinue, next, back } = pro
       {{ t("description") }}
     </p>
 
-    <div class="flex flex-col gap-2.5">
+    <div class="grid auto-rows-fr gap-2.5">
       <WizardSelectableTile
         v-for="level in Amneziawg3ObfuscationLevelOrder"
         :key="level"
@@ -45,6 +45,7 @@ const { obfuscationLevel, stepNumber, stepCount, canContinue, next, back } = pro
           <span class="text-sm font-semibold">{{ t(`levels.${level}.title`) }}</span>
           <span class="text-xs leading-snug text-muted-foreground">
             {{ t(`levels.${level}.description`) }}
+            <span class="max-xs:block">{{ t(`levels.${level}.note`) }}</span>
           </span>
         </div>
       </WizardSelectableTile>

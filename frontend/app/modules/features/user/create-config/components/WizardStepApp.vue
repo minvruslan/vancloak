@@ -18,6 +18,8 @@ const apps = computed(() =>
   selectedDeviceType.value ? WizardAppsByDeviceTypeCode[selectedDeviceType.value.code] : [],
 )
 
+const selectedApp = computed(() => apps.value.find((app) => app.id === appId.value))
+
 const openDownload = (app: WizardApp) => {
   window.open(app.downloadUrl, "_blank", "noopener")
 }
@@ -42,49 +44,51 @@ const openDownload = (app: WizardApp) => {
       <div
         v-for="app in apps"
         :key="app.id"
-        class="flex shrink-0 flex-col gap-3.5 rounded-lg border bg-muted/15 p-4 dark:bg-transparent"
-        :class="{ 'border-primary ring-1 ring-primary': appId === app.id }"
+        role="button"
+        tabindex="0"
+        class="flex shrink-0 cursor-pointer flex-col gap-3.5 rounded-lg border bg-muted/15 p-4 outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring/50 dark:bg-transparent"
+        :class="appId === app.id ? 'border-primary ring-1 ring-primary' : 'hover:bg-accent/50'"
+        :aria-pressed="appId === app.id"
+        @click="appId = app.id"
+        @keydown.enter.self.prevent="appId = app.id"
+        @keydown.space.self.prevent="appId = app.id"
       >
         <div class="flex items-center gap-3">
-          <img :src="app.iconUrl" :alt="app.name" class="size-10 shrink-0 rounded-lg" />
+          <img :src="app.iconUrl" :alt="app.name" class="size-10 shrink-0 rounded-lg border" />
           <span class="min-w-0 flex-1 truncate text-sm font-semibold">{{ app.name }}</span>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            class="max-sm:hidden"
-            @click="openDownload(app)"
+          <span
+            class="flex size-4.5 shrink-0 items-center justify-center rounded-full border transition-colors"
+            :class="{ 'border-primary bg-primary': appId === app.id }"
+            aria-hidden="true"
           >
-            <Download class="size-4" aria-hidden="true" />
-            {{ t("downloadAction") }}
-          </Button>
+            <Check v-if="appId === app.id" class="size-3 text-primary-foreground" />
+          </span>
         </div>
 
         <p class="text-sm leading-relaxed text-muted-foreground">
           {{ t(`apps.${app.id}.description`) }}
         </p>
 
-        <Button type="button" variant="outline" class="w-full sm:hidden" @click="openDownload(app)">
-          <Download class="size-4" aria-hidden="true" />
-          {{ t("downloadAction") }}
-        </Button>
-
         <Button
           type="button"
           variant="outline"
+          size="sm"
           class="w-full"
-          :aria-pressed="appId === app.id"
-          @click="appId = app.id"
+          @click="openDownload(app)"
         >
-          <Check class="size-4" aria-hidden="true" />
-          {{ t("installedAction", { name: app.name }) }}
+          <Download class="size-4" aria-hidden="true" />
+          {{ t("downloadAction") }}
         </Button>
       </div>
     </div>
 
     <template #footer>
       <Button type="button" class="w-full" :disabled="!canContinue" @click="next">
-        {{ t("continueAction") }}
+        {{
+          selectedApp
+            ? t("installedContinueAction", { name: selectedApp.name })
+            : t("continueAction")
+        }}
         <ChevronRight class="size-4" aria-hidden="true" />
       </Button>
     </template>

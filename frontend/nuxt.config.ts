@@ -1,5 +1,7 @@
 import tailwindcss from "@tailwindcss/vite"
 
+const devApiProxyTarget = process.env.DEV_API_PROXY_TARGET
+
 export default defineNuxtConfig({
   app: {
     head: {
@@ -26,7 +28,11 @@ export default defineNuxtConfig({
   },
   nitro: {
     devProxy: {
-      "/api": { target: "http://localhost:4000/api", changeOrigin: true },
+      "/api": {
+        target: devApiProxyTarget ?? "http://localhost:4000/api",
+        changeOrigin: true,
+        ...(devApiProxyTarget ? { headers: { origin: new URL(devApiProxyTarget).origin } } : {}),
+      },
     },
   },
   compatibilityDate: "2025-07-15",

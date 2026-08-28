@@ -22,7 +22,10 @@ const fillPercent = (configLimit: ConfigLimit) =>
 
     <div v-else-if="pending" class="flex flex-wrap gap-4">
       <div class="flex min-w-45 flex-1 flex-col gap-2.5">
-        <Skeleton class="h-4 w-40" />
+        <div class="flex h-5 items-center justify-between gap-3">
+          <Skeleton class="h-4 w-40" />
+          <Skeleton class="h-3 w-8" />
+        </div>
         <Skeleton class="h-1.5 w-full rounded-full" />
       </div>
     </div>

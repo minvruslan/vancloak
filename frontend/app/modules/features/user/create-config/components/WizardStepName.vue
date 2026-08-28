@@ -3,7 +3,6 @@ import { onMounted, ref } from "vue"
 import { ChevronRight } from "@lucide/vue"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { FieldLabel } from "@/modules/shared/components"
 import type { CreateConfigWizardMachine } from "../types/CreateConfigWizardMachine"
 import WizardStepHeader from "./WizardStepHeader.vue"
 import WizardStepLayout from "./WizardStepLayout.vue"
@@ -39,8 +38,8 @@ onMounted(() => {
         {{ t("description") }}
       </p>
 
-      <div class="flex flex-col gap-2">
-        <FieldLabel for="configName">{{ t("field.label") }}</FieldLabel>
+      <div class="flex flex-col">
+        <label for="configName" class="sr-only">{{ t("field.label") }}</label>
         <Input
           id="configName"
           ref="nameInput"
