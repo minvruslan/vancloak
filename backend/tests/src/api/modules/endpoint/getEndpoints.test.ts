@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto"
 import { call } from "@orpc/server"
 import {
+  ConfigStatusSchema,
   EndpointSchema,
   EndpointServerSchema,
   ProtocolSchema,
@@ -13,10 +14,15 @@ import { z } from "zod"
 import app from "@/api/app.js"
 import { endpointRouter } from "@/api/modules/endpoint/index.js"
 import { findActiveEndpoints } from "@/api/modules/endpoint/queries/findActiveEndpoints.js"
+import { bootstrapDeviceTypes } from "@/core/bootstraps/bootstrapDeviceTypes.js"
+import { db } from "@/core/database/index.js"
+import { deviceType } from "@/core/database/schemas/index.js"
 import {
+  insertTestConfig,
   insertTestEndpoint,
   insertTestProtocol,
   insertTestServer,
+  insertTestUser,
   signInTestAdmin,
   signInTestUser,
 } from "@tests/helpers/index.js"
@@ -26,6 +32,8 @@ vi.mock("@/api/modules/endpoint/queries/findActiveEndpoints.js", async (importOr
     await importOriginal<typeof import("@/api/modules/endpoint/queries/findActiveEndpoints.js")>()
   return { findActiveEndpoints: vi.fn(original.findActiveEndpoints) }
 })
+
+const EndpointWithRecommendationSchema = EndpointSchema.extend({ isRecommended: z.boolean() })
 
 function callGetEndpoints(headers: Headers) {
   return call(endpointRouter.getEndpoints, undefined, { context: { headers } })
@@ -45,10 +53,11 @@ describe("GET /endpoints", () => {
 
     const endpoints = await callGetEndpoints(await signInTestUser())
 
-    const parsed = z.array(EndpointSchema).parse(endpoints)
+    const parsed = z.array(EndpointWithRecommendationSchema).parse(endpoints)
     expect(parsed).toHaveLength(1)
     expect(parsed[0].id).toBe(activeEndpoint.id)
     expect(parsed[0].port).toBe(activeEndpoint.port)
+    expect(parsed[0].isRecommended).toBe(true)
     expect(parsed[0].protocol.id).toBe(endpointProtocol.id)
     expect(parsed[0].protocol.code).toBe(endpointProtocol.code)
     expect(parsed[0].protocol.name).toBe(endpointProtocol.name)
@@ -56,7 +65,9 @@ describe("GET /endpoints", () => {
     expect(parsed[0].server.name).toBe(endpointServer.name)
     expect(parsed[0].server.country).toBe(endpointServer.country)
     for (const entry of endpoints) {
-      expect(Object.keys(entry).sort()).toEqual([...EndpointSchema.keyof().options].sort())
+      expect(Object.keys(entry).sort()).toEqual(
+        [...EndpointWithRecommendationSchema.keyof().options].sort(),
+      )
       expect(Object.keys(entry.protocol).sort()).toEqual([...ProtocolSchema.keyof().options].sort())
       expect(Object.keys(entry.server).sort()).toEqual(
         [...EndpointServerSchema.keyof().options].sort(),
@@ -117,11 +128,11 @@ describe("GET /endpoints", () => {
 
     const endpoints = await callGetEndpoints(await signInTestUser())
 
-    const parsed = z.array(EndpointSchema).parse(endpoints)
+    const parsed = z.array(EndpointWithRecommendationSchema).parse(endpoints)
     expect(parsed.map((entry) => entry.id)).toEqual([disabledProtocolEndpoint.id])
   })
 
-  it("returns entries ordered by server name ascending case-insensitively", async () => {
+  it("returns entries with equal load ordered by server name ascending case-insensitively and marks the first as recommended", async () => {
     const endpointProtocol = await insertTestProtocol()
     const bravoServer = await insertTestServer({
       name: `Bravo Server ${randomUUID()}`,
@@ -146,6 +157,88 @@ describe("GET /endpoints", () => {
       bravoServer.name,
       charlieServer.name,
     ])
+    expect(endpoints.map((entry) => entry.isRecommended)).toEqual([true, false, false])
+  })
+
+  it("returns entries ordered by config count ascending before server name and recommends the least loaded, counting configs of every status", async () => {
+    await bootstrapDeviceTypes()
+    const endpointProtocol = await insertTestProtocol()
+    const [configDeviceType] = await db.select().from(deviceType).limit(1)
+    const configUser = await insertTestUser()
+    const alphaServer = await insertTestServer({ name: `alpha server ${randomUUID()}` })
+    const bravoServer = await insertTestServer({ name: `bravo server ${randomUUID()}` })
+    const charlieServer = await insertTestServer({ name: `charlie server ${randomUUID()}` })
+    const alphaEndpoint = await insertTestEndpoint({
+      serverId: alphaServer.id,
+      protocolId: endpointProtocol.id,
+    })
+    const bravoEndpoint = await insertTestEndpoint({
+      serverId: bravoServer.id,
+      protocolId: endpointProtocol.id,
+    })
+    const charlieEndpoint = await insertTestEndpoint({
+      serverId: charlieServer.id,
+      protocolId: endpointProtocol.id,
+    })
+    await insertTestConfig({
+      userId: configUser.id,
+      endpointId: alphaEndpoint.id,
+      deviceTypeId: configDeviceType.id,
+      status: ConfigStatusSchema.enum.pending,
+    })
+    await insertTestConfig({
+      userId: configUser.id,
+      endpointId: alphaEndpoint.id,
+      deviceTypeId: configDeviceType.id,
+      status: ConfigStatusSchema.enum.deleting,
+    })
+    await insertTestConfig({
+      userId: configUser.id,
+      endpointId: bravoEndpoint.id,
+      deviceTypeId: configDeviceType.id,
+      status: ConfigStatusSchema.enum.active,
+    })
+
+    const endpoints = await callGetEndpoints(await signInTestUser())
+
+    expect(endpoints.map((entry) => entry.id)).toEqual([
+      charlieEndpoint.id,
+      bravoEndpoint.id,
+      alphaEndpoint.id,
+    ])
+    expect(endpoints.map((entry) => entry.isRecommended)).toEqual([true, false, false])
+  })
+
+  it("returns entries with equal non-zero config counts ordered by server name ascending and marks the first as recommended", async () => {
+    await bootstrapDeviceTypes()
+    const endpointProtocol = await insertTestProtocol()
+    const [configDeviceType] = await db.select().from(deviceType).limit(1)
+    const configUser = await insertTestUser()
+    const bravoServer = await insertTestServer({ name: `Bravo Server ${randomUUID()}` })
+    const alphaServer = await insertTestServer({ name: `alpha server ${randomUUID()}` })
+    const bravoEndpoint = await insertTestEndpoint({
+      serverId: bravoServer.id,
+      protocolId: endpointProtocol.id,
+    })
+    const alphaEndpoint = await insertTestEndpoint({
+      serverId: alphaServer.id,
+      protocolId: endpointProtocol.id,
+    })
+    await insertTestConfig({
+      userId: configUser.id,
+      endpointId: bravoEndpoint.id,
+      deviceTypeId: configDeviceType.id,
+    })
+    await insertTestConfig({
+      userId: configUser.id,
+      endpointId: alphaEndpoint.id,
+      deviceTypeId: configDeviceType.id,
+    })
+
+    const endpoints = await callGetEndpoints(await signInTestUser())
+
+    expect(endpoints.map((entry) => entry.id)).toEqual([alphaEndpoint.id, bravoEndpoint.id])
+    expect(endpoints.map((entry) => entry.isRecommended)).toEqual([true, false])
   })
 
   it("returns entries with equal server names ordered by port ascending", async () => {
@@ -170,6 +263,7 @@ describe("GET /endpoints", () => {
       lowerPortEndpoint.id,
       higherPortEndpoint.id,
     ])
+    expect(endpoints.map((entry) => entry.isRecommended)).toEqual([true, false])
   })
 
   it("returns an empty array when no endpoints exist", async () => {

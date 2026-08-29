@@ -66,7 +66,7 @@ const confirmInstalled = () => {
         >
           {{ index + 1 }}
         </span>
-        <span class="mt-px text-sm leading-relaxed text-muted-foreground">
+        <span class="mt-px min-w-0 text-sm leading-relaxed break-words text-muted-foreground">
           {{ t(`steps.${deviceTypeCode}.${step.id}`, { name: app?.name, os: osName }) }}
           <a
             v-if="step.hasLink"
