@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "deny": ["Read(~/.ssh/**)"],
+    "ask": [
+      "Bash(ssh *)",
+      "Bash(scp *)",
+      "Bash(sftp *)",
+      "Bash(rsync *)",
+      "Bash(ssh-copy-id *)",
+      "Bash(ansible *)",
+      "Bash(ansible-playbook *)"
+    ]
+  }
+}

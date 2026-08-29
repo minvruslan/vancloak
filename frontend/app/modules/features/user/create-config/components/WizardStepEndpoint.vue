@@ -31,19 +31,27 @@ const { endpoints, endpointId, stepNumber, stepCount, canContinue, next, back } 
     </p>
 
     <div class="flex flex-col gap-2.5">
-      <WizardSelectableTile
-        v-for="endpoint in endpoints"
-        :key="endpoint.id"
-        :selected="endpointId === endpoint.id"
-        @select="endpointId = endpoint.id"
-      >
-        <div class="flex min-w-0 flex-1 flex-col gap-0.5">
-          <span class="truncate text-sm font-semibold">{{ endpoint.server.name }}</span>
-          <span class="truncate text-xs text-muted-foreground">
-            {{ getCountryName(endpoint.server.country) }}
+      <template v-for="endpoint in endpoints" :key="endpoint.id">
+        <div class="relative">
+          <WizardSelectableTile
+            :selected="endpointId === endpoint.id"
+            @select="endpointId = endpoint.id"
+          >
+            <div class="flex min-w-0 flex-1 flex-col gap-0.5">
+              <span class="truncate text-sm font-semibold">{{ endpoint.server.name }}</span>
+              <span class="truncate text-xs text-muted-foreground">
+                {{ getCountryName(endpoint.server.country) }}
+              </span>
+            </div>
+          </WizardSelectableTile>
+          <span
+            v-if="endpoint.isRecommended && endpoints.length > 1"
+            class="pointer-events-none absolute -top-2.5 right-2.5 rounded-full bg-primary px-2 py-0.5 text-xs font-semibold text-primary-foreground ring-2 ring-background"
+          >
+            {{ t("recommended") }}
           </span>
         </div>
-      </WizardSelectableTile>
+      </template>
     </div>
 
     <p v-if="!endpoints.length" class="text-sm text-muted-foreground">{{ t("empty") }}</p>

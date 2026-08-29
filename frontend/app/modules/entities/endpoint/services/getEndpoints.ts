@@ -1,5 +1,3 @@
-import type { Endpoint } from "@vancloak/api-contract"
-
-export async function getEndpoints(): Promise<Endpoint[]> {
+export async function getEndpoints() {
   return useApiClient().endpoints.getEndpoints()
 }

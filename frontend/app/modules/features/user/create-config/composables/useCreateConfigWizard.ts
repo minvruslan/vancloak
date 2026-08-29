@@ -85,6 +85,16 @@ export function useCreateConfigWizard() {
     { flush: "sync" },
   )
 
+  watch(
+    [endpoints, endpointId],
+    () => {
+      if (endpointId.value !== null) return
+      const recommendedEndpoint = endpoints.value.find((endpoint) => endpoint.isRecommended)
+      if (recommendedEndpoint) endpointId.value = recommendedEndpoint.id
+    },
+    { immediate: true },
+  )
+
   watch([step, name, deviceTypeId, appId, endpointId, obfuscationLevel], () => {
     if (step.value === "done" || !user.value) return
     writeWizardDraft({
