@@ -14,7 +14,13 @@ const props = defineProps<{ wizard: CreateConfigWizardMachine }>()
 const { t } = useI18n({ useScope: "local", messages })
 const { deviceTypes, deviceTypeId, stepNumber, stepCount, canContinue, next, back } = props.wizard
 
-const EnabledDeviceTypeCodes: DeviceType["code"][] = [DeviceTypeSchema.shape.code.enum.ios]
+const EnabledDeviceTypeCodes: DeviceType["code"][] = [
+  DeviceTypeSchema.shape.code.enum.ios,
+  DeviceTypeSchema.shape.code.enum.ipados,
+  DeviceTypeSchema.shape.code.enum.macos,
+  DeviceTypeSchema.shape.code.enum.windows,
+  DeviceTypeSchema.shape.code.enum.android,
+]
 </script>
 
 <template>

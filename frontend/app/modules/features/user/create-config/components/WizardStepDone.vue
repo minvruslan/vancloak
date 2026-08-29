@@ -23,11 +23,11 @@ const { getCountryName } = useCountries()
 const { showSuccess, showError } = useNotificationBanner()
 const { created, selectedApp } = props.wizard
 
-const instructionSteps = computed(() =>
-  created.value && selectedApp.value
-    ? tm(`apps.${selectedApp.value.id}.${created.value.deviceType.code}.steps`)
-    : [],
-)
+const instructionSteps = computed(() => {
+  if (!created.value || !selectedApp.value) return []
+  const steps = tm(`apps.${created.value.deviceType.code}.${selectedApp.value.id}.steps`)
+  return Array.isArray(steps) ? steps : []
+})
 
 const fileName = computed(() =>
   created.value ? buildConfigFileName(created.value) : "config.conf",

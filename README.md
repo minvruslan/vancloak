@@ -2,24 +2,15 @@
 
 ![Status](https://img.shields.io/badge/status-in_active_development-orange)
 
-A platform for sharing a private VPN network with invited users — deployment, configuration and monitoring of VPN servers are fully automated.
-
-## Architecture
-
-The diagram below shows the initial system design — it will likely evolve as implementation progresses.
-
-<!-- ARCHITECTURE DIAGRAM -->
-
-![Architecture](docs/architecture.png)
+A platform for sharing a private VPN network with invited users. Admins get the tools to manage the network's servers. Users get a personal account and create configs on their own, within the limits set by the admin.
 
 The system has two roles:
 
 - Admin
   - Grants access to the service by adding a user's email.
   - Manages VPN nodes — deployment and configuration are fully automated.
-  - Manages users and their configs.
-  - Has access to the monitoring system.
+  - Sets per-user config limits and can revoke access.
+  - Has access to the monitoring system (coming soon).
 - User
-  - Generates VPN configs for themselves.
-  - Gets setup instructions for their devices.
-  - Gets email notifications about changes.
+  - Creates and manages VPN configs through a simple step-by-step wizard.
+  - Gets email notifications about important changes in the system (coming soon).
