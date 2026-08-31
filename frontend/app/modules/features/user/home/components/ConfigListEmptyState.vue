@@ -16,7 +16,11 @@ const { t } = useI18n({ useScope: "local", messages })
 
     <div class="flex flex-col gap-1.5">
       <h3 class="text-lg font-semibold tracking-tight">{{ t("title") }}</h3>
-      <p class="max-w-80 text-sm leading-relaxed text-muted-foreground">{{ t("description") }}</p>
+      <p class="max-w-80 text-sm leading-relaxed text-muted-foreground">
+        {{ t("descriptionFirstLine") }}
+        <br />
+        {{ t("descriptionSecondLine") }}
+      </p>
     </div>
 
     <Button @click="$emit('create')">

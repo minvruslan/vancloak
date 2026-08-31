@@ -32,13 +32,18 @@ const isEmpty = computed(() => !props.pending && !props.error && props.configs.l
     <template v-else>
       <div class="hidden items-center justify-between gap-3 sm:flex">
         <h1 class="text-lg font-semibold tracking-tight">{{ t("title") }}</h1>
-        <Button :disabled="limitReached" @click="$emit('create')">
+        <Button v-if="!pending" :disabled="limitReached" @click="$emit('create')">
           <Plus class="size-4" aria-hidden="true" />
           {{ t("createAction") }}
         </Button>
       </div>
 
-      <Button class="w-full sm:hidden" :disabled="limitReached" @click="$emit('create')">
+      <Button
+        v-if="!pending"
+        class="w-full sm:hidden"
+        :disabled="limitReached"
+        @click="$emit('create')"
+      >
         <Plus class="size-4" aria-hidden="true" />
         {{ t("createAction") }}
       </Button>

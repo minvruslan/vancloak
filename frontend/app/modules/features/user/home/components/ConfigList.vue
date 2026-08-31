@@ -9,7 +9,7 @@ withDefaults(
     pending?: boolean
     skeletonCount?: number
   }>(),
-  { skeletonCount: 3 },
+  { skeletonCount: 1 },
 )
 
 defineEmits<{ (e: "open", config: Config): void }>()

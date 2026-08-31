@@ -3,15 +3,13 @@ export const messages = {
     title: "Установите {name}",
     steps: {
       macos: {
-        download: "Скачайте {name} для {os} с официального сайта, нажав кнопку «Скачать»:",
-        downloadLinkLabel: "amnezia.org/ru/downloads",
-        downloadLinkUrl: "https://amnezia.org/ru/downloads",
-        mirror:
-          "Если первая ссылка не открывается, используйте запасную. Откройте в меню пункт «Скачать» и нажмите кнопку «Скачать»:",
-        mirrorLinkLabel: "storage.googleapis.com/amnezia/amnezia.org",
-        mirrorLinkUrl: "https://storage.googleapis.com/amnezia/amnezia.org",
+        download:
+          "Скачайте {name} для {os}. На сайте откройте в меню пункт «Скачать» и нажмите кнопку «Скачать»:",
+        downloadLinkLabel: "storage.googleapis.com/amnezia/amnezia.org",
+        downloadLinkUrl: "https://storage.googleapis.com/amnezia/amnezia.org",
         open: "Дважды кликните по скачанному файлу, чтобы запустить установщик.",
-        install: "Пройдите все шаги установщика. При запросе введите пароль администратора.",
+        install:
+          "Пройдите все шаги установщика. Когда macOS запросит пароль, введите пароль от вашего MacBook.",
       },
       windows: {
         download:
@@ -37,15 +35,12 @@ export const messages = {
     steps: {
       macos: {
         download:
-          "Download {name} for {os} from the official website by pressing the “Download” button:",
-        downloadLinkLabel: "amnezia.org/downloads",
-        downloadLinkUrl: "https://amnezia.org/downloads",
-        mirror:
-          "If the first link does not open, use the backup one. Open the “Download” menu item and press the “Download” button:",
-        mirrorLinkLabel: "storage.googleapis.com/amnezia/amnezia.org",
-        mirrorLinkUrl: "https://storage.googleapis.com/amnezia/amnezia.org",
+          "Download {name} for {os}. On the website, open the “Download” menu item and press the “Download” button:",
+        downloadLinkLabel: "storage.googleapis.com/amnezia/amnezia.org",
+        downloadLinkUrl: "https://storage.googleapis.com/amnezia/amnezia.org",
         open: "Double-click the downloaded file to launch the installer.",
-        install: "Complete all installer steps. Enter your administrator password when prompted.",
+        install:
+          "Complete all installer steps. When macOS asks for a password, enter your MacBook password.",
       },
       windows: {
         download:

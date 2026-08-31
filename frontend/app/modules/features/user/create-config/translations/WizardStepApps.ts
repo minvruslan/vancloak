@@ -4,6 +4,7 @@ export const messages = {
     description:
       "Подойдёт любое из доступных в вашем регионе — дальше покажем настройку именно для него.",
     downloadAction: "Скачать",
+    recommended: "Рекомендуем",
     installedContinueAction: "Я установил {name}",
     continueAction: "Продолжить",
     apps: {
@@ -12,10 +13,10 @@ export const messages = {
           "Продвинутое приложение с лаконичным интерфейсом, но часто недоступное в регионах с блокировками.",
       },
       amneziawg: {
-        description: "Приложение с лаконичным интерфейсом, но с более сложной настройкой.",
+        description: "Приложение с лаконичным интерфейсом, но со сложной настройкой.",
       },
       defaultvpn: {
-        description: "Продвинутое приложение с простой настройкой, но ужасным интерфейсом.",
+        description: "Продвинутое приложение с простой настройкой, но со спартанским интерфейсом.",
       },
     },
   },
@@ -23,6 +24,7 @@ export const messages = {
     title: "Install one of these apps",
     description: "Pick any app available in your region — next we’ll show setup steps for it.",
     downloadAction: "Download",
+    recommended: "Recommended",
     installedContinueAction: "I installed {name}",
     continueAction: "Continue",
     apps: {
@@ -31,10 +33,10 @@ export const messages = {
           "An advanced app with a clean interface, but often unavailable in regions with censorship.",
       },
       amneziawg: {
-        description: "An app with a clean interface, but a more complex setup.",
+        description: "An app with a clean interface, but a complex setup.",
       },
       defaultvpn: {
-        description: "An advanced app with simple setup, but a terrible interface.",
+        description: "An advanced app with simple setup, but a spartan interface.",
       },
     },
   },
