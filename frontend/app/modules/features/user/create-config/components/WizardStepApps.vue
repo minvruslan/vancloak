@@ -46,13 +46,19 @@ const openDownload = (app: WizardApp) => {
         :key="app.id"
         role="button"
         tabindex="0"
-        class="flex shrink-0 cursor-pointer flex-col gap-3.5 rounded-lg border bg-muted/15 p-4 outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring/50 dark:bg-transparent"
+        class="relative flex shrink-0 cursor-pointer flex-col gap-3.5 rounded-lg border bg-muted/15 p-4 outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring/50 dark:bg-transparent"
         :class="appId === app.id ? 'border-primary ring-1 ring-primary' : 'hover:bg-accent/50'"
         :aria-pressed="appId === app.id"
         @click="appId = app.id"
         @keydown.enter.self.prevent="appId = app.id"
         @keydown.space.self.prevent="appId = app.id"
       >
+        <span
+          v-if="app.isRecommended && apps.length > 1"
+          class="pointer-events-none absolute -top-2.5 right-2.5 rounded-full bg-primary px-2 py-0.5 text-xs font-semibold text-primary-foreground ring-2 ring-background"
+        >
+          {{ t("recommended") }}
+        </span>
         <div class="flex items-center gap-3">
           <img :src="app.iconUrl" :alt="app.name" class="size-10 shrink-0 rounded-lg border" />
           <span class="min-w-0 flex-1 truncate text-sm font-semibold">{{ app.name }}</span>

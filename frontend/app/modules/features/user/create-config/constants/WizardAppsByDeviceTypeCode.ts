@@ -8,6 +8,7 @@ export const WizardAppsByDeviceTypeCode: Record<DeviceType["code"], WizardApp[]>
       name: "DefaultVPN",
       iconUrl: "/images/apps/defaultvpn.jpg",
       downloadUrl: "https://apps.apple.com/us/app/defaultvpn/id6744725017",
+      isRecommended: true,
     },
     {
       id: "amneziavpn",
@@ -28,6 +29,7 @@ export const WizardAppsByDeviceTypeCode: Record<DeviceType["code"], WizardApp[]>
       name: "DefaultVPN",
       iconUrl: "/images/apps/defaultvpn.jpg",
       downloadUrl: "https://apps.apple.com/us/app/defaultvpn/id6744725017",
+      isRecommended: true,
     },
     {
       id: "amneziavpn",

@@ -42,5 +42,7 @@ const { t } = useI18n({ useScope: "local", messages })
     />
   </div>
 
-  <h1 class="mb-4 text-lg font-semibold tracking-tight sm:mb-4.5 sm:text-2xl">{{ title }}</h1>
+  <h1 class="mb-4 text-lg font-semibold tracking-tight text-balance sm:mb-4.5 sm:text-2xl">
+    {{ title }}
+  </h1>
 </template>

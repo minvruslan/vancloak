@@ -1,6 +1,6 @@
 {
   "permissions": {
-    "deny": ["Read(~/.ssh/**)"],
+    "deny": ["Read(**/.env)", "Read(**/.env.*)", "Read(~/.ssh/**)"],
     "ask": [
       "Bash(ssh *)",
       "Bash(scp *)",

@@ -12,12 +12,7 @@ import { messages } from "../translations/WizardStepApp"
 const INSTALL_STEPS_BY_DEVICE_TYPE_CODE: Partial<
   Record<DeviceType["code"], readonly { id: string; hasLink?: boolean }[]>
 > = {
-  macos: [
-    { id: "download", hasLink: true },
-    { id: "mirror", hasLink: true },
-    { id: "open" },
-    { id: "install" },
-  ],
+  macos: [{ id: "download", hasLink: true }, { id: "open" }, { id: "install" }],
   windows: [{ id: "download", hasLink: true }, { id: "open" }, { id: "install" }],
   android: [{ id: "download", hasLink: true }, { id: "instructions" }, { id: "pick" }],
 }
