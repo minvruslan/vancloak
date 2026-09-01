@@ -29,3 +29,7 @@ coverage
 
 # Local deploy keys
 deploy/app_ssh_key*
+
+# Generated while building docs images
+docs/images/build/
+docs/images/compose.html
