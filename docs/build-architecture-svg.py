@@ -6,23 +6,23 @@ from pathlib import Path
 FONT = "ui-sans-serif, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
 
 LIGHT = {
-    "text": "#333333", "sub": "#6b6558", "line": "#7a6c52", "faint": "#d6cdb8",
-    "app": ("#f4efe4", "#7a6c52"), "store": ("#fff5ad", "#e4db95"),
-    "ops": ("#fff5ad", "#e4db95"), "who": ("#fff5ad", "#e4db95"),
-    "node": ("#f4efe4", "#7a6c52"), "band": ("#fbf8f2", "#c3b79c"),
-    "groupA": ("#fbf8f2", "#c3b79c"), "groupB": ("#fbf8f2", "#c3b79c"),
-    "ink2": "#333333", "sub2": "#6b6558",
-    "accent": "#7a6c52", "uid": "l", "r_box": 4, "r_group": 8, "r_pill": 4,
+    "text": "#333333", "sub": "#666666", "line": "#333333", "faint": "#dddddd",
+    "app": ("#ececff", "#9370db"), "store": ("#f4f4f4", "#666666"),
+    "ops": ("#f4f4f4", "#666666"), "who": ("#f4f4f4", "#666666"),
+    "node": ("#ececff", "#9370db"), "band": ("#fafafa", "#cccccc"),
+    "groupA": ("#fafafa", "#cccccc"), "groupB": ("#fafafa", "#cccccc"),
+    "ink2": "#333333", "sub2": "#666666",
+    "accent": "#9370db", "uid": "l", "r_box": 4, "r_group": 8, "r_pill": 4,
 }
 
 DARK = {
-    "text": "#e6edf3", "sub": "#9aa4b8", "line": "#9aa4b8", "faint": "#3a424f",
-    "app": ("#262b34", "#9aa4b8"), "store": ("#fff5ad", "#f9f7e6"),
-    "ops": ("#fff5ad", "#f9f7e6"), "who": ("#fff5ad", "#f9f7e6"),
-    "node": ("#262b34", "#9aa4b8"), "band": ("#1b1f26", "#4d5666"),
-    "groupA": ("#1b1f26", "#4d5666"), "groupB": ("#1b1f26", "#4d5666"),
-    "ink2": "#333333", "sub2": "#6b6558",
-    "accent": "#9aa4b8", "uid": "d", "r_box": 4, "r_group": 8, "r_pill": 4,
+    "text": "#cccccc", "sub": "#999999", "line": "#d3d3d3", "faint": "#444444",
+    "app": ("#1f2020", "#cccccc"), "store": ("#333333", "#777777"),
+    "ops": ("#333333", "#777777"), "who": ("#333333", "#777777"),
+    "node": ("#1f2020", "#cccccc"), "band": ("#181a1a", "#555555"),
+    "groupA": ("#181a1a", "#555555"), "groupB": ("#181a1a", "#555555"),
+    "ink2": "#cccccc", "sub2": "#999999",
+    "accent": "#cccccc", "uid": "d", "r_box": 4, "r_group": 8, "r_pill": 4,
 }
 
 
@@ -47,7 +47,7 @@ class Draw:
         d = f' stroke-dasharray="{dash}"' if dash else ""
         self.parts.append(
             f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="{r}" fill="{fill}" '
-            f'stroke="{stroke}" stroke-width="1.5"{d}/>'
+            f'stroke="{stroke}" stroke-width="1"{d}/>'
         )
 
     def text(self, x, y, s, size=15.5, weight=600, color="text", anchor="start", font=FONT):
@@ -68,7 +68,7 @@ class Draw:
         d = ' stroke-dasharray="5 4"' if dashed else ""
         s = f' marker-start="url(#back-{self.uid})"' if both else ""
         self.parts.append(
-            f'<polyline points="{pts}" fill="none" stroke="{self.t[color]}" stroke-width="1.7" '
+            f'<polyline points="{pts}" fill="none" stroke="{self.t[color]}" stroke-width="1.5" '
             f'stroke-linejoin="round" marker-end="url(#head-{self.uid})"{s}{d}/>'
         )
 
