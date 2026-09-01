@@ -39,13 +39,13 @@ Try it yourself at [vancloak.com](https://vancloak.com) — press **Try the demo
 
 - Simpler and clearer VPN setup for users
 - Monitoring for the web app and the VPN servers
-- Full VPN server lifecycle in the admin UI, with a clear view of what is happening
+- Full VPN server lifecycle in the admin UI
 
 ## How it works
 
 ### System overview
 
-What the system is made of and how the parts are wired. Yellow marks what VanCloak does not implement.
+What the system is made of and how the parts are wired.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/images/architecture-dark.svg" />
