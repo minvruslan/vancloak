@@ -4,9 +4,9 @@ Deliberately deferred items. Each entry names the trigger that turns it into req
 
 ## Server ip is not unique
 
-Nothing stops two `server` rows from holding the same `ip` — no unique index (`ip` is `encryptedText`, and `encryptString` uses a random IV, so a plain unique index cannot work) and no check in `createServerService`. Two rows on one ip mean one physical machine registered twice: `endpoint_server_port_uq` is scoped to `serverId`, so both rows can claim the same port, and the second provision job overwrites the first one's node config.
+Nothing stops two `server` rows from holding the same `ip` — no unique index and no check in `createServerService`. Two rows on one ip mean one physical machine registered twice: `endpoint_server_port_uq` is scoped to `serverId`, so both rows can claim the same port, and the second provision job overwrites the first one's node config.
 
-Fixing it needs a deterministic HMAC-of-ip column under a unique index. Deferred because server creation is admin-only, so this guards against an admin typo, not hostile input.
+Fixing it is now a plain unique index on `ip`, which became possible once the column stopped being encrypted. Deferred because server creation is admin-only, so this guards against an admin typo, not hostile input.
 
 ## No compatibility check for stored `data` against a changed contract
 

@@ -47,5 +47,5 @@ This repo is a **pnpm workspace monorepo** — always use `pnpm`, never `npm` or
 
 ## Data boundaries
 
-- `encryptedJsonb`/`encryptedText` columns are the only encryption boundary. `client_identifier` is plaintext by design (SQL allocation and uniqueness only) and must never hold a secret.
+- Nothing in the database is encrypted at rest — dumps are protected at the backup level, not per column. The secrets that live in `data` columns (node ssh credentials, endpoint private keys, config preshared keys) must therefore never be logged or returned outside their owner's response.
 - `data` jsonb columns are parsed with zod in the query files; `unknown` never leaves the query layer. The contract keeps `unknown`/looseObject on purpose.
