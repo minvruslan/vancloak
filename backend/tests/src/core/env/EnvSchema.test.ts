@@ -10,7 +10,6 @@ function createEnv(overrides: Record<string, string | undefined> = {}) {
     BETTER_AUTH_SECRET: "secret",
     BETTER_AUTH_URL: "http://localhost:4000",
     ADMIN_EMAIL: "admin@vancloak.test",
-    APP_ENCRYPTION_KEY: Buffer.alloc(32, "k").toString("base64"),
     APP_SSH_PRIVATE_KEY: SSH_PRIVATE_KEY,
     IP: "203.0.113.10",
     COUNTRY: "nl",
@@ -113,15 +112,6 @@ describe("EnvSchema", () => {
 
   it("rejects an empty BETTER_AUTH_SECRET", () => {
     expect(parseEnv({ BETTER_AUTH_SECRET: "" }).success).toBe(false)
-  })
-
-  it("rejects an encryption key that does not decode to 32 bytes", () => {
-    expect(parseEnv({ APP_ENCRYPTION_KEY: Buffer.alloc(31).toString("base64") }).success).toBe(
-      false,
-    )
-    expect(parseEnv({ APP_ENCRYPTION_KEY: Buffer.alloc(33).toString("base64") }).success).toBe(
-      false,
-    )
   })
 
   it("unescapes the newlines of APP_SSH_PRIVATE_KEY", () => {

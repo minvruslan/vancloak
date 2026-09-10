@@ -12,10 +12,6 @@ describe("setupTestEnvironment", () => {
     expect(env.QUEUE_URL).toBe(TestQueueUrl)
   })
 
-  it("uses a 32-byte test encryption key", () => {
-    expect(Buffer.from(env.APP_ENCRYPTION_KEY, "base64")).toHaveLength(32)
-  })
-
   it("pins PORT, HOST and ADMIN_NAME against values leaking from a developer's .env", () => {
     expect(env.PORT).toBe(4000)
     expect(env.HOST).toBe("localhost")

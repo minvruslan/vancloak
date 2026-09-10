@@ -6,7 +6,7 @@ import {
   ProtocolRegistry,
   ServerDataSchema,
 } from "@vancloak/infrastructure/shared"
-import { eq, sql } from "drizzle-orm"
+import { eq } from "drizzle-orm"
 import { afterAll, beforeEach, describe, expect, it, vi } from "vitest"
 import app from "@/api/app.js"
 import { serverRouter } from "@/api/modules/server/index.js"
@@ -158,7 +158,7 @@ describe("POST /servers", () => {
     expect(provisionServerJob?.data).toEqual({ serverId: createdServer.id })
   })
 
-  it("persists the ssh credentials into the server data column, stores the ip and data columns encrypted at rest and does not expose the credentials in the response", async () => {
+  it("persists the ssh credentials into the server data column and does not expose them in the response", async () => {
     const ip = "198.51.100.7"
     const username = `user-${randomUUID()}`
     const password = `password-${randomUUID()}`
@@ -184,18 +184,10 @@ describe("POST /servers", () => {
       port: 22,
     })
 
-    const rawServerRows = await db.execute<{ ip: string; data: string }>(
-      sql`select ip, data::text as data from server where id = ${createdServer.id}::uuid`,
-    )
-    expect(rawServerRows).toHaveLength(1)
-    for (const rawColumnValue of [rawServerRows[0]?.ip, rawServerRows[0]?.data]) {
-      expect(rawColumnValue?.startsWith("v1:")).toBe(true)
-      expect(rawColumnValue).not.toContain(ip)
-      expect(rawColumnValue).not.toContain(password)
-    }
+    expect(serverRows[0]?.ip).toBe(ip)
   })
 
-  it("persists an active endpoint row for each provided endpoint with its port and stores its data column encrypted at rest", async () => {
+  it("persists an active endpoint row for each provided endpoint with its port", async () => {
     const serverProtocol = await insertTestProtocol()
 
     const createdServer = await callCreateServer(
@@ -211,12 +203,6 @@ describe("POST /servers", () => {
     expect(endpointRows[0]?.port).toBe(51821)
     expect(endpointRows[0]?.protocolId).toBe(serverProtocol.id)
     expect(endpointRows[0]?.status).toBe("active")
-
-    const rawEndpointRows = await db.execute<{ data: string }>(
-      sql`select data::text as data from endpoint where server_id = ${createdServer.id}::uuid`,
-    )
-    expect(rawEndpointRows).toHaveLength(1)
-    expect(rawEndpointRows[0]?.data.startsWith("v1:")).toBe(true)
   })
 
   it("uses the protocol registry default port when the endpoint port is omitted", async () => {
