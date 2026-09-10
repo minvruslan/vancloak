@@ -51,12 +51,6 @@ export const EnvSchema = z
     ADMIN_EMAIL: z.email(),
     ADMIN_NAME: z.string().min(1).default("Admin"),
     APP_VERSION: z.string().min(1).default("0.0.0-dev"),
-    APP_ENCRYPTION_KEY: z
-      .string()
-      .min(1)
-      .refine((value) => Buffer.from(value, "base64").length === 32, {
-        message: "Must be 32 bytes encoded as base64 (generate: openssl rand -base64 32)",
-      }),
     APP_SSH_PRIVATE_KEY: z.preprocess(
       unescapeNewlines,
       z

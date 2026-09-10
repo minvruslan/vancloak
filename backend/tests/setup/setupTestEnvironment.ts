@@ -11,7 +11,6 @@ process.env.PORT = "4000"
 process.env.HOST = "localhost"
 process.env.ADMIN_EMAIL = "admin@test.local"
 process.env.ADMIN_NAME = "Test Admin"
-process.env.APP_ENCRYPTION_KEY = Buffer.alloc(32, "test").toString("base64")
 process.env.APP_SSH_PRIVATE_KEY = [
   "-----BEGIN OPENSSH PRIVATE KEY-----",
   "dGVzdA==",

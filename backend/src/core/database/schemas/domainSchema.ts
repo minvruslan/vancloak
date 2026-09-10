@@ -8,6 +8,7 @@ import {
   timestamp,
   boolean,
   index,
+  jsonb,
   unique,
   uniqueIndex,
   pgEnum,
@@ -15,7 +16,6 @@ import {
 } from "drizzle-orm/pg-core"
 import type { ConfigData, ProtocolFamilyCode } from "@vancloak/api-contract"
 import type { EndpointData, ServerData } from "@vancloak/infrastructure/shared"
-import { encryptedJsonb, encryptedText } from "../columns/index.js"
 import { user } from "./authSchema.js"
 
 // Enums
@@ -100,10 +100,10 @@ export const server = pgTable(
     id: uuid("id").primaryKey().defaultRandom(),
     name: varchar("name", { length: 255 }).notNull(),
     domainName: text("domain_name"),
-    ip: encryptedText("ip").notNull(),
+    ip: text("ip").notNull(),
     country: text("country").notNull(),
     status: serverStatus("status").default("active").notNull(),
-    data: encryptedJsonb<ServerData>("data"),
+    data: jsonb("data").$type<ServerData>(),
     isCurrent: boolean("is_current").default(false).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
@@ -129,7 +129,7 @@ export const endpoint = pgTable(
       .notNull()
       .references(() => protocol.id, { onDelete: "restrict" }),
     port: integer("port").notNull(),
-    data: encryptedJsonb<EndpointData>("data").notNull(),
+    data: jsonb("data").$type<EndpointData>().notNull(),
     status: endpointStatus("status").default("active").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
@@ -165,7 +165,7 @@ export const config = pgTable(
       .notNull()
       .references(() => deviceType.id, { onDelete: "restrict" }),
     name: varchar("name", { length: 255 }).notNull(),
-    data: encryptedJsonb<ConfigData>("data").notNull(),
+    data: jsonb("data").$type<ConfigData>().notNull(),
     clientIdentifier: text("client_identifier"),
     status: configStatus("status").default("pending").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),

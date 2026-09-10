@@ -1173,29 +1173,6 @@ describe("POST /configs", () => {
       expect(createdConfig.clientConfigurationLink).toBe(fakeClientConfigurationLink)
     })
 
-    it("stores the data column encrypted at rest without the plaintext public or preshared key", async () => {
-      const { configEndpoint, configDeviceType } = await insertConfigPrerequisites()
-      const requestUser = await insertTestUser()
-      const headers = await insertTestSession(requestUser)
-
-      const createdConfig = await callCreateUserConfig(
-        {
-          name: "Created Config",
-          endpointId: configEndpoint.id,
-          deviceTypeId: configDeviceType.id,
-        },
-        headers,
-      )
-
-      const rawConfigRows = await db.execute<{ data: string }>(
-        sql`select data::text as data from config where id = ${createdConfig.id}::uuid`,
-      )
-      expect(rawConfigRows).toHaveLength(1)
-      expect(rawConfigRows[0].data.startsWith("v1:")).toBe(true)
-      expect(rawConfigRows[0].data).not.toContain(fakeConfigData.publicKey)
-      expect(rawConfigRows[0].data).not.toContain(fakeConfigData.presharedKey)
-    })
-
     it("persists the provided obfuscation options into the config data and returns them", async () => {
       const { configEndpoint, configDeviceType } = await insertConfigPrerequisites()
       const requestUser = await insertTestUser()
