@@ -122,13 +122,11 @@ export const endpoint = pgTable(
   "endpoint",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    serverId: uuid("server_id")
-      .notNull()
-      .references(() => server.id, { onDelete: "cascade" }),
     protocolId: uuid("protocol_id")
       .notNull()
       .references(() => protocol.id, { onDelete: "restrict" }),
     port: integer("port").notNull(),
+    host: text("host"),
     data: jsonb("data").$type<EndpointData>().notNull(),
     status: endpointStatus("status").default("active").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -137,15 +135,31 @@ export const endpoint = pgTable(
       .$onUpdate(() => new Date())
       .notNull(),
   },
+  (t) => [index("endpoint_protocol_idx").on(t.protocolId)],
+)
+
+export const endpointPlacement = pgTable(
+  "endpoint_placement",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    endpointId: uuid("endpoint_id")
+      .notNull()
+      .references(() => endpoint.id, { onDelete: "cascade" }),
+    serverId: uuid("server_id")
+      .notNull()
+      .references(() => server.id, { onDelete: "cascade" }),
+    host: text("host"),
+    data: jsonb("data").$type<EndpointData>(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
   (t) => [
-    uniqueIndex("endpoint_server_port_uq")
-      .on(t.serverId, t.port)
-      .where(sql`${t.status} = 'active'`),
-    uniqueIndex("endpoint_server_protocol_uq")
-      .on(t.serverId, t.protocolId)
-      .where(sql`${t.status} = 'active'`),
-    index("endpoint_server_idx").on(t.serverId),
-    index("endpoint_protocol_idx").on(t.protocolId),
+    uniqueIndex("endpoint_placement_endpoint_server_uq").on(t.endpointId, t.serverId),
+    index("endpoint_placement_endpoint_idx").on(t.endpointId),
+    index("endpoint_placement_server_idx").on(t.serverId),
   ],
 )
 
@@ -164,7 +178,11 @@ export const config = pgTable(
     deviceTypeId: uuid("device_type_id")
       .notNull()
       .references(() => deviceType.id, { onDelete: "restrict" }),
+    placementId: uuid("placement_id").references(() => endpointPlacement.id, {
+      onDelete: "set null",
+    }),
     name: varchar("name", { length: 255 }).notNull(),
+    host: text("host").notNull(),
     data: jsonb("data").$type<ConfigData>().notNull(),
     clientIdentifier: text("client_identifier"),
     status: configStatus("status").default("pending").notNull(),
@@ -178,6 +196,7 @@ export const config = pgTable(
     uniqueIndex("config_endpoint_client_identifier_uq").on(t.endpointId, t.clientIdentifier),
     index("config_user_idx").on(t.userId),
     index("config_endpoint_idx").on(t.endpointId),
+    index("config_placement_idx").on(t.placementId),
     index("config_device_type_idx").on(t.deviceTypeId),
   ],
 )
@@ -197,18 +216,31 @@ export const configLimitRelations = relations(configLimit, ({ one }) => ({
 }))
 
 export const serverRelations = relations(server, ({ many }) => ({
-  endpoints: many(endpoint),
+  placements: many(endpointPlacement),
 }))
 
 export const endpointRelations = relations(endpoint, ({ one, many }) => ({
-  server: one(server, { fields: [endpoint.serverId], references: [server.id] }),
   protocol: one(protocol, { fields: [endpoint.protocolId], references: [protocol.id] }),
+  placements: many(endpointPlacement),
+  configs: many(config),
+}))
+
+export const endpointPlacementRelations = relations(endpointPlacement, ({ one, many }) => ({
+  endpoint: one(endpoint, {
+    fields: [endpointPlacement.endpointId],
+    references: [endpoint.id],
+  }),
+  server: one(server, { fields: [endpointPlacement.serverId], references: [server.id] }),
   configs: many(config),
 }))
 
 export const configRelations = relations(config, ({ one }) => ({
   user: one(user, { fields: [config.userId], references: [user.id] }),
   endpoint: one(endpoint, { fields: [config.endpointId], references: [endpoint.id] }),
+  placement: one(endpointPlacement, {
+    fields: [config.placementId],
+    references: [endpointPlacement.id],
+  }),
   deviceType: one(deviceType, {
     fields: [config.deviceTypeId],
     references: [deviceType.id],

@@ -139,17 +139,17 @@ const serverDataWithoutSshHostKeys: ServerData = {
   facts: { sshHostKeys: [] },
 }
 
-const endpointActualStateWithoutHost = { ...FakeAmneziawg3EndpointActualState, host: undefined }
-
 const endpointActualStateWithoutDns = { ...FakeAmneziawg3EndpointActualState, dns: undefined }
 
 const unparsableEndpointData = "not-endpoint-data" as unknown as EndpointData
 
 const unsupportedProtocolClientData = {
+  placementId: randomUUID(),
+  endpointHost: null,
   serverIp: "192.0.2.1",
   protocolCode: "bogus",
   serverData: validServerData,
-  endpointData: validEndpointData,
+  placementData: validEndpointData,
 }
 
 let fakeAmneziawg3Client: ReturnType<typeof createFakeAmneziawg3Client>
@@ -726,8 +726,8 @@ describe("POST /configs", () => {
     expect(configRows[0].id).toBe(firstCreatedConfig.id)
   })
 
-  it("waits for the server advisory lock and rejects with LIMIT_REACHED after a concurrent reservation commits", async () => {
-    const { configServer, configEndpoint, configDeviceType } = await insertConfigPrerequisites()
+  it("waits for the endpoint advisory lock and rejects with LIMIT_REACHED after a concurrent reservation commits", async () => {
+    const { configEndpoint, configDeviceType } = await insertConfigPrerequisites()
     const requestUser = await insertTestUser()
     const headers = await insertTestSession(requestUser)
     await insertTestConfigLimit({
@@ -744,7 +744,7 @@ describe("POST /configs", () => {
       markReservationHeld = resolve
     })
     const reservationTransaction = db.transaction(async (tx) => {
-      await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${configServer.id}))`)
+      await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${configEndpoint.id}))`)
       await insertTestConfig(
         {
           userId: requestUser.id,
@@ -946,30 +946,6 @@ describe("POST /configs", () => {
   it("returns FAILED when the server facts contain no ssh host keys", async () => {
     const { configEndpoint, configDeviceType } = await insertConfigPrerequisites({
       server: { data: serverDataWithoutSshHostKeys },
-    })
-    const requestUser = await insertTestUser()
-    const headers = await insertTestSession(requestUser)
-
-    await expectOrpcError(
-      callCreateUserConfig(
-        {
-          name: "Created Config",
-          endpointId: configEndpoint.id,
-          deviceTypeId: configDeviceType.id,
-        },
-        headers,
-      ),
-      "FAILED",
-    )
-
-    const configRows = await db.select().from(config).where(eq(config.userId, requestUser.id))
-    expect(configRows).toHaveLength(0)
-    expect(fakeAmneziawg3Client.createAccess).not.toHaveBeenCalled()
-  })
-
-  it("returns FAILED when the endpoint actual state has no host", async () => {
-    const { configEndpoint, configDeviceType } = await insertConfigPrerequisites({
-      endpoint: { data: { actualState: endpointActualStateWithoutHost } },
     })
     const requestUser = await insertTestUser()
     const headers = await insertTestSession(requestUser)
@@ -1309,20 +1285,18 @@ describe("POST /configs", () => {
       expect(JSON.parse(parsed.clientConfiguration)).toEqual(requestedProtocolOptions)
     })
 
-    it("renders the client configuration from the endpoint's applied actual state and not from the live server columns", async () => {
-      const appliedHost = "vpn.example.com"
+    it("renders the client configuration from the endpoint's own host, stores it as the config host and ignores a later change of the server domain", async () => {
+      const endpointHost = "vpn.example.com"
       const { configServer, configEndpoint, configDeviceType } = await insertConfigPrerequisites({
         server: { ip: "203.0.113.9", domainName: "live.example.com" },
-        endpoint: {
-          data: { actualState: { ...FakeAmneziawg3EndpointActualState, host: appliedHost } },
-        },
+        endpoint: { host: endpointHost },
       })
       const requestUser = await insertTestUser()
       const headers = await insertTestSession(requestUser)
       fakeAmneziawg3Client.createAccess.mockImplementation(
-        async (endpointActualState, clientIdentifier) => ({
-          configData: { ...fakeConfigData, clientIp: clientIdentifier },
-          clientConfiguration: `Endpoint = ${endpointActualState.host}:${endpointActualState.port}`,
+        async (endpointActualState, clientIdentifier, _protocolOptions, _displayName, host) => ({
+          configData: { ...fakeConfigData, clientIp: clientIdentifier, host },
+          clientConfiguration: `Endpoint = ${host}:${endpointActualState.port}`,
           clientConfigurationLink: fakeClientConfigurationLink,
         }),
       )
@@ -1348,13 +1322,20 @@ describe("POST /configs", () => {
         headers,
       )
 
-      const expectedEndpointLine = `Endpoint = ${appliedHost}:${configEndpoint.port}`
+      const expectedEndpointLine = `Endpoint = ${endpointHost}:${configEndpoint.port}`
       expect(CreateUserConfigOutputSchema.parse(createdConfig).clientConfiguration).toBe(
         expectedEndpointLine,
       )
       expect(CreateUserConfigOutputSchema.parse(recreatedConfig).clientConfiguration).toBe(
         expectedEndpointLine,
       )
+
+      const configRows = await db.select().from(config).where(eq(config.userId, requestUser.id))
+      expect(configRows).toHaveLength(2)
+      for (const configRow of configRows) {
+        expect(configRow.host).toBe(endpointHost)
+        expect(configRow.data.host).toBe(endpointHost)
+      }
     })
 
     it("builds the Amnezia vpn:// import link around the generated client configuration", async () => {
@@ -1385,7 +1366,7 @@ describe("POST /configs", () => {
       const configImport = AmneziaConfigImportSchema.parse(JSON.parse(inflated.toString()))
       expect(configImport).toMatchObject({
         description: buildAmneziawg3ConfigName(configServer.name),
-        hostName: FakeAmneziawg3EndpointActualState.host,
+        hostName: configServer.ip,
         dns1: FakeAmneziawg3EndpointActualState.dns,
       })
       expect(configImport.dns2).toBeUndefined()
@@ -1399,7 +1380,7 @@ describe("POST /configs", () => {
       const endpointObfuscation = FakeAmneziawg3EndpointActualState.obfuscation
       expect(lastConfig).toMatchObject({
         config: parsed.clientConfiguration,
-        hostName: FakeAmneziawg3EndpointActualState.host,
+        hostName: configServer.ip,
         port: FakeAmneziawg3EndpointActualState.port,
         client_ip: `${parsed.data.clientIp}/32`,
         psk_key: parsed.data.presharedKey,
@@ -1587,6 +1568,7 @@ describe("POST /configs", () => {
             userId: otherUser.id,
             endpointId: configEndpoint.id,
             deviceTypeId: configDeviceType.id,
+            host: "test.example.com",
             name: `Occupying Config ${index}`,
             data: fakeConfigData,
             status: "active" as const,

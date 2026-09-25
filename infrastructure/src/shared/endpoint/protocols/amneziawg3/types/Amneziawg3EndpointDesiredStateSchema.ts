@@ -1,7 +1,5 @@
 import { z } from "zod"
 import { ProtocolCodeSchema } from "../../../../protocols/types/ProtocolCodeSchema"
-import { DomainNameSchema } from "../../../../common/network/types/DomainNameSchema"
-import { IpSchema } from "../../../../common/network/types/IpSchema"
 import { IpSubnetSchema } from "../../../../common/network/types/IpSubnetSchema"
 import { UnixPathSchema } from "../../../../common/unix/types/UnixPathSchema"
 import { EndpointDesiredStateSchema } from "../../../types/EndpointDesiredStateSchema"
@@ -14,7 +12,6 @@ const NameSchema = z.string().regex(/^[a-zA-Z0-9][a-zA-Z0-9_.-]*$/)
 
 export const Amneziawg3EndpointDesiredStateSchema = EndpointDesiredStateSchema.extend({
   protocolCode: z.literal(ProtocolCodeSchema.enum.amneziawg3),
-  host: z.union([DomainNameSchema, IpSchema]),
   dns: Amneziawg3DnsSchema,
   dockerImageVersion: z.string(),
   containerName: NameSchema,

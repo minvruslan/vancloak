@@ -81,9 +81,9 @@ describe("GET /configs", () => {
     expect(parsed[0].endpoint.protocol.code).toBe(configProtocol.code)
     expect(parsed[0].endpoint.protocol.family).toBe(configProtocol.family)
     expect(parsed[0].endpoint.protocol.name).toBe(configProtocol.name)
-    expect(parsed[0].endpoint.server.id).toBe(configServer.id)
-    expect(parsed[0].endpoint.server.name).toBe(configServer.name)
-    expect(parsed[0].endpoint.server.country).toBe(configServer.country)
+    expect(parsed[0].endpoint.server?.id).toBe(configServer.id)
+    expect(parsed[0].endpoint.server?.name).toBe(configServer.name)
+    expect(parsed[0].endpoint.server?.country).toBe(configServer.country)
   })
 
   it("returns each config with its own server", async () => {
@@ -116,7 +116,7 @@ describe("GET /configs", () => {
 
     const parsed = z.array(ConfigSchema).parse(configs)
     const serverNamesByConfigId = new Map(
-      parsed.map((entry) => [entry.id, entry.endpoint.server.name]),
+      parsed.map((entry) => [entry.id, entry.endpoint.server?.name]),
     )
     expect(serverNamesByConfigId.get(firstConfig.id)).toBe(firstServer.name)
     expect(serverNamesByConfigId.get(secondConfig.id)).toBe(secondServer.name)

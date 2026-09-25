@@ -8,6 +8,7 @@ import {
   provisionServerQueue,
 } from "@/core/queue/provision-server/index.js"
 import { deleteServer } from "../queries/deleteServer.js"
+import { deleteServerEndpoints } from "../queries/deleteServerEndpoints.js"
 import { findProtocolCodes } from "../queries/findProtocolCodes.js"
 import { findServerById } from "../queries/findServerById.js"
 import { insertEndpoints } from "../queries/insertEndpoints.js"
@@ -22,6 +23,7 @@ type ErrorCode =
   | "protocol_not_found"
   | "unsupported_protocol"
   | "duplicate_protocol"
+  | "duplicate_port"
   | "enqueue_failed"
 
 export async function createServerService(
@@ -44,7 +46,8 @@ export async function createServerService(
       )
 
       const seenProtocolCodes = new Set<string>()
-      const endpointsToInsert: { protocolId: string; port: number }[] = []
+      const seenPorts = new Set<number>()
+      const endpointsToInsert: { protocolId: string; port: number; host: string | null }[] = []
       for (const item of endpoints) {
         const code = codeByProtocolId.get(item.protocolId)
         if (!code) {
@@ -64,6 +67,19 @@ export async function createServerService(
           }
         }
 
+        const port = item.port ?? ProtocolRegistry[parsedCode.data].defaultPort
+
+        if (seenPorts.has(port)) {
+          return {
+            ok: false,
+            errorCode: "duplicate_port",
+            error: new Error(
+              `Multiple endpoints on port ${port}; one endpoint per port is supported.`,
+            ),
+          }
+        }
+        seenPorts.add(port)
+
         if (seenProtocolCodes.has(code)) {
           return {
             ok: false,
@@ -77,7 +93,8 @@ export async function createServerService(
 
         endpointsToInsert.push({
           protocolId: item.protocolId,
-          port: item.port ?? ProtocolRegistry[parsedCode.data].defaultPort,
+          port,
+          host: input.domainName ?? null,
         })
       }
 
@@ -122,7 +139,10 @@ export async function createServerService(
     )
   } catch (error) {
     try {
-      await deleteServer(db, result.data.server.id)
+      await db.transaction(async (tx) => {
+        await deleteServerEndpoints(tx, result.data.server.id)
+        await deleteServer(tx, result.data.server.id)
+      })
     } catch (rollbackError) {
       return {
         ok: false,

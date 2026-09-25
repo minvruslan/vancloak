@@ -6,7 +6,7 @@ import {
   ProtocolRegistry,
   ServerDataSchema,
 } from "@vancloak/infrastructure/shared"
-import { eq } from "drizzle-orm"
+import { eq, getTableColumns } from "drizzle-orm"
 import { afterAll, beforeEach, describe, expect, it, vi } from "vitest"
 import app from "@/api/app.js"
 import { serverRouter } from "@/api/modules/server/index.js"
@@ -14,7 +14,7 @@ import { deleteServer } from "@/api/modules/server/queries/deleteServer.js"
 import { findProtocolCodes } from "@/api/modules/server/queries/findProtocolCodes.js"
 import { insertServer } from "@/api/modules/server/queries/insertServer.js"
 import { db } from "@/core/database/index.js"
-import { endpoint, server } from "@/core/database/schemas/index.js"
+import { endpoint, endpointPlacement, server } from "@/core/database/schemas/index.js"
 import {
   ProvisionServerJobName,
   provisionServerQueue,
@@ -196,13 +196,21 @@ describe("POST /servers", () => {
     )
 
     const endpointRows = await db
-      .select()
+      .select({ ...getTableColumns(endpoint) })
       .from(endpoint)
-      .where(eq(endpoint.serverId, createdServer.id))
+      .innerJoin(endpointPlacement, eq(endpointPlacement.endpointId, endpoint.id))
+      .where(eq(endpointPlacement.serverId, createdServer.id))
     expect(endpointRows).toHaveLength(1)
     expect(endpointRows[0]?.port).toBe(51821)
     expect(endpointRows[0]?.protocolId).toBe(serverProtocol.id)
     expect(endpointRows[0]?.status).toBe("active")
+
+    const placementRows = await db
+      .select()
+      .from(endpointPlacement)
+      .where(eq(endpointPlacement.serverId, createdServer.id))
+    expect(placementRows).toHaveLength(1)
+    expect(placementRows[0]?.endpointId).toBe(endpointRows[0]?.id)
   })
 
   it("uses the protocol registry default port when the endpoint port is omitted", async () => {
@@ -281,6 +289,28 @@ describe("POST /servers", () => {
     expect(await provisionServerQueue().getJobs()).toHaveLength(0)
   })
 
+  it("rejects two endpoints on the same port with DUPLICATE_PORT and does not insert rows or enqueue a job", async () => {
+    const serverProtocol = await insertTestProtocol()
+
+    await expectOrpcError(
+      callCreateServer(
+        createServerInput({
+          endpoints: [
+            { protocolId: serverProtocol.id, port: 51820 },
+            { protocolId: serverProtocol.id, port: 51820 },
+          ],
+        }),
+        await signInTestAdmin(),
+      ),
+      "DUPLICATE_PORT",
+    )
+
+    expect(await db.select().from(server)).toHaveLength(0)
+    expect(await db.select().from(endpoint)).toHaveLength(0)
+    expect(await db.select().from(endpointPlacement)).toHaveLength(0)
+    expect(await provisionServerQueue().getJobs()).toHaveLength(0)
+  })
+
   it("rejects with ENQUEUE_FAILED and HTTP 502 when the queue is unavailable", async () => {
     vi.mocked(provisionServerQueue).mockReturnValueOnce(createUnavailableQueue())
 
@@ -315,6 +345,23 @@ describe("POST /servers", () => {
 
     expect(response.status).toBe(409)
     expect(await response.json()).toMatchObject({ code: "DUPLICATE_PROTOCOL" })
+  })
+
+  it("responds with HTTP 409 for two endpoints on the same port", async () => {
+    const serverProtocol = await insertTestProtocol()
+
+    const response = await requestCreateServer(
+      createServerInput({
+        endpoints: [
+          { protocolId: serverProtocol.id, port: 51820 },
+          { protocolId: serverProtocol.id, port: 51820 },
+        ],
+      }),
+      await signInTestAdmin(),
+    )
+
+    expect(response.status).toBe(409)
+    expect(await response.json()).toMatchObject({ code: "DUPLICATE_PORT" })
   })
 
   it("responds with HTTP 400 for an unknown protocolId", async () => {

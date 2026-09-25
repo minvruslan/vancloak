@@ -25,6 +25,10 @@ export const ServerContract = oc.prefix("/servers").router({
         status: 409,
         message: "Multiple endpoints of the same protocol are not supported",
       },
+      DUPLICATE_PORT: {
+        status: 409,
+        message: "Multiple endpoints on the same port are not supported",
+      },
       PROTOCOL_NOT_FOUND: { status: 400, message: "Protocol not found" },
       UNSUPPORTED_PROTOCOL: { status: 400, message: "Unsupported protocol" },
     })

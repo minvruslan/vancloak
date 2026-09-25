@@ -51,7 +51,8 @@ watch(
   },
 )
 
-const endpointLabel = (endpoint: Endpoint) => `${endpoint.server.name} · ${endpoint.protocol.name}`
+const endpointLabel = (endpoint: Endpoint) =>
+  `${endpoint.server?.name ?? endpoint.host ?? "—"} · ${endpoint.protocol.name}`
 
 const onSubmit = async () => {
   if (pending.value) return

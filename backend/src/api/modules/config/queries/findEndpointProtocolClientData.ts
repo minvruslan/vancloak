@@ -1,20 +1,29 @@
-import { eq } from "drizzle-orm"
+import { and, eq } from "drizzle-orm"
 import { EndpointDataSchema, ServerDataSchema } from "@vancloak/infrastructure/shared"
+import { primaryPlacementCondition } from "@/api/modules/endpoint/index.js"
 import type { DbOrTx } from "@/core/database/index.js"
-import { endpoint, protocol, server } from "@/core/database/schemas/domainSchema.js"
+import {
+  endpoint,
+  endpointPlacement,
+  protocol,
+  server,
+} from "@/core/database/schemas/domainSchema.js"
 
 export async function findEndpointProtocolClientData(executor: DbOrTx, endpointId: string) {
   const [row] = await executor
     .select({
+      placementId: endpointPlacement.id,
       serverIp: server.ip,
       serverData: server.data,
-      endpointData: endpoint.data,
+      endpointHost: endpoint.host,
+      placementData: endpointPlacement.data,
       protocolCode: protocol.code,
     })
     .from(endpoint)
-    .innerJoin(server, eq(endpoint.serverId, server.id))
+    .innerJoin(endpointPlacement, eq(endpointPlacement.endpointId, endpoint.id))
+    .innerJoin(server, eq(endpointPlacement.serverId, server.id))
     .innerJoin(protocol, eq(endpoint.protocolId, protocol.id))
-    .where(eq(endpoint.id, endpointId))
+    .where(and(eq(endpoint.id, endpointId), primaryPlacementCondition()))
     .limit(1)
 
   /* v8 ignore start */
@@ -22,12 +31,14 @@ export async function findEndpointProtocolClientData(executor: DbOrTx, endpointI
   /* v8 ignore stop */
 
   const parsedServerData = ServerDataSchema.safeParse(row.serverData)
-  const parsedEndpointData = EndpointDataSchema.safeParse(row.endpointData)
+  const parsedPlacementData = EndpointDataSchema.safeParse(row.placementData)
 
   return {
+    placementId: row.placementId,
     serverIp: row.serverIp,
+    endpointHost: row.endpointHost,
     protocolCode: row.protocolCode,
     serverData: parsedServerData.success ? parsedServerData.data : null,
-    endpointData: parsedEndpointData.success ? parsedEndpointData.data : null,
+    placementData: parsedPlacementData.success ? parsedPlacementData.data : null,
   }
 }

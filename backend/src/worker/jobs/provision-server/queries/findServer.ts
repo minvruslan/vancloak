@@ -7,7 +7,6 @@ export async function findServer(serverId: string) {
   const [row] = await db
     .select({
       ip: server.ip,
-      domainName: server.domainName,
       status: server.status,
       data: server.data,
     })
@@ -19,8 +18,8 @@ export async function findServer(serverId: string) {
 
   const parsedData = ServerDataSchema.safeParse(row.data)
   if (!parsedData.success) {
-    return { ip: row.ip, domainName: row.domainName, status: row.status, data: null }
+    return { ip: row.ip, status: row.status, data: null }
   }
 
-  return { ip: row.ip, domainName: row.domainName, status: row.status, data: parsedData.data }
+  return { ip: row.ip, status: row.status, data: parsedData.data }
 }

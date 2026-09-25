@@ -75,7 +75,8 @@ const copyLink = async () => {
 
     <div class="flex flex-col gap-4 sm:gap-4.5">
       <p class="text-sm text-muted-foreground">
-        {{ created.endpoint.server.name }} · {{ getCountryName(created.endpoint.server.country) }}
+        {{ created.endpoint.server?.name ?? created.endpoint.host ?? "—" }} ·
+        {{ created.endpoint.server ? getCountryName(created.endpoint.server.country) : "—" }}
         <template v-if="obfuscationLevel">
           · <ConfigObfuscationLevelName :level="obfuscationLevel" />
         </template>

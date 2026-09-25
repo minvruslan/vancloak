@@ -26,7 +26,9 @@ const obfuscationLevel = computed(() => getConfigObfuscationLevel(props.config.d
       <span class="flex items-center gap-1 text-xs whitespace-nowrap text-muted-foreground">
         <DeviceTypeName :code="config.deviceType.code" class="shrink-0" />
         <span class="opacity-60" aria-hidden="true">·</span>
-        <span class="min-w-0 truncate">{{ getCountryName(config.endpoint.server.country) }}</span>
+        <span class="min-w-0 truncate">{{
+          config.endpoint.server ? getCountryName(config.endpoint.server.country) : "—"
+        }}</span>
       </span>
     </span>
 

@@ -8,7 +8,7 @@ import type { ProvisioningStep } from "./ProvisioningStep.js"
 type EndpointDeployment = {
   client: ProtocolClient
   endpointId: string
-  endpointData: EndpointData
+  placementId: string
   endpointDesiredState: EndpointDesiredState
 }
 
@@ -20,17 +20,17 @@ type EndpointDataUpdate = {
 export const resolveEndpointDeployments: ProvisioningStep<
   {
     remoteServer: RemoteServer
-    host: string
     dns: string
     endpoints: {
       endpointId: string
+      placementId: string
       port: number
       protocolCode: string
       data: EndpointData | null
     }[]
   },
   { endpointDeployments: EndpointDeployment[]; endpointDataUpdates: EndpointDataUpdate[] }
-> = async (serverId, { remoteServer, host, dns, endpoints }) => {
+> = async (serverId, { remoteServer, dns, endpoints }) => {
   const endpointDeployments: EndpointDeployment[] = []
   const endpointDataUpdates: EndpointDataUpdate[] = []
 
@@ -74,7 +74,7 @@ export const resolveEndpointDeployments: ProvisioningStep<
     let endpointDesiredState = parsedDesiredState.success ? parsedDesiredState.data : undefined
 
     if (!endpointDesiredState) {
-      endpointDesiredState = client.createEndpointDesiredState(endpoint.port, host, dns)
+      endpointDesiredState = client.createEndpointDesiredState(endpoint.port, dns)
       endpointData = { ...endpointData, desiredState: endpointDesiredState }
       endpointDataUpdates.push({ endpointId: endpoint.endpointId, endpointData })
     }
@@ -82,7 +82,7 @@ export const resolveEndpointDeployments: ProvisioningStep<
     endpointDeployments.push({
       client,
       endpointId: endpoint.endpointId,
-      endpointData,
+      placementId: endpoint.placementId,
       endpointDesiredState,
     })
   }

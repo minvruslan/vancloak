@@ -88,18 +88,13 @@ export class Amneziawg3Client {
     return Amneziawg3EndpointActualStateSchema.parse(actualState)
   }
 
-  createEndpointDesiredState(
-    port: number,
-    host: string,
-    dns: string,
-  ): Amneziawg3EndpointDesiredState {
+  createEndpointDesiredState(port: number, dns: string): Amneziawg3EndpointDesiredState {
     const parsedPort = PortSchema.parse(port)
     const serverKeyPair = generateKeyPair()
     const mtu = TunnelMtu
 
     return Amneziawg3EndpointDesiredStateSchema.parse({
       protocolCode: this.protocolCode,
-      host: Amneziawg3EndpointDesiredStateSchema.shape.host.parse(host),
       dns: Amneziawg3EndpointDesiredStateSchema.shape.dns.parse(dns),
       dockerImageVersion: this.dockerImageVersion,
       port: parsedPort,
@@ -166,6 +161,7 @@ export class Amneziawg3Client {
     clientIdentifier: ConfigClientIdentifier,
     protocolOptions: ConfigProtocolOptions,
     displayName: string,
+    host: string,
   ): Promise<{
     configData: Amneziawg3ConfigData
     clientConfiguration: string
@@ -184,7 +180,7 @@ export class Amneziawg3Client {
       clientIp,
       serverPublicKey: actualState.serverPublicKey,
       presharedKey,
-      serverEndpoint: `${actualState.host}:${actualState.port}`,
+      serverEndpoint: `${host}:${actualState.port}`,
       mtu: actualState.mtu,
       serverObfuscation: actualState.obfuscation,
       clientObfuscation,
@@ -198,7 +194,7 @@ export class Amneziawg3Client {
       clientIp,
       serverPublicKey: actualState.serverPublicKey,
       presharedKey,
-      host: actualState.host,
+      host,
       port: actualState.port,
       dns: actualState.dns,
       mtu: actualState.mtu,
@@ -216,7 +212,7 @@ export class Amneziawg3Client {
         publicKey: clientKeyPair.publicKey,
         presharedKey,
         serverPublicKey: actualState.serverPublicKey,
-        host: actualState.host,
+        host,
         port: actualState.port,
         dns: actualState.dns,
         mtu: actualState.mtu,

@@ -15,17 +15,17 @@ export function createConfigFromDatabaseData(row: ConfigRow): Config {
     endpoint: {
       id: row.endpointId,
       port: row.endpointPort,
+      host: row.endpointHost,
       protocol: {
         id: row.protocolId,
         code: row.protocolCode as Config["endpoint"]["protocol"]["code"],
         family: row.protocolFamily,
         name: row.protocolName,
       },
-      server: {
-        id: row.serverId,
-        name: row.serverName,
-        country: row.serverCountry,
-      },
+      server:
+        row.serverId === null || row.serverName === null || row.serverCountry === null
+          ? null
+          : { id: row.serverId, name: row.serverName, country: row.serverCountry },
     },
     data: row.data,
     status: row.status,

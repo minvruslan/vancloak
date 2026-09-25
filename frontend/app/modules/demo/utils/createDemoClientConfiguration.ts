@@ -16,7 +16,7 @@ export function createDemoClientConfiguration(config: Config): string {
     throw new Error(`Unsupported demo protocol: ${config.data.protocolCode}`)
   }
 
-  const host = `${config.endpoint.server.name.toLowerCase()}.vancloak.app`
+  const host = `${(config.endpoint.server?.name ?? "vancloak").toLowerCase()}.vancloak.app`
 
   return [
     "[Interface]",

@@ -20,6 +20,7 @@ import { deviceType } from "@/core/database/schemas/index.js"
 import {
   insertTestConfig,
   insertTestEndpoint,
+  insertTestEndpointPlacement,
   insertTestProtocol,
   insertTestServer,
   insertTestUser,
@@ -61,15 +62,15 @@ describe("GET /endpoints", () => {
     expect(parsed[0].protocol.id).toBe(endpointProtocol.id)
     expect(parsed[0].protocol.code).toBe(endpointProtocol.code)
     expect(parsed[0].protocol.name).toBe(endpointProtocol.name)
-    expect(parsed[0].server.id).toBe(endpointServer.id)
-    expect(parsed[0].server.name).toBe(endpointServer.name)
-    expect(parsed[0].server.country).toBe(endpointServer.country)
+    expect(parsed[0].server?.id).toBe(endpointServer.id)
+    expect(parsed[0].server?.name).toBe(endpointServer.name)
+    expect(parsed[0].server?.country).toBe(endpointServer.country)
     for (const entry of endpoints) {
       expect(Object.keys(entry).sort()).toEqual(
         [...EndpointWithRecommendationSchema.keyof().options].sort(),
       )
       expect(Object.keys(entry.protocol).sort()).toEqual([...ProtocolSchema.keyof().options].sort())
-      expect(Object.keys(entry.server).sort()).toEqual(
+      expect(Object.keys(entry.server ?? {}).sort()).toEqual(
         [...EndpointServerSchema.keyof().options].sort(),
       )
     }
@@ -79,6 +80,26 @@ describe("GET /endpoints", () => {
   })
 
   it.todo("returns one entry per active endpoint when a server hosts several protocols")
+
+  it("returns an endpoint standing on two servers once, through the earliest copy", async () => {
+    const endpointProtocol = await insertTestProtocol()
+    const firstServer = await insertTestServer({ name: "Alpha" })
+    const secondServer = await insertTestServer({ name: "Bravo" })
+    const sharedEndpoint = await insertTestEndpoint({
+      serverId: firstServer.id,
+      protocolId: endpointProtocol.id,
+    })
+    await insertTestEndpointPlacement({
+      endpointId: sharedEndpoint.id,
+      serverId: secondServer.id,
+    })
+
+    const endpoints = await callGetEndpoints(await signInTestUser())
+
+    expect(endpoints).toHaveLength(1)
+    expect(endpoints[0].id).toBe(sharedEndpoint.id)
+    expect(endpoints[0].server?.id).toBe(firstServer.id)
+  })
 
   it("omits endpoints of servers with status provisioning", async () => {
     const endpointProtocol = await insertTestProtocol()
@@ -152,7 +173,7 @@ describe("GET /endpoints", () => {
 
     const endpoints = await callGetEndpoints(await signInTestUser())
 
-    expect(endpoints.map((entry) => entry.server.name)).toEqual([
+    expect(endpoints.map((entry) => entry.server?.name)).toEqual([
       alphaServer.name,
       bravoServer.name,
       charlieServer.name,

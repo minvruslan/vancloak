@@ -1,11 +1,12 @@
 import { z } from "zod"
-import { PortSchema } from "@vancloak/infrastructure/shared"
+import { DomainNameSchema, PortSchema } from "@vancloak/infrastructure/shared"
 import { ProtocolSchema } from "../protocol/ProtocolSchema"
 import { EndpointServerSchema } from "./EndpointServerSchema"
 
 export const EndpointSchema = z.object({
   id: z.uuid(),
   port: PortSchema,
+  host: DomainNameSchema.nullable(),
   protocol: ProtocolSchema,
-  server: EndpointServerSchema,
+  server: EndpointServerSchema.nullable(),
 })

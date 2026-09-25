@@ -155,6 +155,20 @@
       "when": 1788998420353,
       "tag": "0021_tough_molly_hayes",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1789004370584,
+      "tag": "0022_friendly_legion",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1789004414992,
+      "tag": "0023_luxuriant_viper",
+      "breakpoints": true
     }
   ]
 }

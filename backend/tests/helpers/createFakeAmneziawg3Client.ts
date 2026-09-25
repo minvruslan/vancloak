@@ -23,9 +23,11 @@ function createAmneziawg3Client(): ProtocolClient {
 }
 
 const FakeAmneziawg3EndpointActualState = Amneziawg3EndpointActualStateSchema.parse({
-  ...createAmneziawg3Client().createEndpointDesiredState(51820, "192.0.2.1", "1.1.1.1"),
+  ...createAmneziawg3Client().createEndpointDesiredState(51820, "1.1.1.1"),
   appliedAt: "2026-01-01T00:00:00.000Z",
 })
+
+const FakeAmneziawg3EndpointHost = "192.0.2.1"
 
 const FIRST_CLIENT_ADDRESS_OFFSET = 2
 
@@ -41,7 +43,7 @@ const FakeAmneziawg3CreateAccessResult = {
     publicKey: "fake-public-key",
     presharedKey: "fake-preshared-key",
     serverPublicKey: FakeAmneziawg3EndpointActualState.serverPublicKey,
-    host: FakeAmneziawg3EndpointActualState.host,
+    host: FakeAmneziawg3EndpointHost,
     port: FakeAmneziawg3EndpointActualState.port,
     dns: FakeAmneziawg3EndpointActualState.dns,
     mtu: FakeAmneziawg3EndpointActualState.mtu,
@@ -67,15 +69,18 @@ function createFakeAmneziawg3Client() {
     createInitialConfigData: vi.spyOn(client, "createInitialConfigData"),
     createAccess: vi
       .spyOn(client, "createAccess")
-      .mockImplementation(async (_endpointActualState, clientIdentifier, protocolOptions) => ({
-        configData: {
-          ...FakeAmneziawg3CreateAccessResult.configData,
-          clientIp: clientIdentifier,
-          options: Amneziawg3ObfuscationOptionsSchema.parse(protocolOptions),
-        },
-        clientConfiguration: FakeAmneziawg3CreateAccessResult.clientConfiguration,
-        clientConfigurationLink: FakeAmneziawg3CreateAccessResult.clientConfigurationLink,
-      })),
+      .mockImplementation(
+        async (_endpointActualState, clientIdentifier, protocolOptions, _displayName, host) => ({
+          configData: {
+            ...FakeAmneziawg3CreateAccessResult.configData,
+            clientIp: clientIdentifier,
+            host,
+            options: Amneziawg3ObfuscationOptionsSchema.parse(protocolOptions),
+          },
+          clientConfiguration: FakeAmneziawg3CreateAccessResult.clientConfiguration,
+          clientConfigurationLink: FakeAmneziawg3CreateAccessResult.clientConfigurationLink,
+        }),
+      ),
     deleteAccessByClientIdentifier: vi
       .spyOn(client, "deleteAccessByClientIdentifier")
       .mockResolvedValue(undefined),

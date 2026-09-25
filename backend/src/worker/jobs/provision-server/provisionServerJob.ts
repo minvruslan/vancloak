@@ -9,6 +9,7 @@ import { findActiveEndpoints } from "./queries/findActiveEndpoints.js"
 import { findActiveEndpointConfigDatas } from "./queries/findActiveEndpointConfigDatas.js"
 import { updateServerData } from "./queries/updateServerData.js"
 import { updateEndpointData } from "./queries/updateEndpointData.js"
+import { updatePlacementData } from "./queries/updatePlacementData.js"
 import { updateServerStatus } from "./queries/updateServerStatus.js"
 import { resolveServerDesiredState } from "./steps/resolveServerDesiredState.js"
 import { scanSshHostKeys } from "./steps/scanSshHostKeys.js"
@@ -75,7 +76,6 @@ export async function provisionServerJob(job: ProvisionServerJob) {
   const endpoints = await findActiveEndpoints(serverId)
   const { endpointDeployments, endpointDataUpdates } = await resolveEndpointDeployments(serverId, {
     remoteServer,
-    host: server.domainName ?? server.ip,
     dns: VpnNodeDns,
     endpoints,
   })
@@ -84,7 +84,7 @@ export async function provisionServerJob(job: ProvisionServerJob) {
     await updateEndpointData(endpointId, endpointData)
   }
 
-  for (const { client, endpointId, endpointData, endpointDesiredState } of endpointDeployments) {
+  for (const { client, endpointId, placementId, endpointDesiredState } of endpointDeployments) {
     await remoteServer.allowFirewallPort(
       endpointDesiredState.port,
       ProtocolRegistry[client.protocolCode].transportProtocol,
@@ -93,8 +93,7 @@ export async function provisionServerJob(job: ProvisionServerJob) {
     const configDatas = await findActiveEndpointConfigDatas(endpointId)
     await client.install({ desiredState }, endpointDesiredState, configDatas)
 
-    await updateEndpointData(endpointId, {
-      ...endpointData,
+    await updatePlacementData(placementId, {
       actualState: { ...endpointDesiredState, appliedAt: new Date().toISOString() },
     })
   }

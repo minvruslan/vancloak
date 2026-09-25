@@ -5,8 +5,10 @@ import { config } from "@/core/database/schemas/domainSchema.js"
 type ConfigFields = {
   userId: string
   endpointId: string
+  placementId: string
   deviceTypeId: string
   name: string
+  host: string
 } & ConfigProtocolFields
 
 export async function insertUserConfig(executor: DbOrTx, fields: ConfigFields) {

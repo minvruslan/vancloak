@@ -1,18 +1,19 @@
 import type { DbOrTx } from "@/core/database/index.js"
-import { endpoint } from "@/core/database/schemas/domainSchema.js"
+import { endpoint, endpointPlacement } from "@/core/database/schemas/domainSchema.js"
 
 export async function insertEndpoints(
   executor: DbOrTx,
   serverId: string,
-  endpoints: { protocolId: string; port: number }[],
+  endpoints: { protocolId: string; port: number; host: string | null }[],
 ) {
   if (endpoints.length === 0) return
-  await executor.insert(endpoint).values(
-    endpoints.map((item) => ({
-      serverId,
-      protocolId: item.protocolId,
-      port: item.port,
-      data: {},
-    })),
-  )
+
+  const insertedEndpoints = await executor
+    .insert(endpoint)
+    .values(endpoints.map((item) => ({ ...item, data: {} })))
+    .returning({ id: endpoint.id })
+
+  await executor
+    .insert(endpointPlacement)
+    .values(insertedEndpoints.map((item) => ({ endpointId: item.id, serverId })))
 }

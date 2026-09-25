@@ -81,9 +81,9 @@ describe("GET /configs/{id}", () => {
     expect(parsed.endpoint.protocol.code).toBe(configProtocol.code)
     expect(parsed.endpoint.protocol.family).toBe(configProtocol.family)
     expect(parsed.endpoint.protocol.name).toBe(configProtocol.name)
-    expect(parsed.endpoint.server.id).toBe(configServer.id)
-    expect(parsed.endpoint.server.name).toBe(configServer.name)
-    expect(parsed.endpoint.server.country).toBe(configServer.country)
+    expect(parsed.endpoint.server?.id).toBe(configServer.id)
+    expect(parsed.endpoint.server?.name).toBe(configServer.name)
+    expect(parsed.endpoint.server?.country).toBe(configServer.country)
   })
 
   it("rejects an unknown id with NOT_FOUND", async () => {

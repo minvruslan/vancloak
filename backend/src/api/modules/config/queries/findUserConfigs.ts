@@ -5,6 +5,7 @@ import {
   config,
   deviceType,
   endpoint,
+  endpointPlacement,
   protocol,
   server,
 } from "@/core/database/schemas/domainSchema.js"
@@ -17,7 +18,8 @@ export async function findUserConfigs(executor: DbOrTx, userId: string) {
     .innerJoin(deviceType, eq(config.deviceTypeId, deviceType.id))
     .innerJoin(endpoint, eq(config.endpointId, endpoint.id))
     .innerJoin(protocol, eq(endpoint.protocolId, protocol.id))
-    .innerJoin(server, eq(endpoint.serverId, server.id))
+    .leftJoin(endpointPlacement, eq(config.placementId, endpointPlacement.id))
+    .leftJoin(server, eq(endpointPlacement.serverId, server.id))
     .where(and(eq(config.userId, userId), reservedConfigCondition()))
     .orderBy(desc(config.createdAt))
 }

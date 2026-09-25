@@ -13,6 +13,8 @@ type EndpointProtocolClient = {
   client: ProtocolClient
   endpointActualState: EndpointActualState
   protocolCode: ProtocolCode
+  placementId: string
+  host: string
 }
 
 type ErrorCode = "unavailable" | "unsupported_protocol"
@@ -62,7 +64,7 @@ export async function getEndpointProtocolClientService(
   }
 
   const endpointActualState = ProtocolRegistry[parsedCode.data].endpointActualStateSchema.safeParse(
-    endpointProtocolClientData.endpointData?.actualState,
+    endpointProtocolClientData.placementData?.actualState,
   )
   if (!endpointActualState.success) {
     return {
@@ -82,6 +84,8 @@ export async function getEndpointProtocolClientService(
       client,
       endpointActualState: endpointActualState.data,
       protocolCode: parsedCode.data,
+      placementId: endpointProtocolClientData.placementId,
+      host: endpointProtocolClientData.endpointHost ?? endpointProtocolClientData.serverIp,
     },
   }
 }

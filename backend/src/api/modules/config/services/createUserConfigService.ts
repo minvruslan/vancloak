@@ -44,7 +44,7 @@ export async function createUserConfigService(
     }
   }
 
-  const { client, endpointActualState, protocolCode } = resolved.data
+  const { client, endpointActualState, protocolCode, placementId, host } = resolved.data
 
   /* v8 ignore start -- unreachable while a single protocol exists: the options union has one branch */
   if (input.protocolOptions && input.protocolOptions.protocolCode !== protocolCode) {
@@ -65,7 +65,7 @@ export async function createUserConfigService(
 
   const reserved = await db.transaction(async (tx) => {
     await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${userId}))`)
-    await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${endpoint.serverId}))`)
+    await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${endpoint.id}))`)
 
     const limitCheck = await isUserConfigLimitReachedService(
       tx,
@@ -75,7 +75,7 @@ export async function createUserConfigService(
 
     if (limitCheck.data.limitReached) return "limit_reached" as const
 
-    const reservedClientIdentifiers = await findReservedClientIdentifiers(tx, endpoint.serverId)
+    const reservedClientIdentifiers = await findReservedClientIdentifiers(tx, endpoint.id)
 
     const clientIdentifier = client.allocateClientIdentifier(
       endpointActualState,
@@ -87,8 +87,10 @@ export async function createUserConfigService(
     const [row] = await insertUserConfig(tx, {
       userId,
       endpointId: input.endpointId,
+      placementId,
       deviceTypeId: input.deviceTypeId,
       name: input.name,
+      host,
       data: client.createInitialConfigData(clientIdentifier, protocolOptions),
       clientIdentifier,
     })
@@ -107,6 +109,7 @@ export async function createUserConfigService(
       clientIdentifier,
       protocolOptions,
       endpoint.serverName,
+      host,
     )
 
     const [activated] = await activateConfig(db, configId, created.configData)

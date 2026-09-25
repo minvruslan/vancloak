@@ -7,6 +7,7 @@ export function createEndpointFromDatabaseData(row: EndpointRow): Endpoint {
   return {
     id: row.id,
     port: row.port,
+    host: row.host,
     protocol: {
       id: row.protocolId,
       code: row.protocolCode as Endpoint["protocol"]["code"],

@@ -11,6 +11,8 @@ const createServerRoute = authorized.servers.createServer.handler(async ({ input
         throw errors.CREDENTIALS_REQUIRED({ cause: result.error })
       case "duplicate_protocol":
         throw errors.DUPLICATE_PROTOCOL({ cause: result.error })
+      case "duplicate_port":
+        throw errors.DUPLICATE_PORT({ cause: result.error })
       case "protocol_not_found":
         throw errors.PROTOCOL_NOT_FOUND({ cause: result.error })
       case "unsupported_protocol":

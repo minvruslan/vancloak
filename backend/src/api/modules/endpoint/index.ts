@@ -5,3 +5,4 @@ const endpointRouter = {
 }
 
 export { endpointRouter }
+export { primaryPlacementCondition } from "./queries/conditions/primaryPlacementCondition.js"

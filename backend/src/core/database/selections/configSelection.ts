@@ -12,6 +12,7 @@ export const configSelection = {
   deviceTypeName: deviceType.name,
   endpointId: endpoint.id,
   endpointPort: endpoint.port,
+  endpointHost: endpoint.host,
   protocolId: protocol.id,
   protocolCode: protocol.code,
   protocolFamily: protocol.family,

@@ -38,9 +38,11 @@ const { endpoints, endpointId, stepNumber, stepCount, canContinue, next, back } 
             @select="endpointId = endpoint.id"
           >
             <div class="flex min-w-0 flex-1 flex-col gap-0.5">
-              <span class="truncate text-sm font-semibold">{{ endpoint.server.name }}</span>
+              <span class="truncate text-sm font-semibold">
+                {{ endpoint.server?.name ?? endpoint.host ?? "—" }}
+              </span>
               <span class="truncate text-xs text-muted-foreground">
-                {{ getCountryName(endpoint.server.country) }}
+                {{ endpoint.server ? getCountryName(endpoint.server.country) : "—" }}
               </span>
             </div>
           </WizardSelectableTile>
