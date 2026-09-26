@@ -205,6 +205,7 @@ describe("GET /configs/{id}", () => {
         data: {
           protocolCode: ProtocolCodeSchema.enum.amneziawg3,
           clientIp: "10.8.0.2",
+          splitTunneling: null,
           publicKey: "test-public-key",
           presharedKey: "test-preshared-key",
           options: {
@@ -227,6 +228,7 @@ describe("GET /configs/{id}", () => {
         "presharedKey",
         "protocolCode",
         "publicKey",
+        "splitTunneling",
       ])
     })
   })

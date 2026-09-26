@@ -9,10 +9,12 @@ import { Amneziawg3MtuSchema } from "../../../../protocols/amneziawg3/types/Amne
 import { Amneziawg3ServerObfuscationSchema } from "../../../../protocols/amneziawg3/types/Amneziawg3ServerObfuscationSchema"
 import { ProtocolCodeSchema } from "../../../../protocols/types/ProtocolCodeSchema"
 import { Amneziawg3ObfuscationOptionsSchema } from "../../../../protocols/amneziawg3/types/Amneziawg3ObfuscationOptionsSchema"
+import { SplitTunnelingSchema } from "../../../../protocols/amneziawg3/types/SplitTunnelingSchema"
 
 export const Amneziawg3ConfigDataSchema = z.object({
   protocolCode: z.literal(ProtocolCodeSchema.enum.amneziawg3),
   clientIp: IpSchema,
+  splitTunneling: SplitTunnelingSchema.nullable().default(null),
   publicKey: z.string().optional(),
   presharedKey: z.string().optional(),
   serverPublicKey: Amneziawg3KeySchema.optional(),

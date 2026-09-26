@@ -89,6 +89,7 @@ describe("DELETE /configs/{id}", () => {
       data: {
         protocolCode: ProtocolCodeSchema.enum.amneziawg3,
         clientIp: clientIdentifier,
+        splitTunneling: null,
         options: { ...Amneziawg3ObfuscationDefaults },
       },
     })
@@ -415,6 +416,7 @@ describe("DELETE /configs/{id}", () => {
         data: {
           protocolCode: ProtocolCodeSchema.enum.amneziawg3,
           clientIp: clientIdentifier,
+          splitTunneling: null,
           publicKey: "test-public-key",
           presharedKey: "test-preshared-key",
           options: { ...Amneziawg3ObfuscationDefaults },

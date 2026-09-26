@@ -8,6 +8,8 @@ import {
   buildAmneziawg3ConfigName,
   IpSchema,
   PortSchema,
+  SplitTunnelingAllowedIps,
+  SplitTunnelingSchema,
   type Amneziawg3ClientIdentifier,
   type Amneziawg3ConfigData,
   type Amneziawg3EndpointActualState,
@@ -22,7 +24,7 @@ import {
 } from "../../../shared/index.js"
 import { InfrastructureAssetsDirectoryPath } from "../../../assets/index.js"
 import type { RemoteCommandRunner } from "../../../remote-command-runner/index.js"
-import { TunnelMtu } from "./constants/index.js"
+import { AllowedIps, TunnelMtu } from "./constants/index.js"
 import type { Amneziawg3Access } from "./types/index.js"
 import {
   buildClientConfiguration,
@@ -131,6 +133,7 @@ export class Amneziawg3Client {
     return {
       protocolCode: this.protocolCode,
       clientIp: IpSchema.parse(clientIdentifier),
+      splitTunneling: SplitTunnelingSchema.enum.ru,
       options: Amneziawg3ObfuscationOptionsSchema.parse(protocolOptions),
     }
   }
@@ -179,6 +182,11 @@ export class Amneziawg3Client {
     const presharedKey = generatePresharedKey()
     const clientObfuscation = generateClientObfuscation(actualState.mtu, obfuscationOptions)
 
+    const initialConfigData = this.createInitialConfigData(clientIdentifier, protocolOptions)
+    const allowedIps = initialConfigData.splitTunneling
+      ? SplitTunnelingAllowedIps[initialConfigData.splitTunneling]
+      : AllowedIps
+
     const clientConfiguration = buildClientConfiguration({
       clientPrivateKey: clientKeyPair.privateKey,
       clientIp,
@@ -189,6 +197,7 @@ export class Amneziawg3Client {
       serverObfuscation: actualState.obfuscation,
       clientObfuscation,
       dns: actualState.dns,
+      allowedIps,
     })
 
     const clientConfigurationLink = buildClientConfigurationLink({
@@ -204,6 +213,7 @@ export class Amneziawg3Client {
       mtu: actualState.mtu,
       serverObfuscation: actualState.obfuscation,
       clientObfuscation,
+      allowedIps,
     })
 
     await this.applyAccesses(actualState, [
@@ -212,7 +222,7 @@ export class Amneziawg3Client {
 
     return {
       configData: {
-        ...this.createInitialConfigData(clientIdentifier, protocolOptions),
+        ...initialConfigData,
         publicKey: clientKeyPair.publicKey,
         presharedKey,
         serverPublicKey: actualState.serverPublicKey,

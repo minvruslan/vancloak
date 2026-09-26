@@ -2,6 +2,7 @@ export {
   createFakeAmneziawg3Client,
   FakeAmneziawg3CreateAccessResult,
   FakeAmneziawg3EndpointActualState,
+  FakeAmneziawg3FirstClientIp,
   FAKE_SERVER_SSH_HOST_KEY,
 } from "./createFakeAmneziawg3Client.js"
 export { createTestEmail } from "./createTestEmail.js"
