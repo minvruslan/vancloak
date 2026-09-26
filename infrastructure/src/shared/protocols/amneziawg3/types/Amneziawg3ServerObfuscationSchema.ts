@@ -30,6 +30,7 @@ export const Amneziawg3ServerObfuscationSchema = Amneziawg3ClientObfuscationSche
   rejectAfterTime: Amneziawg3DurationRangeSchema,
   keepaliveTimeout: Amneziawg3DurationRangeSchema,
   maxHandshakeAttempts: Amneziawg3DurationRangeSchema,
+  disableCookies: z.boolean().default(false),
 }).superRefine((obfuscation, context) => {
   if (obfuscation.jmin >= obfuscation.jmax) {
     context.addIssue({

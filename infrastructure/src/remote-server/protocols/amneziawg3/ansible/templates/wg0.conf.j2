@@ -27,6 +27,10 @@ RekeyTimeout = {{ amneziawg3_obfuscation.rekeyTimeout }}
 RejectAfterTime = {{ amneziawg3_obfuscation.rejectAfterTime }}
 KeepaliveTimeout = {{ amneziawg3_obfuscation.keepaliveTimeout }}
 MaxHandshakeAttempts = {{ amneziawg3_obfuscation.maxHandshakeAttempts }}
+{% if amneziawg3_obfuscation.disableCookies %}
+RandomTrailers = 0
+DisableCookies = 1
+{% endif %}
 
 PostUp = iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
 PostDown = iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
