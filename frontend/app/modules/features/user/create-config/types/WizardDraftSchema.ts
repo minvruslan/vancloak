@@ -7,7 +7,6 @@ export const WizardDraftSchema = z.object({
   userId: z.string(),
   savedAt: z.number(),
   step: z.enum(WizardStepOrder),
-  name: z.string(),
   deviceTypeId: z.string().nullable(),
   appId: WizardAppIdSchema.nullable(),
   endpointId: z.string().nullable(),

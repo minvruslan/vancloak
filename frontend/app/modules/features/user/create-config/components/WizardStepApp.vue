@@ -12,7 +12,9 @@ import { messages } from "../translations/WizardStepApp"
 const INSTALL_STEPS_BY_DEVICE_TYPE_CODE: Partial<
   Record<DeviceType["code"], readonly { id: string; hasLink?: boolean }[]>
 > = {
-  macos: [{ id: "download", hasLink: true }, { id: "open" }, { id: "install" }],
+  ios: [{ id: "download", hasLink: true }],
+  ipados: [{ id: "download", hasLink: true }],
+  macos: [{ id: "download", hasLink: true }],
   windows: [{ id: "download", hasLink: true }, { id: "open" }, { id: "install" }],
   android: [{ id: "download", hasLink: true }, { id: "instructions" }, { id: "pick" }],
 }
@@ -54,7 +56,22 @@ const confirmInstalled = () => {
       />
     </template>
 
-    <ol class="flex flex-col gap-3 pb-1">
+    <p
+      v-if="installSteps.length === 1 && installSteps[0]"
+      class="pb-1 text-sm leading-relaxed break-words text-muted-foreground"
+    >
+      {{ t(`steps.${deviceTypeCode}.${installSteps[0].id}`, { name: app?.name, os: osName }) }}
+      <a
+        v-if="installSteps[0].hasLink"
+        :href="t(`steps.${deviceTypeCode}.${installSteps[0].id}LinkUrl`)"
+        target="_blank"
+        rel="noopener"
+        class="font-medium text-foreground underline underline-offset-4"
+      >
+        {{ t(`steps.${deviceTypeCode}.${installSteps[0].id}LinkLabel`) }}
+      </a>
+    </p>
+    <ol v-else class="flex flex-col gap-3 pb-1">
       <li v-for="(step, index) in installSteps" :key="step.id" class="flex items-start gap-3">
         <span
           class="flex size-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium"

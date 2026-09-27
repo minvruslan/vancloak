@@ -11,8 +11,10 @@ import { messages } from "../translations/WizardStepDevice"
 
 const props = defineProps<{ wizard: CreateConfigWizardMachine }>()
 
+defineEmits<{ (e: "exit"): void }>()
+
 const { t } = useI18n({ useScope: "local", messages })
-const { deviceTypes, deviceTypeId, stepNumber, stepCount, canContinue, next, back } = props.wizard
+const { deviceTypes, deviceTypeId, stepNumber, stepCount, canContinue, next } = props.wizard
 
 const EnabledDeviceTypeCodes: DeviceType["code"][] = [
   DeviceTypeSchema.shape.code.enum.ios,
@@ -30,7 +32,7 @@ const EnabledDeviceTypeCodes: DeviceType["code"][] = [
         :step-number="stepNumber"
         :step-count="stepCount"
         :title="t('title')"
-        @back="back"
+        @back="$emit('exit')"
       />
     </template>
 

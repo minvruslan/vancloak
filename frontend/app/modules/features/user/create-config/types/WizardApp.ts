@@ -5,5 +5,4 @@ export type WizardApp = {
   name: string
   iconUrl: string
   downloadUrl: string
-  isRecommended?: boolean
 }
