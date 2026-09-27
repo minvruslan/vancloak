@@ -1,4 +1,5 @@
 import { ProtocolRegistry } from "@vancloak/infrastructure/shared"
+import type { ServerActualState } from "@vancloak/infrastructure/shared"
 import { RemoteServer } from "@vancloak/infrastructure"
 import { env } from "@/core/env/index.js"
 import { VpnNodeDns } from "./constants/index.js"
@@ -18,6 +19,7 @@ import { createServiceUserAccess } from "./steps/createServiceUserAccess.js"
 import { hardenSsh } from "./steps/hardenSsh.js"
 import { hardenFirewall } from "./steps/hardenFirewall.js"
 import { resolveEndpointDeployments } from "./steps/resolveEndpointDeployments.js"
+import { installDecoyWebsite } from "./steps/installDecoyWebsite.js"
 
 export async function provisionServerJob(job: ProvisionServerJob) {
   const { serverId } = job
@@ -65,9 +67,23 @@ export async function provisionServerJob(job: ProvisionServerJob) {
   await remoteServer.assertConnectivity()
   await hardenFirewall(serverId, { remoteServer, sshPort: targetAccess.port })
 
+  let decoyWebsite: ServerActualState["decoyWebsite"]
+  if (server.domainName) {
+    decoyWebsite = await installDecoyWebsite(serverId, {
+      remoteServer,
+      serviceUsername: desiredState.ssh.username,
+      baseDirectory: desiredState.baseDirectory,
+      domainName: server.domainName,
+    })
+  }
+
   serverData = {
     ...serverData,
-    actualState: { ...desiredState, appliedAt: new Date().toISOString() },
+    actualState: {
+      ...desiredState,
+      appliedAt: new Date().toISOString(),
+      ...(decoyWebsite ? { decoyWebsite } : {}),
+    },
   }
 
   await updateServerData(serverId, serverData)

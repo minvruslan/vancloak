@@ -1,0 +1,122 @@
+- name: Assert required decoy website variables are provided
+  ansible.builtin.assert:
+    that:
+      - service_username is defined
+      - decoy_website_domain_name is defined
+      - decoy_website_caddy_docker_image_version is defined
+      - decoy_website_node_docker_image_version is defined
+      - decoy_website_deploy_directory_path is defined
+      - decoy_website_state_directory_path is defined
+      - decoy_website_caddy_container_name is defined
+      - decoy_website_server_container_name is defined
+    fail_msg: >-
+      Missing required variables. In production they are injected automatically by
+      RemoteServer.installDecoyWebsite (@vancloak/infrastructure); for manual runs
+      pass them via --extra-vars.
+
+- name: Derive decoy website brand name and document dates
+  ansible.builtin.set_fact:
+    decoy_website_brand_name: "{{ decoy_website_domain_name.split('.')[-2].split('-') | map('capitalize') | join(' ') }}"
+    decoy_website_privacy_updated_date: "{{ '%d %B %Y' | strftime((ansible_date_time.epoch | int) - 5184000) }}"
+    decoy_website_terms_updated_date: "{{ '%d %B %Y' | strftime((ansible_date_time.epoch | int) - 6480000) }}"
+
+- name: Create decoy website directory owned by {{ service_username }}
+  ansible.builtin.file:
+    path: "{{ decoy_website_deploy_directory_path }}"
+    state: directory
+    owner: "{{ service_username }}"
+    group: "{{ service_username }}"
+    mode: "0750"
+
+- name: Copy decoy website static site
+  ansible.builtin.copy:
+    src: site/
+    dest: "{{ decoy_website_deploy_directory_path }}/site/"
+    owner: "{{ service_username }}"
+    group: "{{ service_username }}"
+    mode: "0750"
+
+- name: Copy decoy website server
+  ansible.builtin.copy:
+    src: server/
+    dest: "{{ decoy_website_deploy_directory_path }}/server/"
+    owner: "{{ service_username }}"
+    group: "{{ service_username }}"
+    mode: "0755"
+
+- name: Render decoy website pages
+  ansible.builtin.template:
+    src: "{{ item }}.j2"
+    dest: "{{ decoy_website_deploy_directory_path }}/site/{{ item }}"
+    owner: "{{ service_username }}"
+    group: "{{ service_username }}"
+    mode: "0640"
+  loop:
+    - index.html
+    - link-sent.html
+    - privacy.html
+    - terms.html
+    - 404.html
+
+- name: Render sitemap for decoy website
+  ansible.builtin.template:
+    src: sitemap.xml.j2
+    dest: "{{ decoy_website_deploy_directory_path }}/site/sitemap.xml"
+    owner: "{{ service_username }}"
+    group: "{{ service_username }}"
+    mode: "0640"
+
+- name: Render Caddyfile for decoy website
+  ansible.builtin.template:
+    src: Caddyfile.j2
+    dest: "{{ decoy_website_deploy_directory_path }}/Caddyfile"
+    owner: "{{ service_username }}"
+    group: "{{ service_username }}"
+    mode: "0640"
+
+- name: Render docker-compose for decoy website
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: "{{ decoy_website_deploy_directory_path }}/docker-compose.yml"
+    owner: "{{ service_username }}"
+    group: "{{ service_username }}"
+    mode: "0640"
+
+- name: Create decoy website state directory
+  ansible.builtin.file:
+    path: "{{ decoy_website_state_directory_path }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
+
+- name: Start decoy website containers (as {{ service_username }} via docker group)
+  block:
+    - name: Run docker compose up
+      become: true
+      become_user: "{{ service_username }}"
+      ansible.builtin.command: docker compose up -d --wait --wait-timeout 60
+      args:
+        chdir: "{{ decoy_website_deploy_directory_path }}"
+      register: compose_up
+      changed_when: "'Started' in compose_up.stderr or 'Created' in compose_up.stderr"
+  rescue:
+    - name: Collect decoy website caddy container logs
+      become: true
+      become_user: "{{ service_username }}"
+      ansible.builtin.command: docker logs --tail 20 {{ decoy_website_caddy_container_name }}
+      register: caddy_container_logs
+      changed_when: false
+      failed_when: false
+
+    - name: Collect decoy website server container logs
+      become: true
+      become_user: "{{ service_username }}"
+      ansible.builtin.command: docker logs --tail 20 {{ decoy_website_server_container_name }}
+      register: server_container_logs
+      changed_when: false
+      failed_when: false
+
+    - name: Fail with decoy website container logs
+      ansible.builtin.fail:
+        msg: "{{ compose_up.stderr | default('') }}\n{{ caddy_container_logs.stdout | default('') }}\n{{ caddy_container_logs.stderr | default('') }}\n{{ server_container_logs.stdout | default('') }}\n{{ server_container_logs.stderr | default('') }}"

@@ -1,0 +1,37 @@
+{
+	admin off
+	servers {
+		protocols h1 h2
+	}
+}
+
+{{ decoy_website_domain_name }} {
+	root * /site
+
+	handle /login {
+		request_body {
+			max_size 8KB
+		}
+		reverse_proxy server:3000
+	}
+
+	handle {
+		try_files {path} {path}.html
+		file_server
+	}
+
+	handle_errors 404 {
+		rewrite * /404.html
+		file_server
+	}
+}
+
+http:// {
+	handle /healthz {
+		respond 200
+	}
+
+	handle {
+		redir https://{{ decoy_website_domain_name }}{uri} 308
+	}
+}

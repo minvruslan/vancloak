@@ -3,6 +3,7 @@ import { tmpdir } from "node:os"
 import { join, resolve } from "node:path"
 import { z } from "zod"
 import {
+  DomainNameSchema,
   IpSchema,
   PortSchema,
   ServerDesiredStateSchema,
@@ -28,6 +29,12 @@ const ANSIBLE_DIRECTORY_PATH = resolve(
 )
 const SSH_KEYSCAN_TIMEOUT_SECONDS = 15
 const SSH_PRIVATE_KEY_MOUNT_PATH = "/ssh-private-key"
+const DECOY_WEBSITE_CADDY_DOCKER_IMAGE_VERSION = "2.10.2"
+const DECOY_WEBSITE_NODE_DOCKER_IMAGE_VERSION = "24"
+const DECOY_WEBSITE_DIRECTORY_NAME = "decoy-website"
+const DECOY_WEBSITE_STATE_DIRECTORY_NAME = "state"
+const DECOY_WEBSITE_CADDY_CONTAINER_NAME = "decoy-website-caddy"
+const DECOY_WEBSITE_SERVER_CONTAINER_NAME = "decoy-website-server"
 
 export class RemoteServer {
   private readonly remoteCommandRunner: RemoteCommandRunner
@@ -204,6 +211,39 @@ export class RemoteServer {
         firewall_transport_protocol: TransportProtocolSchema.parse(transportProtocol),
       },
     )
+  }
+
+  async installDecoyWebsite(
+    serviceUsername: string,
+    baseDirectory: string,
+    domainName: string,
+  ): Promise<{
+    domainName: string
+    caddyDockerImageVersion: string
+    nodeDockerImageVersion: string
+  }> {
+    const parsedDomainName = DomainNameSchema.parse(domainName)
+    const deployDirectoryPath = `${UnixPathSchema.parse(baseDirectory)}/${DECOY_WEBSITE_DIRECTORY_NAME}`
+
+    await this.remoteCommandRunner.runAnsibleRole(
+      join(ANSIBLE_DIRECTORY_PATH, "roles", "decoy-website"),
+      {
+        service_username: UnixUsernameSchema.parse(serviceUsername),
+        decoy_website_domain_name: parsedDomainName,
+        decoy_website_caddy_docker_image_version: DECOY_WEBSITE_CADDY_DOCKER_IMAGE_VERSION,
+        decoy_website_node_docker_image_version: DECOY_WEBSITE_NODE_DOCKER_IMAGE_VERSION,
+        decoy_website_deploy_directory_path: deployDirectoryPath,
+        decoy_website_state_directory_path: `${deployDirectoryPath}/${DECOY_WEBSITE_STATE_DIRECTORY_NAME}`,
+        decoy_website_caddy_container_name: DECOY_WEBSITE_CADDY_CONTAINER_NAME,
+        decoy_website_server_container_name: DECOY_WEBSITE_SERVER_CONTAINER_NAME,
+      },
+    )
+
+    return {
+      domainName: parsedDomainName,
+      caddyDockerImageVersion: DECOY_WEBSITE_CADDY_DOCKER_IMAGE_VERSION,
+      nodeDockerImageVersion: DECOY_WEBSITE_NODE_DOCKER_IMAGE_VERSION,
+    }
   }
 
   getProtocolClient<Code extends ProtocolCode>(protocolCode: Code): ProtocolClientByCode[Code] {
