@@ -1,28 +1,19 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from "vue"
+import { onMounted, ref, watch } from "vue"
 import { useCreateConfigWizard } from "../composables/useCreateConfigWizard"
 import { WizardStepOrder } from "../types/WizardStepOrder"
-import { WizardAppsByDeviceTypeCode } from "../constants/WizardAppsByDeviceTypeCode"
 import WizardStepAcknowledge from "./WizardStepAcknowledge.vue"
 import WizardStepApp from "./WizardStepApp.vue"
-import WizardStepApps from "./WizardStepApps.vue"
 import WizardStepDevice from "./WizardStepDevice.vue"
 import WizardStepDone from "./WizardStepDone.vue"
 import WizardStepEndpoint from "./WizardStepEndpoint.vue"
-import WizardStepName from "./WizardStepName.vue"
 import WizardStepProfile from "./WizardStepProfile.vue"
 import WizardStepSkeleton from "./WizardStepSkeleton.vue"
 
 const emit = defineEmits<{ (e: "exit" | "done"): void }>()
 
 const wizard = useCreateConfigWizard()
-const { step, selectedDeviceType } = wizard
-
-const singleAppDevice = computed(
-  () =>
-    selectedDeviceType.value !== null &&
-    WizardAppsByDeviceTypeCode[selectedDeviceType.value.code].length === 1,
-)
+const { step } = wizard
 
 const direction = ref<"forward" | "back">("forward")
 const restored = ref(false)
@@ -65,10 +56,8 @@ else onMounted(restore)
         "
       >
         <WizardStepSkeleton v-if="!restored" />
-        <WizardStepName v-else-if="step === 'name'" :wizard="wizard" @exit="emit('exit')" />
-        <WizardStepDevice v-else-if="step === 'device'" :wizard="wizard" />
-        <WizardStepApp v-else-if="step === 'app' && singleAppDevice" :wizard="wizard" />
-        <WizardStepApps v-else-if="step === 'app'" :wizard="wizard" />
+        <WizardStepDevice v-else-if="step === 'device'" :wizard="wizard" @exit="emit('exit')" />
+        <WizardStepApp v-else-if="step === 'app'" :wizard="wizard" />
         <WizardStepEndpoint v-else-if="step === 'endpoint'" :wizard="wizard" />
         <WizardStepProfile v-else-if="step === 'profile'" :wizard="wizard" />
         <WizardStepAcknowledge v-else-if="step === 'acknowledge'" :wizard="wizard" />

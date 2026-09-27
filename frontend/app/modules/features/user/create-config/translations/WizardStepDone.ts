@@ -20,23 +20,6 @@ export const messages = {
     },
     apps: {
       ios: {
-        amneziavpn: {
-          steps: [
-            "Нажмите «Скопировать ссылку» выше.",
-            "В приложении нажмите «+» в нижнем меню.",
-            "Вставьте скопированную ссылку в поле «Вставьте ключ» и нажмите «Продолжить».",
-            "Нажмите «Connect» и дайте согласие на все запрашиваемые разрешения.",
-          ],
-        },
-        amneziawg: {
-          steps: [
-            "Нажмите «Скачать файл» и разрешите загрузку.",
-            "Откройте AmneziaWG, нажмите «+» и выберите «Создать из файла или архива».",
-            "Выберите скачанный файл.",
-            "Если файл из пункта 3 серый и не выбирается — откройте приложение «Файлы», нажмите и удерживайте файл, затем выберите «Поделиться» → AmneziaWG.",
-            "Разрешите добавление VPN-конфигурации и включите переключатель рядом с новым туннелем.",
-          ],
-        },
         defaultvpn: {
           steps: [
             "Нажмите «Скопировать ссылку» выше.",
@@ -47,23 +30,6 @@ export const messages = {
         },
       },
       ipados: {
-        amneziavpn: {
-          steps: [
-            "Нажмите «Скопировать ссылку» выше.",
-            "В приложении нажмите «+» в нижнем меню.",
-            "Вставьте скопированную ссылку в поле «Вставьте ключ» и нажмите «Продолжить».",
-            "Нажмите «Connect» и дайте согласие на все запрашиваемые разрешения.",
-          ],
-        },
-        amneziawg: {
-          steps: [
-            "Нажмите «Скачать файл» и разрешите загрузку.",
-            "Откройте AmneziaWG, нажмите «+» и выберите «Создать из файла или архива».",
-            "Выберите скачанный файл.",
-            "Если файл из пункта 3 серый и не выбирается — откройте приложение «Файлы», нажмите и удерживайте файл, затем выберите «Поделиться» → AmneziaWG.",
-            "Разрешите добавление VPN-конфигурации и включите переключатель рядом с новым туннелем.",
-          ],
-        },
         defaultvpn: {
           steps: [
             "Нажмите «Скопировать ссылку» выше.",
@@ -74,12 +40,13 @@ export const messages = {
         },
       },
       macos: {
-        amneziavpn: {
+        amneziawg: {
           steps: [
-            "Нажмите «Скопировать ссылку» выше.",
-            "В приложении нажмите «+» в нижнем меню.",
-            "Вставьте скопированную ссылку в поле «Вставьте ключ» и нажмите «Продолжить».",
-            "Нажмите «Connect» и разрешите добавление конфигураций VPN.",
+            "Нажмите «Скачать файл» выше.",
+            "В приложении AmneziaWG нажмите «+» слева внизу.",
+            "Выберите «Import Tunnel(s) from File».",
+            "Выберите ранее скачанный файл с конфигурацией.",
+            "После добавления нажмите «Activate».",
           ],
         },
       },
@@ -118,23 +85,6 @@ export const messages = {
     },
     apps: {
       ios: {
-        amneziavpn: {
-          steps: [
-            "Tap “Copy link” above.",
-            "In the app, tap “+” in the bottom menu.",
-            "Paste the copied link into the “Insert key” field and tap “Continue”.",
-            "Tap “Connect” and allow all requested permissions.",
-          ],
-        },
-        amneziawg: {
-          steps: [
-            "Tap “Download file” and allow the download.",
-            "Open AmneziaWG, tap “+” and choose “Create from file or archive”.",
-            "Pick the downloaded file.",
-            "If the file from step 3 is greyed out and cannot be selected, open the Files app, press and hold the file, then choose “Share” → AmneziaWG.",
-            "Allow adding the VPN configuration, then flip the toggle next to the new tunnel.",
-          ],
-        },
         defaultvpn: {
           steps: [
             "Tap “Copy link” above.",
@@ -145,23 +95,6 @@ export const messages = {
         },
       },
       ipados: {
-        amneziavpn: {
-          steps: [
-            "Tap “Copy link” above.",
-            "In the app, tap “+” in the bottom menu.",
-            "Paste the copied link into the “Insert key” field and tap “Continue”.",
-            "Tap “Connect” and allow all requested permissions.",
-          ],
-        },
-        amneziawg: {
-          steps: [
-            "Tap “Download file” and allow the download.",
-            "Open AmneziaWG, tap “+” and choose “Create from file or archive”.",
-            "Pick the downloaded file.",
-            "If the file from step 3 is greyed out and cannot be selected, open the Files app, press and hold the file, then choose “Share” → AmneziaWG.",
-            "Allow adding the VPN configuration, then flip the toggle next to the new tunnel.",
-          ],
-        },
         defaultvpn: {
           steps: [
             "Tap “Copy link” above.",
@@ -172,12 +105,13 @@ export const messages = {
         },
       },
       macos: {
-        amneziavpn: {
+        amneziawg: {
           steps: [
-            "Click “Copy link” above.",
-            "In the app, click “+” in the bottom menu.",
-            "Paste the copied link into the “Insert key” field and click “Continue”.",
-            "Click “Connect” and allow adding VPN configurations.",
+            "Click “Download file” above.",
+            "In AmneziaWG, click “+” in the bottom-left corner.",
+            "Choose “Import Tunnel(s) from File”.",
+            "Pick the configuration file you downloaded.",
+            "Once it is added, click “Activate”.",
           ],
         },
       },

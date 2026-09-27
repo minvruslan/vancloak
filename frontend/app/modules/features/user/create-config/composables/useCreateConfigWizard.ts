@@ -1,18 +1,19 @@
 import {
   Amneziawg3ObfuscationPresets,
   ProtocolCodeSchema,
-  UpsertConfigSchema,
   type Amneziawg3ObfuscationLevel,
   type ConfigProtocolOptions,
+  type DeviceType,
   type ProtocolCode,
 } from "@vancloak/api-contract"
 import { computed, ref, watch } from "vue"
 import {
   RecommendedObfuscationLevel,
   createConfig,
+  getConfigs,
   type CreatedConfig,
 } from "@/modules/entities/config"
-import { useDeviceTypes } from "@/modules/entities/device-type"
+import { useDeviceTypeName, useDeviceTypes } from "@/modules/entities/device-type"
 import { useEndpoints } from "@/modules/entities/endpoint"
 import { WizardAppsByDeviceTypeCode } from "../constants/WizardAppsByDeviceTypeCode"
 import { clearCreateConfigWizardStorage } from "../utils/clearCreateConfigWizardStorage"
@@ -37,10 +38,10 @@ function createProtocolOptions(
 export function useCreateConfigWizard() {
   const { deviceTypes, ready: deviceTypesReady } = useDeviceTypes()
   const { endpoints, ready: endpointsReady } = useEndpoints()
+  const deviceTypeName = useDeviceTypeName()
   const { user } = useAuthSession()
 
-  const step = ref<WizardStep>("name")
-  const name = ref("")
+  const step = ref<WizardStep>("device")
   const deviceTypeId = ref<string | null>(null)
   const appId = ref<WizardAppId | null>(null)
   const endpointId = ref<string | null>(null)
@@ -66,7 +67,6 @@ export function useCreateConfigWizard() {
   )
 
   const stepGuards = computed<Record<WizardStep, boolean>>(() => ({
-    name: UpsertConfigSchema.shape.name.safeParse(name.value.trim()).success,
     device: selectedDeviceType.value !== null,
     app: selectedApp.value !== null,
     endpoint: selectedEndpoint.value !== null,
@@ -95,12 +95,11 @@ export function useCreateConfigWizard() {
     { immediate: true },
   )
 
-  watch([step, name, deviceTypeId, appId, endpointId, obfuscationLevel], () => {
+  watch([step, deviceTypeId, appId, endpointId, obfuscationLevel], () => {
     if (step.value === "done" || !user.value) return
     writeWizardDraft({
       userId: user.value.id,
       step: step.value,
-      name: name.value,
       deviceTypeId: deviceTypeId.value,
       appId: appId.value,
       endpointId: endpointId.value,
@@ -138,7 +137,6 @@ export function useCreateConfigWizard() {
       return
     }
 
-    name.value = savedDraft.name
     deviceTypeId.value = savedDraft.deviceTypeId
     appId.value = savedDraft.appId
     endpointId.value = savedDraft.endpointId
@@ -150,7 +148,6 @@ export function useCreateConfigWizard() {
       return
     }
 
-    name.value = ""
     deviceTypeId.value = null
     appId.value = null
     endpointId.value = null
@@ -162,7 +159,7 @@ export function useCreateConfigWizard() {
 
   const back = () => {
     if (pending.value) return
-    if (step.value === "name" || step.value === "done") return
+    if (step.value === "device" || step.value === "done") return
     const previousStep = WizardStepOrder[WizardStepOrder.indexOf(step.value) - 1]
     if (previousStep) step.value = previousStep
   }
@@ -174,6 +171,16 @@ export function useCreateConfigWizard() {
     if (nextStep) step.value = nextStep
   }
 
+  const createConfigName = async (deviceTypeCode: DeviceType["code"]) => {
+    const baseName = deviceTypeName(deviceTypeCode)
+    const existingConfigs = await getConfigs().catch(() => [])
+    const takenNames = new Set(existingConfigs.map((config) => config.name.trim()))
+    if (!takenNames.has(baseName)) return baseName
+    let nameNumber = 2
+    while (takenNames.has(`${baseName} ${nameNumber}`)) nameNumber += 1
+    return `${baseName} ${nameNumber}`
+  }
+
   const submit = async () => {
     if (step.value !== "acknowledge" || pending.value) return false
     if (!selectedEndpoint.value || !selectedDeviceType.value || !selectedApp.value) return false
@@ -182,7 +189,7 @@ export function useCreateConfigWizard() {
     clearWizardDraft()
     try {
       created.value = await createConfig({
-        name: name.value.trim(),
+        name: await createConfigName(selectedDeviceType.value.code),
         endpointId: selectedEndpoint.value.id,
         deviceTypeId: selectedDeviceType.value.id,
         protocolOptions: createProtocolOptions(
@@ -213,7 +220,6 @@ export function useCreateConfigWizard() {
     step,
     stepNumber,
     stepCount,
-    name,
     deviceTypeId,
     appId,
     endpointId,

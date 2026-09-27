@@ -51,12 +51,9 @@ const onSubmit = async () => {
     </div>
 
     <template #footer>
-      <div class="flex flex-col gap-3">
-        <Button type="button" class="w-full" :loading="pending" @click="onSubmit">
-          {{ t("createAction") }}
-        </Button>
-        <p class="text-center text-xs text-muted-foreground">{{ t("footnote") }}</p>
-      </div>
+      <Button type="button" class="w-full" :loading="pending" @click="onSubmit">
+        {{ t("createAction") }}
+      </Button>
     </template>
   </WizardStepLayout>
 </template>

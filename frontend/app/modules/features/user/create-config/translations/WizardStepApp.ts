@@ -2,14 +2,20 @@ export const messages = {
   ru: {
     title: "Установите {name}",
     steps: {
+      ios: {
+        download: "Скачайте актуальную версию {name} из App Store:",
+        downloadLinkLabel: "apps.apple.com/us/app/defaultvpn/id6744725017",
+        downloadLinkUrl: "https://apps.apple.com/us/app/defaultvpn/id6744725017",
+      },
+      ipados: {
+        download: "Скачайте актуальную версию {name} из App Store:",
+        downloadLinkLabel: "apps.apple.com/us/app/defaultvpn/id6744725017",
+        downloadLinkUrl: "https://apps.apple.com/us/app/defaultvpn/id6744725017",
+      },
       macos: {
-        download:
-          "Скачайте {name} для {os}. На сайте откройте в меню пункт «Скачать» и нажмите кнопку «Скачать»:",
-        downloadLinkLabel: "storage.googleapis.com/amnezia/amnezia.org",
-        downloadLinkUrl: "https://storage.googleapis.com/amnezia/amnezia.org",
-        open: "Дважды кликните по скачанному файлу, чтобы запустить установщик.",
-        install:
-          "Пройдите все шаги установщика. Когда macOS запросит пароль, введите пароль от вашего MacBook.",
+        download: "Скачайте актуальную версию {name} из App Store:",
+        downloadLinkLabel: "apps.apple.com/ge/app/amneziawg/id6478942365",
+        downloadLinkUrl: "https://apps.apple.com/ge/app/amneziawg/id6478942365",
       },
       windows: {
         download:
@@ -33,14 +39,20 @@ export const messages = {
   en: {
     title: "Install {name}",
     steps: {
+      ios: {
+        download: "Download the latest version of {name} from the App Store:",
+        downloadLinkLabel: "apps.apple.com/us/app/defaultvpn/id6744725017",
+        downloadLinkUrl: "https://apps.apple.com/us/app/defaultvpn/id6744725017",
+      },
+      ipados: {
+        download: "Download the latest version of {name} from the App Store:",
+        downloadLinkLabel: "apps.apple.com/us/app/defaultvpn/id6744725017",
+        downloadLinkUrl: "https://apps.apple.com/us/app/defaultvpn/id6744725017",
+      },
       macos: {
-        download:
-          "Download {name} for {os}. On the website, open the “Download” menu item and press the “Download” button:",
-        downloadLinkLabel: "storage.googleapis.com/amnezia/amnezia.org",
-        downloadLinkUrl: "https://storage.googleapis.com/amnezia/amnezia.org",
-        open: "Double-click the downloaded file to launch the installer.",
-        install:
-          "Complete all installer steps. When macOS asks for a password, enter your MacBook password.",
+        download: "Download the latest version of {name} from the App Store:",
+        downloadLinkLabel: "apps.apple.com/ge/app/amneziawg/id6478942365",
+        downloadLinkUrl: "https://apps.apple.com/ge/app/amneziawg/id6478942365",
       },
       windows: {
         download:

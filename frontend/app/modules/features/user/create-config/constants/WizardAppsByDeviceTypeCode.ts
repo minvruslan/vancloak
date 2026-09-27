@@ -8,19 +8,6 @@ export const WizardAppsByDeviceTypeCode: Record<DeviceType["code"], WizardApp[]>
       name: "DefaultVPN",
       iconUrl: "/images/apps/defaultvpn.jpg",
       downloadUrl: "https://apps.apple.com/us/app/defaultvpn/id6744725017",
-      isRecommended: true,
-    },
-    {
-      id: "amneziavpn",
-      name: "AmneziaVPN",
-      iconUrl: "/images/apps/amneziavpn.jpg",
-      downloadUrl: "https://apps.apple.com/app/amneziavpn/id1600529900",
-    },
-    {
-      id: "amneziawg",
-      name: "AmneziaWG",
-      iconUrl: "/images/apps/amneziawg.jpg",
-      downloadUrl: "https://apps.apple.com/app/amneziawg/id6478942365",
     },
   ],
   ipados: [
@@ -29,27 +16,14 @@ export const WizardAppsByDeviceTypeCode: Record<DeviceType["code"], WizardApp[]>
       name: "DefaultVPN",
       iconUrl: "/images/apps/defaultvpn.jpg",
       downloadUrl: "https://apps.apple.com/us/app/defaultvpn/id6744725017",
-      isRecommended: true,
-    },
-    {
-      id: "amneziavpn",
-      name: "AmneziaVPN",
-      iconUrl: "/images/apps/amneziavpn.jpg",
-      downloadUrl: "https://apps.apple.com/app/amneziavpn/id1600529900",
-    },
-    {
-      id: "amneziawg",
-      name: "AmneziaWG",
-      iconUrl: "/images/apps/amneziawg.jpg",
-      downloadUrl: "https://apps.apple.com/app/amneziawg/id6478942365",
     },
   ],
   macos: [
     {
-      id: "amneziavpn",
-      name: "AmneziaVPN",
-      iconUrl: "/images/apps/amneziavpn.jpg",
-      downloadUrl: "https://amnezia.org/downloads",
+      id: "amneziawg",
+      name: "AmneziaWG",
+      iconUrl: "/images/apps/amneziawg.jpg",
+      downloadUrl: "https://apps.apple.com/ge/app/amneziawg/id6478942365",
     },
   ],
   windows: [

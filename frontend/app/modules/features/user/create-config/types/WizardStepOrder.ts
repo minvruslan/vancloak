@@ -1,5 +1,4 @@
 export const WizardStepOrder = [
-  "name",
   "device",
   "app",
   "endpoint",

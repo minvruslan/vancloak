@@ -31,15 +31,14 @@ export function useLogin() {
     codeFailure.value = null
     try {
       const failure = await verifyLoginCode(email.value, code.value)
+      code.value = ""
       if (failure) {
         codeFailure.value = failure
-        code.value = ""
         return
       }
       await refresh()
       if (!isLoggedIn.value) {
         codeFailure.value = "invalidCode"
-        code.value = ""
         return
       }
       await navigateTo(isAdmin.value ? "/admin" : "/app")
