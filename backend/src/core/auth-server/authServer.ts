@@ -1,15 +1,15 @@
 import { betterAuth } from "better-auth"
 import { drizzleAdapter } from "better-auth/adapters/drizzle"
-import { admin, magicLink } from "better-auth/plugins"
-import { eq } from "drizzle-orm"
+import { admin, emailOTP } from "better-auth/plugins"
 import { db } from "@/core/database/index.js"
 import * as schema from "@/core/database/schemas/authSchema.js"
-import { user } from "@/core/database/schemas/authSchema.js"
-import { sendMagicLinkEmail } from "@/core/mailer/index.js"
+import { sendLoginCodeEmail } from "@/core/mailer/index.js"
 import { env } from "@/core/env/index.js"
 import { authLogger } from "@/core/logger/index.js"
 
-const MAGIC_LINK_LIFETIME_SECONDS = 300
+const EMAIL_OTP_LIFETIME_SECONDS = 300
+const EMAIL_OTP_LENGTH = 6
+const EMAIL_OTP_ALLOWED_ATTEMPTS = 3
 const SESSION_LIFETIME_SECONDS = 604800
 
 export const authServer = betterAuth({
@@ -50,22 +50,19 @@ export const authServer = betterAuth({
     window: 60,
     max: 100,
     customRules: {
-      "/sign-in/magic-link": { window: 60, max: 3 },
+      "/email-otp/send-verification-otp": { window: 60, max: 3 },
+      "/sign-in/email-otp": { window: 60, max: 3 },
     },
   },
   plugins: [
     admin(),
-    magicLink({
+    emailOTP({
       disableSignUp: true,
-      expiresIn: MAGIC_LINK_LIFETIME_SECONDS,
-      sendMagicLink: async ({ email, token }) => {
-        const [existing] = await db
-          .select({ id: user.id })
-          .from(user)
-          .where(eq(user.email, email.toLowerCase()))
-          .limit(1)
-        if (!existing) return
-        await sendMagicLinkEmail(email, `${env.BETTER_AUTH_URL}/login/verify#token=${token}`)
+      otpLength: EMAIL_OTP_LENGTH,
+      expiresIn: EMAIL_OTP_LIFETIME_SECONDS,
+      allowedAttempts: EMAIL_OTP_ALLOWED_ATTEMPTS,
+      sendVerificationOTP: async ({ email, otp }) => {
+        await sendLoginCodeEmail(email, otp)
       },
     }),
   ],

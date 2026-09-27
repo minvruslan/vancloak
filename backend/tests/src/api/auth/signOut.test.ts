@@ -4,7 +4,7 @@ import app from "@/api/app.js"
 import { db } from "@/core/database/index.js"
 import { session } from "@/core/database/schemas/index.js"
 import { env } from "@/core/env/index.js"
-import { createTestIp, insertTestUser, signInTestUserWithMagicLink } from "@tests/helpers/index.js"
+import { createTestIp, insertTestUser, signInTestUserWithEmailOtp } from "@tests/helpers/index.js"
 
 const SESSION_COOKIE_NAME = "better-auth.session_token"
 
@@ -21,7 +21,7 @@ function requestSignOut(cookie: string, origin: string | null = env.BETTER_AUTH_
 describe("POST /api/auth/sign-out", () => {
   it("reports a successful sign-out", async () => {
     const requestUser = await insertTestUser()
-    const sessionCookie = await signInTestUserWithMagicLink(requestUser.email)
+    const sessionCookie = await signInTestUserWithEmailOtp(requestUser.email)
 
     const response = await requestSignOut(sessionCookie)
 
@@ -31,7 +31,7 @@ describe("POST /api/auth/sign-out", () => {
 
   it("expires the session cookie", async () => {
     const requestUser = await insertTestUser()
-    const sessionCookie = await signInTestUserWithMagicLink(requestUser.email)
+    const sessionCookie = await signInTestUserWithEmailOtp(requestUser.email)
 
     const response = await requestSignOut(sessionCookie)
 
@@ -42,7 +42,7 @@ describe("POST /api/auth/sign-out", () => {
 
   it("removes the session row", async () => {
     const requestUser = await insertTestUser()
-    const sessionCookie = await signInTestUserWithMagicLink(requestUser.email)
+    const sessionCookie = await signInTestUserWithEmailOtp(requestUser.email)
 
     await requestSignOut(sessionCookie)
 
@@ -51,7 +51,7 @@ describe("POST /api/auth/sign-out", () => {
 
   it("makes the signed-out cookie unusable on an api request", async () => {
     const requestUser = await insertTestUser()
-    const sessionCookie = await signInTestUserWithMagicLink(requestUser.email)
+    const sessionCookie = await signInTestUserWithEmailOtp(requestUser.email)
     expect(
       (await app.request("/api/device-types", { headers: { cookie: sessionCookie } })).status,
     ).toBe(200)
@@ -64,7 +64,7 @@ describe("POST /api/auth/sign-out", () => {
 
   it("rejects a sign-out without an origin header and keeps the session", async () => {
     const requestUser = await insertTestUser()
-    const sessionCookie = await signInTestUserWithMagicLink(requestUser.email)
+    const sessionCookie = await signInTestUserWithEmailOtp(requestUser.email)
 
     const response = await requestSignOut(sessionCookie, null)
 
@@ -74,7 +74,7 @@ describe("POST /api/auth/sign-out", () => {
 
   it("rejects a sign-out from a foreign origin and keeps the session", async () => {
     const requestUser = await insertTestUser()
-    const sessionCookie = await signInTestUserWithMagicLink(requestUser.email)
+    const sessionCookie = await signInTestUserWithEmailOtp(requestUser.email)
 
     const response = await requestSignOut(sessionCookie, "https://evil.example")
 
@@ -89,8 +89,8 @@ describe("POST /api/auth/sign-out", () => {
 
   it("keeps the same user's other session intact", async () => {
     const requestUser = await insertTestUser()
-    const firstDeviceCookie = await signInTestUserWithMagicLink(requestUser.email)
-    const secondDeviceCookie = await signInTestUserWithMagicLink(requestUser.email)
+    const firstDeviceCookie = await signInTestUserWithEmailOtp(requestUser.email)
+    const secondDeviceCookie = await signInTestUserWithEmailOtp(requestUser.email)
 
     await requestSignOut(firstDeviceCookie)
 
@@ -106,8 +106,8 @@ describe("POST /api/auth/sign-out", () => {
   it("keeps other users' sessions intact", async () => {
     const signingOutUser = await insertTestUser()
     const otherUser = await insertTestUser()
-    const signingOutCookie = await signInTestUserWithMagicLink(signingOutUser.email)
-    const otherCookie = await signInTestUserWithMagicLink(otherUser.email)
+    const signingOutCookie = await signInTestUserWithEmailOtp(signingOutUser.email)
+    const otherCookie = await signInTestUserWithEmailOtp(otherUser.email)
 
     await requestSignOut(signingOutCookie)
 

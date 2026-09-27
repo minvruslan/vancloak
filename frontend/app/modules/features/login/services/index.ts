@@ -1,3 +1,3 @@
-export { requestLoginLink } from "./requestLoginLink"
-export { verifyLoginToken } from "./verifyLoginToken"
+export { requestLoginCode } from "./requestLoginCode"
+export { verifyLoginCode } from "./verifyLoginCode"
 export { logout } from "./logout"

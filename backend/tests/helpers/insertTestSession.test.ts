@@ -2,14 +2,14 @@ import { describe, expect, it } from "vitest"
 import app from "@/api/app.js"
 import { insertTestSession } from "./insertTestSession.js"
 import { insertTestUser } from "./insertTestUser.js"
-import { signInTestUserWithMagicLink } from "./signInTestUserWithMagicLink.js"
+import { signInTestUserWithEmailOtp } from "./signInTestUserWithEmailOtp.js"
 
 describe("insertTestSession", () => {
-  it("produces a cookie the api accepts just like one from a real magic link sign-in", async () => {
+  it("produces a cookie the api accepts just like one from a real email otp sign-in", async () => {
     const insertedUser = await insertTestUser()
     const signedInUser = await insertTestUser()
     const insertedCookie = (await insertTestSession(insertedUser)).get("cookie")
-    const signedInCookie = await signInTestUserWithMagicLink(signedInUser.email)
+    const signedInCookie = await signInTestUserWithEmailOtp(signedInUser.email)
 
     const [insertedCookieName, insertedCookieValue] = insertedCookie!.split("=")
     const [signedInCookieName, signedInCookieValue] = signedInCookie.split("=")

@@ -2,15 +2,36 @@
 import DemoModeEntry from "./DemoModeEntry.vue"
 import { useLogin } from "../composables/useLogin"
 import LoginForm from "./LoginForm.vue"
-import LoginEmailSent from "./LoginEmailSent.vue"
+import LoginCodeEntry from "./LoginCodeEntry.vue"
 
-const { email, pending, magicLinkSent, submit, reset } = useLogin()
+const {
+  email,
+  code,
+  pending,
+  codeSent,
+  codeFailure,
+  sendFailed,
+  submit,
+  submitCode,
+  resend,
+  reset,
+} = useLogin()
 </script>
 
 <template>
-  <template v-if="!magicLinkSent">
-    <LoginForm v-model:email="email" :pending="pending" @submit="submit" />
+  <template v-if="!codeSent">
+    <LoginForm v-model:email="email" :pending="pending" :failed="sendFailed" @submit="submit" />
     <DemoModeEntry class="mt-4" />
   </template>
-  <LoginEmailSent v-else :email="email" @use-different-email="reset" />
+  <LoginCodeEntry
+    v-else
+    v-model:code="code"
+    :email="email"
+    :pending="pending"
+    :failure="codeFailure"
+    :send-failed="sendFailed"
+    @submit="submitCode"
+    @resend="resend"
+    @use-different-email="reset"
+  />
 </template>

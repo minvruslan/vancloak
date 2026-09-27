@@ -1,2 +1,2 @@
 export { checkMailerConnection } from "./checkMailerConnection.js"
-export { sendMagicLinkEmail } from "./sendMagicLinkEmail.js"
+export { sendLoginCodeEmail } from "./sendLoginCodeEmail.js"

@@ -1,5 +1,5 @@
 import { createAuthClient } from "better-auth/vue"
-import { magicLinkClient, adminClient } from "better-auth/client/plugins"
+import { emailOTPClient, adminClient } from "better-auth/client/plugins"
 
 export default defineNuxtPlugin(async () => {
   const {
@@ -8,7 +8,7 @@ export default defineNuxtPlugin(async () => {
 
   const authClient = createAuthClient({
     baseURL: import.meta.server ? authBaseUrl : window.location.origin,
-    plugins: [magicLinkClient(), adminClient()],
+    plugins: [emailOTPClient(), adminClient()],
   })
 
   if (import.meta.server) {

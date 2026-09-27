@@ -40,7 +40,7 @@ export default defineConfig({
           exclude: [...configDefaults.exclude, ...integrationTestGlobs],
           setupFiles: [
             "tests/setup/setupTestEnvironment.ts",
-            "tests/setup/mockSendMagicLinkEmail.ts",
+            "tests/setup/mockSendLoginCodeEmail.ts",
           ],
         },
       },
@@ -52,7 +52,7 @@ export default defineConfig({
           fileParallelism: false,
           setupFiles: [
             "tests/setup/setupTestEnvironment.ts",
-            "tests/setup/mockSendMagicLinkEmail.ts",
+            "tests/setup/mockSendLoginCodeEmail.ts",
             "tests/setup/resetDatabaseBetweenTests.ts",
           ],
           globalSetup: ["tests/setup/prepareTestDatabase.ts"],
