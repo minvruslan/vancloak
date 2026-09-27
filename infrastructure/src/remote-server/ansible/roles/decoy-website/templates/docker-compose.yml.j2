@@ -1,0 +1,35 @@
+services:
+  caddy:
+    image: "caddy:{{ decoy_website_caddy_docker_image_version }}"
+    container_name: "{{ decoy_website_caddy_container_name }}"
+    ports:
+      - "80:80/tcp"
+      - "443:443/tcp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./site:/site:ro
+      - {{ decoy_website_state_directory_path }}:/data
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1/healthz"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 30s
+      start_interval: 2s
+    restart: unless-stopped
+
+  server:
+    image: "node:{{ decoy_website_node_docker_image_version }}-alpine"
+    container_name: "{{ decoy_website_server_container_name }}"
+    user: "node"
+    command: ["node", "/server/server.mjs"]
+    volumes:
+      - ./server:/server:ro
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:3000/healthz"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 30s
+      start_interval: 2s
+    restart: unless-stopped

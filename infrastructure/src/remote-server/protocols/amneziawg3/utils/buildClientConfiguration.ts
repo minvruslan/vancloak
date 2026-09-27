@@ -2,7 +2,7 @@ import type {
   Amneziawg3ClientObfuscation,
   Amneziawg3ServerObfuscation,
 } from "../../../../shared/index.js"
-import { AllowedIps, PersistentKeepaliveSeconds } from "../constants/index.js"
+import { PersistentKeepaliveSeconds } from "../constants/index.js"
 
 export function buildClientConfiguration(params: {
   clientPrivateKey: string
@@ -14,6 +14,7 @@ export function buildClientConfiguration(params: {
   serverObfuscation: Amneziawg3ServerObfuscation
   clientObfuscation: Amneziawg3ClientObfuscation
   dns: string
+  allowedIps: readonly string[]
 }): string {
   const {
     clientPrivateKey,
@@ -25,6 +26,7 @@ export function buildClientConfiguration(params: {
     serverObfuscation,
     clientObfuscation,
     dns,
+    allowedIps,
   } = params
 
   return [
@@ -57,7 +59,7 @@ export function buildClientConfiguration(params: {
     "[Peer]",
     `PublicKey = ${serverPublicKey}`,
     `PresharedKey = ${presharedKey}`,
-    `AllowedIPs = ${AllowedIps.join(", ")}`,
+    `AllowedIPs = ${allowedIps.join(", ")}`,
     `Endpoint = ${serverEndpoint}`,
     `PersistentKeepalive = ${PersistentKeepaliveSeconds}`,
     "",

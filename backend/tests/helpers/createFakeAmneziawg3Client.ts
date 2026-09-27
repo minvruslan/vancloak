@@ -1,8 +1,8 @@
 import { RemoteServer, type ProtocolClient } from "@vancloak/infrastructure"
 import {
+  Amneziawg3ClientIdentifierSchema,
   Amneziawg3EndpointActualStateSchema,
   Amneziawg3ObfuscationDefaults,
-  Amneziawg3ObfuscationOptionsSchema,
   ProtocolCodeSchema,
   convertNumberToIp,
   parseIpSubnet,
@@ -29,15 +29,19 @@ const FakeAmneziawg3EndpointActualState = Amneziawg3EndpointActualStateSchema.pa
 
 const FIRST_CLIENT_ADDRESS_OFFSET = 2
 
-const FakeAmneziawg3FirstClientIp = convertNumberToIp(
-  parseIpSubnet(FakeAmneziawg3EndpointActualState.subnet).networkNumber +
-    FIRST_CLIENT_ADDRESS_OFFSET,
+const FakeAmneziawg3FirstClientIp = Amneziawg3ClientIdentifierSchema.parse(
+  convertNumberToIp(
+    parseIpSubnet(FakeAmneziawg3EndpointActualState.subnet).networkNumber +
+      FIRST_CLIENT_ADDRESS_OFFSET,
+  ),
 )
 
 const FakeAmneziawg3CreateAccessResult = {
   configData: {
-    protocolCode: ProtocolCodeSchema.enum.amneziawg3,
-    clientIp: FakeAmneziawg3FirstClientIp,
+    ...createAmneziawg3Client().createInitialConfigData(FakeAmneziawg3FirstClientIp, {
+      protocolCode: ProtocolCodeSchema.enum.amneziawg3,
+      ...Amneziawg3ObfuscationDefaults,
+    }),
     publicKey: "fake-public-key",
     presharedKey: "fake-preshared-key",
     serverPublicKey: FakeAmneziawg3EndpointActualState.serverPublicKey,
@@ -52,7 +56,6 @@ const FakeAmneziawg3CreateAccessResult = {
       jmax: FakeAmneziawg3EndpointActualState.obfuscation.jmax,
       i1: FakeAmneziawg3EndpointActualState.obfuscation.i1,
     },
-    options: { ...Amneziawg3ObfuscationDefaults },
   } satisfies Amneziawg3ConfigData,
   clientConfiguration: "fake-client-configuration",
   clientConfigurationLink: "vpn://fake-client-configuration-link",
@@ -70,8 +73,7 @@ function createFakeAmneziawg3Client() {
       .mockImplementation(async (_endpointActualState, clientIdentifier, protocolOptions) => ({
         configData: {
           ...FakeAmneziawg3CreateAccessResult.configData,
-          clientIp: clientIdentifier,
-          options: Amneziawg3ObfuscationOptionsSchema.parse(protocolOptions),
+          ...client.createInitialConfigData(clientIdentifier, protocolOptions),
         },
         clientConfiguration: FakeAmneziawg3CreateAccessResult.clientConfiguration,
         clientConfigurationLink: FakeAmneziawg3CreateAccessResult.clientConfigurationLink,
@@ -87,5 +89,6 @@ export {
   createFakeAmneziawg3Client,
   FakeAmneziawg3CreateAccessResult,
   FakeAmneziawg3EndpointActualState,
+  FakeAmneziawg3FirstClientIp,
   FAKE_SERVER_SSH_HOST_KEY,
 }

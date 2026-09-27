@@ -6,7 +6,7 @@
 
 - name: Install or upgrade Docker via official convenience script
   ansible.builtin.shell: >-
-    curl -fsSL https://get.docker.com | sh -s -- --version {{ docker_version }} --channel stable
+    curl -fsSL https://get.docker.com | sh -s -- --channel stable
   when: docker_compose_check.rc != 0
 
 - name: Verify Docker with compose v2 is usable

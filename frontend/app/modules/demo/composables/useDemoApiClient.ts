@@ -97,6 +97,7 @@ export function useDemoApiClient(): DemoApiClient {
           data: {
             protocolCode: ProtocolCodeSchema.enum.amneziawg3,
             clientIp: DemoClientIp,
+            splitTunneling: null,
             options: createDemoConfigOptions(payload.protocolOptions),
           },
           status: "active",

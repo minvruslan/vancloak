@@ -21,5 +21,5 @@ export const ObfuscationGeneratorBaseInput = {
   useContentPadding: false,
   useRandomTimings: true,
   useRandomTrailers: false,
-  useDisableCookies: false,
+  useDisableCookies: true,
 } as const satisfies Partial<GeneratorInput>

@@ -9,6 +9,8 @@ import {
   Amneziawg3ProtocolProfileSchema,
   ProtocolCodeSchema,
   ProtocolRegistry,
+  SplitTunnelingAllowedIps,
+  SplitTunnelingSchema,
   convertIpToNumber,
   convertNumberToIp,
   parseIpSubnet,
@@ -33,6 +35,7 @@ import {
   createFakeAmneziawg3Client,
   FakeAmneziawg3EndpointActualState,
   FakeAmneziawg3CreateAccessResult,
+  FakeAmneziawg3FirstClientIp,
   FAKE_SERVER_SSH_HOST_KEY,
   insertTestConfig,
   insertTestConfigLimit,
@@ -114,7 +117,9 @@ const AmneziaLastConfigSchema = z.object({
   I5: z.string().optional(),
 })
 
-const FIRST_CLIENT_ADDRESS_OFFSET = 2
+const FIRST_CLIENT_ADDRESS_OFFSET =
+  convertIpToNumber(FakeAmneziawg3FirstClientIp) -
+  parseIpSubnet(FakeAmneziawg3EndpointActualState.subnet).networkNumber
 const ADDRESSES_PER_OCTET = 256
 
 const fakeConfigData = FakeAmneziawg3CreateAccessResult.configData
@@ -162,6 +167,11 @@ function callCreateUserConfig(input: unknown, headers: Headers) {
 function requestCreateUserConfig(input: Record<string, unknown>, headers: Headers) {
   headers.set("content-type", "application/json")
   return app.request("/api/configs", { method: "POST", headers, body: JSON.stringify(input) })
+}
+
+function restoreRealCreateAccess() {
+  fakeAmneziawg3Client.createAccess.mockRestore()
+  vi.spyOn(fakeAmneziawg3Client.client, "applyAccesses").mockResolvedValue(undefined)
 }
 
 async function insertConfigPrerequisites(
@@ -1168,6 +1178,7 @@ describe("POST /configs", () => {
         "publicKey",
         "serverObfuscation",
         "serverPublicKey",
+        "splitTunneling",
       ])
       expect(createdConfig.clientConfiguration).toBe(fakeClientConfiguration)
       expect(createdConfig.clientConfigurationLink).toBe(fakeClientConfigurationLink)
@@ -1361,8 +1372,7 @@ describe("POST /configs", () => {
       const { configServer, configEndpoint, configDeviceType } = await insertConfigPrerequisites()
       const requestUser = await insertTestUser()
       const headers = await insertTestSession(requestUser)
-      fakeAmneziawg3Client.createAccess.mockRestore()
-      vi.spyOn(fakeAmneziawg3Client.client, "applyAccesses").mockResolvedValue(undefined)
+      restoreRealCreateAccess()
 
       const createdConfig = await callCreateUserConfig(
         {
@@ -1404,7 +1414,6 @@ describe("POST /configs", () => {
         client_ip: `${parsed.data.clientIp}/32`,
         psk_key: parsed.data.presharedKey,
         server_pub_key: FakeAmneziawg3EndpointActualState.serverPublicKey,
-        allowed_ips: ["0.0.0.0/0", "::/0"],
         S1: String(endpointObfuscation.s1),
         S2: String(endpointObfuscation.s2),
         S3: String(endpointObfuscation.s3),
@@ -1414,6 +1423,9 @@ describe("POST /configs", () => {
         H3: String(endpointObfuscation.h3),
         H4: String(endpointObfuscation.h4),
       })
+      expect(lastConfig.allowed_ips).toEqual([...SplitTunnelingAllowedIps.ru])
+      expect(lastConfig.allowed_ips).not.toContain("0.0.0.0/0")
+      expect(parsed.data.splitTunneling).toBe(SplitTunnelingSchema.enum.ru)
       expect([lastConfig.I2, lastConfig.I3, lastConfig.I4, lastConfig.I5]).toEqual([
         undefined,
         undefined,
@@ -1441,8 +1453,7 @@ describe("POST /configs", () => {
       })
       const requestUser = await insertTestUser()
       const headers = await insertTestSession(requestUser)
-      fakeAmneziawg3Client.createAccess.mockRestore()
-      vi.spyOn(fakeAmneziawg3Client.client, "applyAccesses").mockResolvedValue(undefined)
+      restoreRealCreateAccess()
 
       const createdConfig = await callCreateUserConfig(
         {

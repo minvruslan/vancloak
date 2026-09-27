@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Terms of Use — {{ decoy_website_brand_name }}</title>
+<link rel="stylesheet" href="/style.css"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="icon" href="/favicon.ico" sizes="32x32"><meta name="theme-color" content="#1f4e7a">
+</head>
+<body>
+<div class="doc">
+  <header><div class="logo"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 22 16 6l12 16M9 22l7-9 7 9M4 26h24"/></svg><span class="serif">{{ decoy_website_brand_name }}</span></div></header>
+  <main>
+    <h1 class="serif">Terms of Use</h1>
+    <p class="date">Last updated: {{ decoy_website_terms_updated_date }}</p>
+    <h2>Access</h2>
+    <p>This portal is provided to authorised partners of {{ decoy_website_brand_name }} under a separate Partner Agreement. Access is granted by invitation only and may be suspended or withdrawn at any time. Accounts are personal and must not be shared.</p>
+    <h2>Acceptable use</h2>
+    <p>You agree to use the portal only for legitimate business purposes connected to your engagement with us, to keep your sign-in credentials confidential, and not to attempt to access data or systems you are not authorised to view.</p>
+    <h2>Confidentiality</h2>
+    <p>Shipment, pricing and settlement information made available through the portal is confidential and remains the property of {{ decoy_website_brand_name }} or its customers. It may not be disclosed to third parties except as permitted by the Partner Agreement.</p>
+    <h2>Availability and changes</h2>
+    <p>The portal is provided on an "as available" basis. We may modify, suspend or discontinue any part of the service, and may update these terms from time to time. Continued use after changes constitutes acceptance.</p>
+  </main>
+  <footer><div class="footer"><a href="/">Sign in</a><a href="/privacy">Privacy</a><span>© {{ ansible_date_time.year }} {{ decoy_website_brand_name }}</span></div></footer>
+</div>
+</body>
+</html>

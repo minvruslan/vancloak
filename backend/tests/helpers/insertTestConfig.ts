@@ -17,6 +17,7 @@ export async function insertTestConfig(
       data: {
         protocolCode: ProtocolCodeSchema.enum.amneziawg3,
         clientIp: createTestIp(),
+        splitTunneling: null,
         options: { ...Amneziawg3ObfuscationDefaults },
       },
       status: "active",

@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Privacy Notice — {{ decoy_website_brand_name }}</title>
+<link rel="stylesheet" href="/style.css"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="icon" href="/favicon.ico" sizes="32x32"><meta name="theme-color" content="#1f4e7a">
+</head>
+<body>
+<div class="doc">
+  <header><div class="logo"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 22 16 6l12 16M9 22l7-9 7 9M4 26h24"/></svg><span class="serif">{{ decoy_website_brand_name }}</span></div></header>
+  <main>
+    <h1 class="serif">Privacy Notice</h1>
+    <p class="date">Last updated: {{ decoy_website_privacy_updated_date }}</p>
+    <h2>Who we are</h2>
+    <p>{{ decoy_website_brand_name }} ("we") operates this partner portal for use by contracted carriers and freight forwarders. Questions about this notice can be sent to privacy@{{ decoy_website_domain_name }}.</p>
+    <h2>What we collect</h2>
+    <p>When you sign in we process your work email address and the technical data needed to keep the session secure, including IP address, browser type and access timestamps. We do not sell personal data or use it for advertising.</p>
+    <h2>Why we process it</h2>
+    <p>To authenticate authorised partners, provide access to shipment and settlement records, and maintain the security and integrity of the service. Access logs are retained for 12 months for security and audit purposes.</p>
+    <h2>Cookies</h2>
+    <p>We use a single strictly necessary session cookie to keep you signed in. We do not use analytics or marketing cookies.</p>
+    <h2>Your rights</h2>
+    <p>Subject to applicable law you may request access to, correction of, or deletion of your personal data. To exercise these rights contact privacy@{{ decoy_website_domain_name }}. You may also lodge a complaint with your local supervisory authority.</p>
+  </main>
+  <footer><div class="footer"><a href="/">Sign in</a><a href="/terms">Terms</a><span>© {{ ansible_date_time.year }} {{ decoy_website_brand_name }}</span></div></footer>
+</div>
+</body>
+</html>

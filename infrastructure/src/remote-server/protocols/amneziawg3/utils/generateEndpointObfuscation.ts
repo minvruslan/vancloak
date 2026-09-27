@@ -45,6 +45,7 @@ export function generateEndpointObfuscation(
       rejectAfterTime: generated.awg3?.rejectAfterTime,
       keepaliveTimeout: generated.awg3?.keepaliveTimeout,
       maxHandshakeAttempts: generated.awg3?.maxHandshakeAttempts,
+      disableCookies: generated.awg3?.disableCookies,
     })
 
     if (parsed.success) return parsed.data
