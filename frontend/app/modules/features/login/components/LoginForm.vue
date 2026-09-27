@@ -2,7 +2,7 @@
 import { Mail } from "@lucide/vue"
 import { messages } from "../translations/LoginForm"
 
-const props = defineProps<{ pending?: boolean }>()
+const props = defineProps<{ pending?: boolean; failed?: boolean }>()
 
 const email = defineModel<string>("email", { default: "" })
 const emit = defineEmits<{ (e: "submit"): void }>()
@@ -39,7 +39,11 @@ const onSubmit = () => {
 
     <Button type="submit" class="w-full" :loading="pending">
       <Mail class="size-4" aria-hidden="true" />
-      {{ t("sendLoginLinkAction") }}
+      {{ t("sendLoginCodeAction") }}
     </Button>
+
+    <p v-if="failed" class="text-center text-sm whitespace-pre-line text-destructive">
+      {{ t("sendFailedBody") }}
+    </p>
   </form>
 </template>

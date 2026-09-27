@@ -6,7 +6,8 @@ export const messages = {
       label: "Email",
       placeholder: "you{'@'}email.com",
     },
-    sendLoginLinkAction: "Отправить ссылку для входа",
+    sendLoginCodeAction: "Отправить код для входа",
+    sendFailedBody: "Не удалось отправить код.\nПодождите минуту и попробуйте снова.",
   },
   en: {
     title: "Log in to VanCloak",
@@ -15,6 +16,7 @@ export const messages = {
       label: "Email",
       placeholder: "you{'@'}email.com",
     },
-    sendLoginLinkAction: "Send login link",
+    sendLoginCodeAction: "Send login code",
+    sendFailedBody: "Could not send the code.\nWait a minute and try again.",
   },
 }

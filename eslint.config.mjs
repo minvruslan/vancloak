@@ -1,7 +1,7 @@
 import tseslint from "typescript-eslint"
 import eslintConfigPrettier from "eslint-config-prettier"
 
-const EXTERNAL_NAMES = new Set(["baseURL", "useTagRC", "useTagRD"])
+const EXTERNAL_NAMES = new Set(["baseURL", "sendVerificationOTP", "useTagRC", "useTagRD"])
 
 const UPPERCASE_RUN_PATTERN = /[A-Z]{2,}/
 const SCREAMING_SNAKE_PATTERN = /^[A-Z0-9_]+$/
