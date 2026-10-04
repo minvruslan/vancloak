@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ChevronRight } from "@lucide/vue"
 import { Button } from "@/components/ui/button"
 import { useCountries } from "@/modules/shared/composables"
 import type { CreateConfigWizardMachine } from "../types/CreateConfigWizardMachine"
@@ -12,7 +11,15 @@ const props = defineProps<{ wizard: CreateConfigWizardMachine }>()
 
 const { t } = useI18n({ useScope: "local", messages })
 const { getCountryName } = useCountries()
-const { endpoints, endpointId, stepNumber, stepCount, canContinue, next, back } = props.wizard
+const { showError } = useNotificationBanner()
+const { endpoints, endpointId, pending, stepNumber, stepCount, canContinue, submit, back } =
+  props.wizard
+
+const onSubmit = async () => {
+  if (pending.value) return
+  const submitResult = await submit()
+  if (!submitResult) showError(t("notifications.createError"))
+}
 </script>
 
 <template>
@@ -22,6 +29,7 @@ const { endpoints, endpointId, stepNumber, stepCount, canContinue, next, back } 
         :step-number="stepNumber"
         :step-count="stepCount"
         :title="t('title')"
+        :back-disabled="pending"
         @back="back"
       />
     </template>
@@ -35,6 +43,7 @@ const { endpoints, endpointId, stepNumber, stepCount, canContinue, next, back } 
         <div class="relative">
           <WizardSelectableTile
             :selected="endpointId === endpoint.id"
+            :disabled="pending"
             @select="endpointId = endpoint.id"
           >
             <div class="flex min-w-0 flex-1 flex-col gap-0.5">
@@ -57,9 +66,14 @@ const { endpoints, endpointId, stepNumber, stepCount, canContinue, next, back } 
     <p v-if="!endpoints.length" class="text-sm text-muted-foreground">{{ t("empty") }}</p>
 
     <template #footer>
-      <Button type="button" class="w-full" :disabled="!canContinue" @click="next">
-        {{ t("continueAction") }}
-        <ChevronRight class="size-4" aria-hidden="true" />
+      <Button
+        type="button"
+        class="w-full"
+        :disabled="!canContinue"
+        :loading="pending"
+        @click="onSubmit"
+      >
+        {{ t("createAction") }}
       </Button>
     </template>
   </WizardStepLayout>

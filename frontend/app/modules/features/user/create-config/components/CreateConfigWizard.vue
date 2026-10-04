@@ -2,12 +2,10 @@
 import { onMounted, ref, watch } from "vue"
 import { useCreateConfigWizard } from "../composables/useCreateConfigWizard"
 import { WizardStepOrder } from "../types/WizardStepOrder"
-import WizardStepAcknowledge from "./WizardStepAcknowledge.vue"
 import WizardStepApp from "./WizardStepApp.vue"
 import WizardStepDevice from "./WizardStepDevice.vue"
 import WizardStepDone from "./WizardStepDone.vue"
 import WizardStepEndpoint from "./WizardStepEndpoint.vue"
-import WizardStepProfile from "./WizardStepProfile.vue"
 import WizardStepSkeleton from "./WizardStepSkeleton.vue"
 
 const emit = defineEmits<{ (e: "exit" | "done"): void }>()
@@ -59,8 +57,6 @@ else onMounted(restore)
         <WizardStepDevice v-else-if="step === 'device'" :wizard="wizard" @exit="emit('exit')" />
         <WizardStepApp v-else-if="step === 'app'" :wizard="wizard" />
         <WizardStepEndpoint v-else-if="step === 'endpoint'" :wizard="wizard" />
-        <WizardStepProfile v-else-if="step === 'profile'" :wizard="wizard" />
-        <WizardStepAcknowledge v-else-if="step === 'acknowledge'" :wizard="wizard" />
         <WizardStepDone v-else :wizard="wizard" @done="emit('done')" />
       </Transition>
     </div>

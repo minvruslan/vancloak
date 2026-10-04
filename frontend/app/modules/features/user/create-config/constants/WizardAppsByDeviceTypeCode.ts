@@ -6,40 +6,45 @@ export const WizardAppsByDeviceTypeCode: Record<DeviceType["code"], WizardApp[]>
     {
       id: "defaultvpn",
       name: "DefaultVPN",
-      iconUrl: "/images/apps/defaultvpn.jpg",
-      downloadUrl: "https://apps.apple.com/us/app/defaultvpn/id6744725017",
+      iconUrl: "/images/apps/defaultvpn/icon.jpg",
+      installSource: "store",
+      installUrl: "https://apps.apple.com/app/defaultvpn/id6744725017",
     },
   ],
   ipados: [
     {
       id: "defaultvpn",
       name: "DefaultVPN",
-      iconUrl: "/images/apps/defaultvpn.jpg",
-      downloadUrl: "https://apps.apple.com/us/app/defaultvpn/id6744725017",
+      iconUrl: "/images/apps/defaultvpn/icon.jpg",
+      installSource: "store",
+      installUrl: "https://apps.apple.com/app/defaultvpn/id6744725017",
     },
   ],
   macos: [
     {
       id: "amneziawg",
       name: "AmneziaWG",
-      iconUrl: "/images/apps/amneziawg.jpg",
-      downloadUrl: "https://apps.apple.com/ge/app/amneziawg/id6478942365",
+      iconUrl: "/images/apps/amneziawg/icon.jpg",
+      installSource: "store",
+      installUrl: "https://apps.apple.com/app/amneziawg/id6478942365",
     },
   ],
   windows: [
     {
       id: "amneziavpn",
       name: "AmneziaVPN",
-      iconUrl: "/images/apps/amneziavpn.jpg",
-      downloadUrl: "https://amnezia.org/downloads",
+      iconUrl: "/images/apps/amneziavpn/icon.jpg",
+      installSource: "website",
+      installUrl: "https://storage.googleapis.com/amnezia/amnezia.org",
     },
   ],
   android: [
     {
       id: "amneziavpn",
       name: "AmneziaVPN",
-      iconUrl: "/images/apps/amneziavpn.jpg",
-      downloadUrl: "https://play.google.com/store/apps/details?id=org.amnezia.vpn",
+      iconUrl: "/images/apps/amneziavpn/icon.jpg",
+      installSource: "website",
+      installUrl: "https://storage.googleapis.com/amnezia/amnezia.org",
     },
   ],
 }

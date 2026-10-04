@@ -10,10 +10,15 @@ defineProps<{
   error?: boolean
 }>()
 
+const SEGMENTED_MAX_COUNT = 5
+
 const { t } = useI18n({ useScope: "local", messages })
 
 const fillPercent = (configLimit: ConfigLimit) =>
   Math.min(100, Math.max(0, (configLimit.used / configLimit.maxCount) * 100))
+
+const fillColorClass = (configLimit: ConfigLimit) =>
+  isReachedConfigLimit(configLimit) ? "bg-destructive" : "bg-primary"
 </script>
 
 <template>
@@ -44,10 +49,26 @@ const fillPercent = (configLimit: ConfigLimit) =>
             {{ configLimit.used }}/{{ configLimit.maxCount }}
           </span>
         </div>
-        <div aria-hidden="true" class="h-1.5 w-full overflow-hidden rounded-full bg-secondary">
+        <div
+          v-if="configLimit.maxCount <= SEGMENTED_MAX_COUNT"
+          aria-hidden="true"
+          class="flex h-1.5 w-full gap-1"
+        >
+          <div
+            v-for="segment in configLimit.maxCount"
+            :key="segment"
+            class="h-full flex-1 rounded-full transition-colors duration-300"
+            :class="segment <= configLimit.used ? fillColorClass(configLimit) : 'bg-secondary'"
+          />
+        </div>
+        <div
+          v-else
+          aria-hidden="true"
+          class="h-1.5 w-full overflow-hidden rounded-full bg-secondary"
+        >
           <div
             class="h-full rounded-full transition-[width] duration-300"
-            :class="isReachedConfigLimit(configLimit) ? 'bg-destructive' : 'bg-primary'"
+            :class="fillColorClass(configLimit)"
             :style="{ width: `${fillPercent(configLimit)}%` }"
           />
         </div>

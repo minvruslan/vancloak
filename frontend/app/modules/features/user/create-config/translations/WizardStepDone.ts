@@ -1,10 +1,16 @@
-import type { DeviceType } from "@vancloak/api-contract"
-import type { WizardAppId } from "../types/WizardAppId"
+import type { WizardSetupStepsByDeviceTypeCode } from "../constants/WizardSetupStepsByDeviceTypeCode"
 
-type InstructionMessages = Record<
-  DeviceType["code"],
-  Partial<Record<WizardAppId, { steps: string[] }>>
->
+type SetupSteps = typeof WizardSetupStepsByDeviceTypeCode
+
+type SetupStepId<Steps> = Steps extends readonly { id: infer Id extends string }[] ? Id : never
+
+type InstructionMessages = {
+  [Code in keyof SetupSteps]: {
+    [AppId in keyof SetupSteps[Code]]: {
+      steps: Record<SetupStepId<SetupSteps[Code][AppId]>, string>
+    }
+  }
+}
 
 export const messages = {
   ru: {
@@ -12,7 +18,8 @@ export const messages = {
     linkAriaLabel: "Ссылка для настройки",
     downloadAction: "Скачать файл",
     copyAction: "Скопировать ссылку",
-    setupTitle: "Настройте {name}",
+    showScreenshotAction: "Показать, где нажать.",
+    hideScreenshotAction: "Скрыть.",
     doneAction: "Готово",
     notifications: {
       copied: "Ссылка скопирована",
@@ -21,53 +28,62 @@ export const messages = {
     apps: {
       ios: {
         defaultvpn: {
-          steps: [
-            "Нажмите «Скопировать ссылку» выше.",
-            "В приложении нажмите кнопку «+».",
-            "Вставьте скопированную ссылку в поле «Ключ» и нажмите «Добавить».",
-            "Нажмите «Connect» и дайте согласие на все запрашиваемые разрешения.",
-          ],
+          steps: {
+            copyLink: "Нажмите «Скопировать ссылку» выше.",
+            openApp: "Откройте приложение DefaultVPN и нажмите кнопку «+».",
+            paste:
+              "Нажмите «Вставить» и разрешите вставку в диалоговом окне. Далее нажмите «Добавить».",
+            connect:
+              "Нажмите «Подключиться» на главном экране приложения и дайте запрашиваемые разрешения.",
+          },
         },
       },
       ipados: {
         defaultvpn: {
-          steps: [
-            "Нажмите «Скопировать ссылку» выше.",
-            "В приложении нажмите кнопку «+».",
-            "Вставьте скопированную ссылку в поле «Ключ» и нажмите «Добавить».",
-            "Нажмите «Connect» и дайте согласие на все запрашиваемые разрешения.",
-          ],
+          steps: {
+            copyLink: "Нажмите «Скопировать ссылку» выше.",
+            openApp: "Откройте приложение DefaultVPN и нажмите кнопку «+».",
+            paste:
+              "Нажмите «Вставить» и разрешите вставку в диалоговом окне. Далее нажмите «Добавить».",
+            connect:
+              "Нажмите «Подключиться» на главном экране приложения и дайте запрашиваемые разрешения.",
+          },
         },
       },
       macos: {
         amneziawg: {
-          steps: [
-            "Нажмите «Скачать файл» выше.",
-            "В приложении AmneziaWG нажмите «+» слева внизу.",
-            "Выберите «Import Tunnel(s) from File».",
-            "Выберите ранее скачанный файл с конфигурацией.",
-            "После добавления нажмите «Activate».",
-          ],
+          steps: {
+            downloadFile: "Нажмите «Скачать файл» выше.",
+            import:
+              "Откройте приложение AmneziaWG, нажмите «+» слева внизу и выберите «Импорт туннелей из файла».",
+            pickFile: "Выберите ранее скачанный файл с конфигурацией и нажмите «Импорт».",
+            activate: "После добавления нажмите «Подключен».",
+            menuBar:
+              "AmneziaWG живёт в строке меню macOS: нажмите на его иконку и выберите туннель, чтобы быстро включить или выключить VPN.",
+          },
         },
       },
       windows: {
         amneziavpn: {
-          steps: [
-            "Нажмите «Скопировать ссылку» выше.",
-            "В приложении нажмите «+» в нижнем меню.",
-            "Вставьте скопированную ссылку в поле «Вставьте ключ» и нажмите «Продолжить».",
-            "Нажмите «Connect».",
-          ],
+          steps: {
+            copyLink: "Нажмите «Скопировать ссылку» выше.",
+            openApp: "Откройте приложение AmneziaVPN и нажмите «+» в нижнем меню.",
+            paste: "Вставьте скопированную ссылку в поле «Вставьте ключ» и нажмите «Продолжить».",
+            warning: "Нажмите «Подключиться» на экране с предупреждением.",
+            connect: "Нажмите «Подключиться» на главном экране приложения.",
+          },
         },
       },
       android: {
         amneziavpn: {
-          steps: [
-            "Нажмите «Скопировать ссылку» выше.",
-            "В приложении нажмите «+» в нижнем меню.",
-            "Вставьте скопированную ссылку в поле «Вставьте ключ» и нажмите «Продолжить».",
-            "Нажмите «Connect» и дайте согласие на все запрашиваемые разрешения.",
-          ],
+          steps: {
+            copyLink: "Нажмите «Скопировать ссылку» выше.",
+            openApp: "Откройте приложение AmneziaVPN и нажмите «+» в нижнем меню.",
+            paste: "Вставьте скопированную ссылку в поле «Вставьте ключ» и нажмите «Продолжить».",
+            warning: "Нажмите «Подключиться» на экране с предупреждением.",
+            connect:
+              "Нажмите «Подключиться» на главном экране приложения и дайте запрашиваемые разрешения.",
+          },
         },
       },
     } satisfies InstructionMessages,
@@ -77,7 +93,8 @@ export const messages = {
     linkAriaLabel: "Setup link",
     downloadAction: "Download file",
     copyAction: "Copy link",
-    setupTitle: "Set up {name}",
+    showScreenshotAction: "Show where to tap.",
+    hideScreenshotAction: "Hide.",
     doneAction: "Done",
     notifications: {
       copied: "Link copied",
@@ -86,53 +103,57 @@ export const messages = {
     apps: {
       ios: {
         defaultvpn: {
-          steps: [
-            "Tap “Copy link” above.",
-            "In the app, tap the “+” button.",
-            "Paste the copied link into the “Key” field and tap “Add”.",
-            "Tap “Connect” and allow all requested permissions.",
-          ],
+          steps: {
+            copyLink: "Tap “Copy link” above.",
+            openApp: "Open the DefaultVPN app and tap the “+” button.",
+            paste: "Tap “Insert” and allow pasting in the dialog. Then tap “Add”.",
+            connect: "Tap “Connect” on the app’s main screen and grant the requested permissions.",
+          },
         },
       },
       ipados: {
         defaultvpn: {
-          steps: [
-            "Tap “Copy link” above.",
-            "In the app, tap the “+” button.",
-            "Paste the copied link into the “Key” field and tap “Add”.",
-            "Tap “Connect” and allow all requested permissions.",
-          ],
+          steps: {
+            copyLink: "Tap “Copy link” above.",
+            openApp: "Open the DefaultVPN app and tap the “+” button.",
+            paste: "Tap “Insert” and allow pasting in the dialog. Then tap “Add”.",
+            connect: "Tap “Connect” on the app’s main screen and grant the requested permissions.",
+          },
         },
       },
       macos: {
         amneziawg: {
-          steps: [
-            "Click “Download file” above.",
-            "In AmneziaWG, click “+” in the bottom-left corner.",
-            "Choose “Import Tunnel(s) from File”.",
-            "Pick the configuration file you downloaded.",
-            "Once it is added, click “Activate”.",
-          ],
+          steps: {
+            downloadFile: "Click “Download file” above.",
+            import:
+              "Open the AmneziaWG app, click “+” in the bottom-left corner and choose “Import Tunnel(s) from File”.",
+            pickFile: "Pick the configuration file you downloaded and click “Import”.",
+            activate: "Once it is added, click “Activate”.",
+            menuBar:
+              "AmneziaWG lives in the macOS menu bar: click its icon and pick the tunnel to quickly turn the VPN on or off.",
+          },
         },
       },
       windows: {
         amneziavpn: {
-          steps: [
-            "Click “Copy link” above.",
-            "In the app, click “+” in the bottom menu.",
-            "Paste the copied link into the “Insert key” field and click “Continue”.",
-            "Click “Connect”.",
-          ],
+          steps: {
+            copyLink: "Click “Copy link” above.",
+            openApp: "Open the AmneziaVPN app and click “+” in the bottom menu.",
+            paste: "Paste the copied link into the “Insert key” field and click “Continue”.",
+            warning: "Click “Connect” on the warning screen.",
+            connect: "Click “Connect” on the app’s main screen.",
+          },
         },
       },
       android: {
         amneziavpn: {
-          steps: [
-            "Tap “Copy link” above.",
-            "In the app, tap “+” in the bottom menu.",
-            "Paste the copied link into the “Insert key” field and tap “Continue”.",
-            "Tap “Connect” and allow all requested permissions.",
-          ],
+          steps: {
+            copyLink: "Tap “Copy link” above.",
+            openApp: "Open the AmneziaVPN app and tap “+” in the bottom menu.",
+            paste: "Paste the copied link into the “Insert key” field and tap “Continue”.",
+            warning: "Tap “Connect” on the warning screen.",
+            connect: "Tap “Connect” on the app’s main screen and grant the requested permissions.",
+          },
         },
       },
     } satisfies InstructionMessages,

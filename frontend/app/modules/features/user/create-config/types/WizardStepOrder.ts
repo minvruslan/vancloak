@@ -1,8 +1,1 @@
-export const WizardStepOrder = [
-  "device",
-  "app",
-  "endpoint",
-  "profile",
-  "acknowledge",
-  "done",
-] as const
+export const WizardStepOrder = ["device", "app", "endpoint", "done"] as const
