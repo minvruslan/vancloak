@@ -10,6 +10,5 @@ import { Skeleton } from "@/components/ui/skeleton"
       <span class="flex h-5 items-center"><Skeleton class="h-4 w-32" /></span>
       <span class="flex h-4 items-center"><Skeleton class="h-3 w-44" /></span>
     </span>
-    <Skeleton class="h-6 w-24 rounded-full" />
   </div>
 </template>

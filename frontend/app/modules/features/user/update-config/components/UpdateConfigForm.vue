@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Config, UpdateConfig } from "@vancloak/api-contract"
-import { computed, onMounted, onUnmounted, ref, watchEffect } from "vue"
+import { onMounted, onUnmounted, ref, watchEffect } from "vue"
 import { Save, Trash2 } from "@lucide/vue"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -12,14 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { FieldLabel } from "@/modules/shared/components"
-import {
-  ConfigObfuscationDetails,
-  ConfigObfuscationLevelPill,
-  getConfigObfuscationLevel,
-  useConfig,
-  useUpdateConfig,
-  useDeleteConfig,
-} from "@/modules/entities/config"
+import { useConfig, useUpdateConfig, useDeleteConfig } from "@/modules/entities/config"
 import { useDeviceTypes, DeviceTypeName } from "@/modules/entities/device-type"
 import { EndpointDetails } from "@/modules/entities/endpoint"
 import { messages } from "../translations/UpdateConfigForm"
@@ -57,10 +50,6 @@ onUnmounted(() => {
 await Promise.all([ready, deviceTypesReady])
 
 const loadedConfig = config.value
-
-const obfuscationLevel = computed(() =>
-  config.value ? getConfigObfuscationLevel(config.value.data) : null,
-)
 
 const form = ref<UpdateConfig>({
   name: loadedConfig?.name ?? "",
@@ -111,13 +100,8 @@ const onDelete = async () => {
   >
     <fieldset :disabled="pending || deleting" class="min-h-0 min-w-0 flex-1">
       <div class="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border bg-card">
-        <div class="flex items-center justify-between gap-3 px-7 pt-7 max-sm:px-4.5 max-sm:pt-4.5">
+        <div class="px-7 pt-7 max-sm:px-4.5 max-sm:pt-4.5">
           <h1 class="text-lg font-semibold tracking-tight">{{ t("title") }}</h1>
-          <ConfigObfuscationLevelPill
-            v-if="obfuscationLevel"
-            :level="obfuscationLevel"
-            class="mt-0.5"
-          />
         </div>
 
         <div class="relative mt-4 flex min-h-0 flex-1 flex-col sm:mt-4.5">
@@ -160,8 +144,6 @@ const onDelete = async () => {
             </div>
 
             <EndpointDetails :endpoint="config.endpoint" />
-
-            <ConfigObfuscationDetails :data="config.data" />
           </div>
           <div
             aria-hidden="true"

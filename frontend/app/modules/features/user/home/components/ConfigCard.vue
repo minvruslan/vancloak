@@ -1,18 +1,13 @@
 <script setup lang="ts">
 import type { Config } from "@vancloak/api-contract"
-import { computed } from "vue"
 import { ChevronRight } from "@lucide/vue"
 import { useCountries } from "@/modules/shared/composables"
-import { ConfigObfuscationLevelPill, getConfigObfuscationLevel } from "@/modules/entities/config"
-import { DeviceTypeName } from "@/modules/entities/device-type"
 
-const props = defineProps<{ config: Config }>()
+defineProps<{ config: Config }>()
 
 defineEmits<{ (e: "open"): void }>()
 
 const { getCountryName } = useCountries()
-
-const obfuscationLevel = computed(() => getConfigObfuscationLevel(props.config.data))
 </script>
 
 <template>
@@ -24,13 +19,11 @@ const obfuscationLevel = computed(() => getConfigObfuscationLevel(props.config.d
     <span class="flex min-w-0 flex-1 flex-col gap-0.5">
       <span class="truncate text-sm font-semibold">{{ config.name }}</span>
       <span class="flex items-center gap-1 text-xs whitespace-nowrap text-muted-foreground">
-        <DeviceTypeName :code="config.deviceType.code" class="shrink-0" />
+        <span class="shrink-0">{{ config.endpoint.server.name }}</span>
         <span class="opacity-60" aria-hidden="true">·</span>
         <span class="min-w-0 truncate">{{ getCountryName(config.endpoint.server.country) }}</span>
       </span>
     </span>
-
-    <ConfigObfuscationLevelPill v-if="obfuscationLevel" :level="obfuscationLevel" />
 
     <ChevronRight class="size-4 shrink-0 text-muted-foreground max-sm:hidden" aria-hidden="true" />
   </button>
