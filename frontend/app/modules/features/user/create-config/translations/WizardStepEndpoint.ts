@@ -2,17 +2,19 @@ export const messages = {
   ru: {
     title: "Выберите сервер",
     description:
-      "Все серверы работают одинаково. Разница только в стране, из которой вы будете выходить в интернет.",
+      "Разница между серверами только в стране выхода в интернет. Созданную конфигурацию используйте на одном устройстве, иначе VPN будет работать нестабильно.",
     empty: "Нет доступных серверов.",
     recommended: "Наименее загружен",
-    continueAction: "Продолжить",
+    createAction: "Создать конфигурацию",
+    notifications: { createError: "Не удалось создать конфигурацию." },
   },
   en: {
     title: "Choose a server",
     description:
-      "All servers work the same. The only difference is the country you’ll go online from.",
+      "Servers differ only in the country you go online from. Use the created configuration on one device only, otherwise the VPN will be unstable.",
     empty: "No servers available.",
     recommended: "Least loaded",
-    continueAction: "Continue",
+    createAction: "Create configuration",
+    notifications: { createError: "Could not create the configuration." },
   },
 }

@@ -1,7 +1,6 @@
 import {
   Amneziawg3ObfuscationPresets,
   ProtocolCodeSchema,
-  type Amneziawg3ObfuscationLevel,
   type ConfigProtocolOptions,
   type DeviceType,
   type ProtocolCode,
@@ -27,12 +26,9 @@ import { WizardStepOrder } from "../types/WizardStepOrder"
 import type { WizardStep } from "../types/WizardStep"
 import type { WizardAppId } from "../types/WizardAppId"
 
-function createProtocolOptions(
-  protocolCode: ProtocolCode,
-  obfuscationLevel: Amneziawg3ObfuscationLevel,
-): ConfigProtocolOptions | undefined {
+function createProtocolOptions(protocolCode: ProtocolCode): ConfigProtocolOptions | undefined {
   if (protocolCode !== ProtocolCodeSchema.enum.amneziawg3) return undefined
-  return { protocolCode, ...Amneziawg3ObfuscationPresets[obfuscationLevel] }
+  return { protocolCode, ...Amneziawg3ObfuscationPresets[RecommendedObfuscationLevel] }
 }
 
 export function useCreateConfigWizard() {
@@ -45,7 +41,6 @@ export function useCreateConfigWizard() {
   const deviceTypeId = ref<string | null>(null)
   const appId = ref<WizardAppId | null>(null)
   const endpointId = ref<string | null>(null)
-  const obfuscationLevel = ref<Amneziawg3ObfuscationLevel>(RecommendedObfuscationLevel)
   const created = ref<CreatedConfig | null>(null)
   const pending = ref(false)
 
@@ -70,8 +65,6 @@ export function useCreateConfigWizard() {
     device: selectedDeviceType.value !== null,
     app: selectedApp.value !== null,
     endpoint: selectedEndpoint.value !== null,
-    profile: true,
-    acknowledge: true,
     done: false,
   }))
 
@@ -95,7 +88,7 @@ export function useCreateConfigWizard() {
     { immediate: true },
   )
 
-  watch([step, deviceTypeId, appId, endpointId, obfuscationLevel], () => {
+  watch([step, deviceTypeId, appId, endpointId], () => {
     if (step.value === "done" || !user.value) return
     writeWizardDraft({
       userId: user.value.id,
@@ -103,7 +96,6 @@ export function useCreateConfigWizard() {
       deviceTypeId: deviceTypeId.value,
       appId: appId.value,
       endpointId: endpointId.value,
-      obfuscationLevel: obfuscationLevel.value,
     })
   })
 
@@ -140,7 +132,6 @@ export function useCreateConfigWizard() {
     deviceTypeId.value = savedDraft.deviceTypeId
     appId.value = savedDraft.appId
     endpointId.value = savedDraft.endpointId
-    obfuscationLevel.value = savedDraft.obfuscationLevel
 
     const previousSteps = WizardStepOrder.slice(0, WizardStepOrder.indexOf(savedDraft.step))
     if (previousSteps.every((previousStep) => stepGuards.value[previousStep])) {
@@ -151,7 +142,6 @@ export function useCreateConfigWizard() {
     deviceTypeId.value = null
     appId.value = null
     endpointId.value = null
-    obfuscationLevel.value = RecommendedObfuscationLevel
     clearWizardDraft()
   }
 
@@ -165,7 +155,7 @@ export function useCreateConfigWizard() {
   }
 
   const next = () => {
-    if (step.value === "acknowledge" || step.value === "done") return
+    if (step.value === "endpoint" || step.value === "done") return
     if (!canContinue.value) return
     const nextStep = WizardStepOrder[WizardStepOrder.indexOf(step.value) + 1]
     if (nextStep) step.value = nextStep
@@ -182,7 +172,7 @@ export function useCreateConfigWizard() {
   }
 
   const submit = async () => {
-    if (step.value !== "acknowledge" || pending.value) return false
+    if (step.value !== "endpoint" || pending.value) return false
     if (!selectedEndpoint.value || !selectedDeviceType.value || !selectedApp.value) return false
 
     pending.value = true
@@ -192,10 +182,7 @@ export function useCreateConfigWizard() {
         name: await createConfigName(selectedDeviceType.value.code),
         endpointId: selectedEndpoint.value.id,
         deviceTypeId: selectedDeviceType.value.id,
-        protocolOptions: createProtocolOptions(
-          selectedEndpoint.value.protocol.code,
-          obfuscationLevel.value,
-        ),
+        protocolOptions: createProtocolOptions(selectedEndpoint.value.protocol.code),
       })
       step.value = "done"
       if (user.value) {
@@ -223,7 +210,6 @@ export function useCreateConfigWizard() {
     deviceTypeId,
     appId,
     endpointId,
-    obfuscationLevel,
     created,
     pending,
     deviceTypes,

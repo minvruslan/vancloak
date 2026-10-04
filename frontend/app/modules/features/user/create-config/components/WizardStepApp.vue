@@ -1,27 +1,19 @@
 <script setup lang="ts">
 import { computed } from "vue"
-import type { DeviceType } from "@vancloak/api-contract"
 import { ChevronRight } from "@lucide/vue"
 import { Button } from "@/components/ui/button"
 import type { CreateConfigWizardMachine } from "../types/CreateConfigWizardMachine"
 import { WizardAppsByDeviceTypeCode } from "../constants/WizardAppsByDeviceTypeCode"
+import { WizardMinimumOsVersionByDeviceTypeCode } from "../constants/WizardMinimumOsVersionByDeviceTypeCode"
+import WizardAppLinkCard from "./WizardAppLinkCard.vue"
 import WizardStepHeader from "./WizardStepHeader.vue"
 import WizardStepLayout from "./WizardStepLayout.vue"
+import WizardTimelineItem from "./WizardTimelineItem.vue"
 import { messages } from "../translations/WizardStepApp"
-
-const INSTALL_STEPS_BY_DEVICE_TYPE_CODE: Partial<
-  Record<DeviceType["code"], readonly { id: string; hasLink?: boolean }[]>
-> = {
-  ios: [{ id: "download", hasLink: true }],
-  ipados: [{ id: "download", hasLink: true }],
-  macos: [{ id: "download", hasLink: true }],
-  windows: [{ id: "download", hasLink: true }, { id: "open" }, { id: "install" }],
-  android: [{ id: "download", hasLink: true }, { id: "instructions" }, { id: "pick" }],
-}
 
 const props = defineProps<{ wizard: CreateConfigWizardMachine }>()
 
-const { t } = useI18n({ useScope: "local", messages })
+const { t, tm, rt } = useI18n({ useScope: "local", messages })
 const { selectedDeviceType, appId, stepNumber, stepCount, next, back } = props.wizard
 
 const app = computed(() =>
@@ -32,11 +24,25 @@ const app = computed(() =>
 
 const deviceTypeCode = computed(() => selectedDeviceType.value?.code)
 
-const installSteps = computed(() =>
-  deviceTypeCode.value ? (INSTALL_STEPS_BY_DEVICE_TYPE_CODE[deviceTypeCode.value] ?? []) : [],
+const minimumOsVersion = computed(() =>
+  deviceTypeCode.value ? WizardMinimumOsVersionByDeviceTypeCode[deviceTypeCode.value] : "",
 )
 
-const osName = computed(() => selectedDeviceType.value?.name ?? "")
+const openAction = computed(() =>
+  deviceTypeCode.value ? t(`apps.${deviceTypeCode.value}.openAction`) : "",
+)
+
+const note = computed(() =>
+  deviceTypeCode.value && app.value?.installSource === "website"
+    ? t(`apps.${deviceTypeCode.value}.note`)
+    : undefined,
+)
+
+const installSteps = computed(() => {
+  if (!deviceTypeCode.value) return []
+  const steps = tm(`apps.${deviceTypeCode.value}.steps`)
+  return Array.isArray(steps) ? steps : []
+})
 
 const confirmInstalled = () => {
   if (!app.value) return
@@ -56,42 +62,48 @@ const confirmInstalled = () => {
       />
     </template>
 
-    <p
-      v-if="installSteps.length === 1 && installSteps[0]"
-      class="pb-1 text-sm leading-relaxed break-words text-muted-foreground"
-    >
-      {{ t(`steps.${deviceTypeCode}.${installSteps[0].id}`, { name: app?.name, os: osName }) }}
-      <a
-        v-if="installSteps[0].hasLink"
-        :href="t(`steps.${deviceTypeCode}.${installSteps[0].id}LinkUrl`)"
-        target="_blank"
-        rel="noopener"
-        class="font-medium text-foreground underline underline-offset-4"
-      >
-        {{ t(`steps.${deviceTypeCode}.${installSteps[0].id}LinkLabel`) }}
-      </a>
-    </p>
-    <ol v-else class="flex flex-col gap-3 pb-1">
-      <li v-for="(step, index) in installSteps" :key="step.id" class="flex items-start gap-3">
-        <span
-          class="flex size-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium"
+    <template v-if="app">
+      <ol v-if="installSteps.length" class="flex flex-col pb-1">
+        <WizardTimelineItem :marker="1">
+          <div class="flex flex-col gap-2.5">
+            <p class="mt-px text-sm leading-relaxed text-muted-foreground">
+              {{ t("downloadStepTitle") }}
+            </p>
+            <WizardAppLinkCard
+              :app="app"
+              :minimum-os-version="minimumOsVersion"
+              :open-action="openAction"
+              :note="note"
+              size="compact"
+            />
+          </div>
+        </WizardTimelineItem>
+        <WizardTimelineItem
+          v-for="(step, index) in installSteps"
+          :key="index"
+          :marker="index + 2"
+          :last="index === installSteps.length - 1"
         >
-          {{ index + 1 }}
-        </span>
-        <span class="mt-px min-w-0 text-sm leading-relaxed break-words text-muted-foreground">
-          {{ t(`steps.${deviceTypeCode}.${step.id}`, { name: app?.name, os: osName }) }}
-          <a
-            v-if="step.hasLink"
-            :href="t(`steps.${deviceTypeCode}.${step.id}LinkUrl`)"
-            target="_blank"
-            rel="noopener"
-            class="font-medium text-foreground underline underline-offset-4"
-          >
-            {{ t(`steps.${deviceTypeCode}.${step.id}LinkLabel`) }}
-          </a>
-        </span>
-      </li>
-    </ol>
+          <p class="mt-px text-sm leading-relaxed break-words text-muted-foreground">
+            {{ rt(step) }}
+          </p>
+        </WizardTimelineItem>
+      </ol>
+
+      <template v-else>
+        <p class="mb-4 text-sm leading-relaxed text-muted-foreground sm:mb-4.5">
+          {{ t("description") }}
+        </p>
+        <WizardAppLinkCard
+          class="mb-1"
+          :app="app"
+          :minimum-os-version="minimumOsVersion"
+          :open-action="openAction"
+          :note="note"
+          size="large"
+        />
+      </template>
+    </template>
 
     <template #footer>
       <Button type="button" class="w-full" :disabled="!app" @click="confirmInstalled">

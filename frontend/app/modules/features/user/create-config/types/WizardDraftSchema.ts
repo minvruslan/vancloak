@@ -1,4 +1,3 @@
-import { Amneziawg3ObfuscationLevelOrder } from "@vancloak/api-contract"
 import { z } from "zod"
 import { WizardStepOrder } from "./WizardStepOrder"
 import { WizardAppIdSchema } from "./WizardAppIdSchema"
@@ -10,5 +9,4 @@ export const WizardDraftSchema = z.object({
   deviceTypeId: z.string().nullable(),
   appId: WizardAppIdSchema.nullable(),
   endpointId: z.string().nullable(),
-  obfuscationLevel: z.enum(Amneziawg3ObfuscationLevelOrder),
 })
